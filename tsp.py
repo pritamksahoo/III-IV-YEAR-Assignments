@@ -80,8 +80,41 @@ def find_optimal_tsp_path(graph):
 	Returns:
 		The optimal path (In form of a list)
 	'''
-	fringe_list, expanded_list = [], []
-	
+	fringe_list, expanded_list = [], dict()
+
+	# Fringe List stores nodes generated and not yet expanded :: [(f-value, g-value, node, parent node), ... ]
+	# Expanded List stored nodes which has been expanded :: {'node': 'parent node along the tree', ... }
+	fringe_list.append((0, 0, list(graph.keys())[0], '#'))
+	heapq.heapify(fringe_list)
+
+	path_found = False
+	while not path_found:
+		smallest_f_value = heapq.nsmallest(1, fringe_list)[0]
+		g_value, node, p_node = smallest_f_value[1], smallest_f_value[2], smallest_f_value[3]
+
+		heapq.heappop(fringe_list)
+		expanded_list[node] = p_node
+
+		parent_nodes, temp_node = [node], node
+		while expanded_list[temp_node] != '#':
+			parent_nodes.append(expanded_list[temp_node])
+			temp_node = expanded_list[temp_node]
+
+		if len(parent_nodes) == len(graph):
+			return (parent_nodes[::-1])
+		else:
+			unvisited_nodes = list(set(graph.keys()).difference(set(parent_nodes)))
+			mst_path = find_MST(graph, unvisited_nodes)
+
+			h_value = 0
+			for n1, n2 in mst_path:
+				h_value = h_value + graph[n1][n2]
+
+			for neighbour, true_val in graph[node].items():
+				if expanded_list.get(neighbour, None) is None:
+					f_value = h_value + true_val + g_value
+					heapq.heappush(fringe_list, (f_value, true_val + g_value, neighbour, node))
+
 
 
 if __name__ == '__main__':
@@ -90,7 +123,7 @@ if __name__ == '__main__':
 	'''
 	graph = defaultdict(dict)
 	graph_input = None
-	# graph_input = [('A', 'B', 20), ('B', 'D', 34), ('C', 'D', 12), ('A', 'C', 42), ('A', 'D', 35), ('B', 'C', 30)]
+	graph_input = [('A', 'B', 20), ('B', 'D', 34), ('C', 'D', 12), ('A', 'C', 42), ('A', 'D', 35), ('B', 'C', 30)]
 
 	# Creating the graph
 	if graph_input is not None:
@@ -108,6 +141,6 @@ if __name__ == '__main__':
 	if len(graph) != 0:
 		# Solving the TSP Problem
 		optimal_tsp = find_optimal_tsp_path(graph)
-		print("\nMinimum Spanning Tree : \n\n", mst, "\n")
+		print("\nOptimal TSP : \n\n", optimal_tsp, "\n")
 	else:
 		print("Graph is empty")
