@@ -72,6 +72,18 @@ def find_MST(graph, nodes=None):
 	return MST
 
 
+def find_optimal_tsp_path(graph):
+	'''
+	Finds the optimal tour (min-cost tour) given the consition that each node has to visited only once
+	Parameters:
+		graph : The actual graph
+	Returns:
+		The optimal path (In form of a list)
+	'''
+	fringe_list, expanded_list = [], []
+	
+
+
 if __name__ == '__main__':
 	'''
 	Main Function
@@ -94,7 +106,8 @@ if __name__ == '__main__':
 			line = input()
 
 	if len(graph) != 0:
-		mst = find_MST(graph)
+		# Solving the TSP Problem
+		optimal_tsp = find_optimal_tsp_path(graph)
 		print("\nMinimum Spanning Tree : \n\n", mst, "\n")
 	else:
 		print("Graph is empty")
