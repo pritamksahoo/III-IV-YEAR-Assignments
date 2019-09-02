@@ -4,6 +4,7 @@ Solving Traveling Salesman Problem using A* algorithm
 '''
 
 from collections import defaultdict
+import heapq
 import sys
 
 
@@ -21,7 +22,7 @@ def add_new_edge(graph, node1, node2, cost):
 	graph[node2][node1] = cost
 
 
-def choose_min_key(node_dict):
+def choose_min_key_for_mst(node_dict):
 	'''
 	Returns the key with minimum value
 	Parameters:
@@ -56,7 +57,7 @@ def find_MST(graph, nodes=None):
 
 	while len(NOT_MST) != 0:
 		# Find the key with manimum value
-		min_key = choose_min_key(NOT_MST)
+		min_key = choose_min_key_for_mst(NOT_MST)
 
 		# Adding the node to the MST list and removing from Non MST (ret[0] contains the source)
 		ret = NOT_MST.pop(min_key)
