@@ -7,6 +7,7 @@ from collections import defaultdict
 import heapq
 from treelib import Node, Tree
 import sys
+import subprocess
 
 
 def add_new_edge(graph, node1, node2, cost):
@@ -161,6 +162,13 @@ if __name__ == '__main__':
 	'''
 	Main Function
 	'''
+
+	'''
+	Prerequisites
+	'''
+	print("\nInstalling Some prerequisites (Make sure pip3 is installed) - \n\n")
+	subprocess.call(['pip3', 'install', 'treelib'])
+
 	graph = defaultdict(dict)
 	graph_input = None
 	# graph_input = [('A', 'B', 20), ('B', 'D', 34), ('C', 'D', 12), ('A', 'C', 42), ('A', 'D', 35), ('B', 'C', 30)]
@@ -171,7 +179,7 @@ if __name__ == '__main__':
 			add_new_edge(graph, n1, n2, c)
 
 	else:
-		print("Enter source, dest, cost (Put a '/' as EOF) : ")
+		print("\n\nEnter source, dest, cost (Put a '/' as EOF) : ")
 		line = input()
 		while line != '/':
 			elem = line.split()
