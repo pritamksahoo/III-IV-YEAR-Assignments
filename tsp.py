@@ -5,6 +5,7 @@ Solving Traveling Salesman Problem using A* algorithm
 
 from collections import defaultdict
 import heapq
+from treelib import Node, Tree
 import sys
 
 
@@ -51,9 +52,9 @@ def find_MST(graph, nodes=None):
 
 	# Intializing Non MST dictionary :: {node : (source, cost from source to node), ... }
 	if nodes is None:
-		NOT_MST = { node : (-1, INFINITY) for node in graph.keys()}
+		NOT_MST = { node : ('#', INFINITY) for node in graph.keys()}
 	else:
-		NOT_MST = { node : (-1, INFINITY) for node in nodes}
+		NOT_MST = { node : ('#', INFINITY) for node in nodes}
 
 	while len(NOT_MST) != 0:
 		# Find the key with manimum value
@@ -61,6 +62,7 @@ def find_MST(graph, nodes=None):
 
 		# Adding the node to the MST list and removing from Non MST (ret[0] contains the source)
 		ret = NOT_MST.pop(min_key)
+		# if ret[0] != '#':
 		MST.append((ret[0], min_key))
 
 		# Updating the source and cost from source of neighbour nodes of the returned key
@@ -80,40 +82,69 @@ def find_optimal_tsp_path(graph):
 	Returns:
 		The optimal path (In form of a list)
 	'''
-	fringe_list, expanded_list = [], dict()
+	fringe_list, expanded_list, tree_node_id = [], Tree(), 1
 
 	# Fringe List stores nodes generated and not yet expanded :: [(f-value, g-value, node, parent node), ... ]
 	# Expanded List stored nodes which has been expanded :: {'node': 'parent node along the tree', ... }
 	fringe_list.append((0, 0, list(graph.keys())[0], '#'))
 	heapq.heapify(fringe_list)
 
-	path_found = False
-	while not path_found:
-		smallest_f_value = heapq.nsmallest(1, fringe_list)[0]
+	# path_found = False
+	while True:
+		# print(fringe_list)
+		smallest_f_value = heapq.heappop(fringe_list)
+		# print(smallest_f_value)
 		g_value, node, p_node = smallest_f_value[1], smallest_f_value[2], smallest_f_value[3]
 
-		heapq.heappop(fringe_list)
-		expanded_list[node] = p_node
+		if p_node == '#':
+			temp_node = expanded_list.create_node(identifier=str(tree_node_id), data=node)
+			tree_node_id = tree_node_id + 1
+		else:
+			temp_node = expanded_list.create_node(identifier=str(tree_node_id), data=node, parent=p_node)
+			tree_node_id = tree_node_id + 1
 
-		parent_nodes, temp_node = [node], node
-		while expanded_list[temp_node] != '#':
-			parent_nodes.append(expanded_list[temp_node])
-			temp_node = expanded_list[temp_node]
+		parent_nodes = [node]
+		while expanded_list.parent(temp_node.identifier) != None:
+			temp_node = expanded_list.parent(temp_node.identifier)
+			parent_nodes.append(temp_node.data)
 
+		# print(len(parent_nodes), parent_nodes[0])
 		if len(parent_nodes) == len(graph):
 			return (parent_nodes[::-1])
 		else:
 			unvisited_nodes = list(set(graph.keys()).difference(set(parent_nodes)))
+			# print(unvisited_nodes)
 			mst_path = find_MST(graph, unvisited_nodes)
 
-			h_value = 0
+			h_value, min_dist_start, min_dist_end = 0, sys.maxsize, sys.maxsize 
 			for n1, n2 in mst_path:
-				h_value = h_value + graph[n1][n2]
+				# print(n1, n2)
+				if n1 != '#' and n2 != '#': 
+					h_value = h_value + graph[n1][n2]
+
+			for node_el in unvisited_nodes:
+				if graph[parent_nodes[0]].get(node_el, None) is not None:
+					min_dist_end = min(min_dist_end, graph[parent_nodes[0]][node_el])
+
+				if parent_nodes[0] != parent_nodes[-1]:
+					if graph[parent_nodes[-1]].get(node_el, None) is not None:
+						min_dist_start = min(min_dist_start, graph[parent_nodes[-1]][node_el])
+
+					else:
+						min_dist_start = 0
+
+			if min_dist_start == sys.maxsize:
+				min_dist_start = 0
+
+			if min_dist_end == sys.maxsize:
+				min_dist_end = 0
+
+			h_value = h_value + min_dist_start + min_dist_end
 
 			for neighbour, true_val in graph[node].items():
-				if expanded_list.get(neighbour, None) is None:
+				if neighbour not in parent_nodes:
 					f_value = h_value + true_val + g_value
-					heapq.heappush(fringe_list, (f_value, true_val + g_value, neighbour, node))
+					heapq.heappush(fringe_list, (f_value, true_val + g_value, neighbour, str(tree_node_id-1)))
 
 
 
@@ -123,7 +154,7 @@ if __name__ == '__main__':
 	'''
 	graph = defaultdict(dict)
 	graph_input = None
-	graph_input = [('A', 'B', 20), ('B', 'D', 34), ('C', 'D', 12), ('A', 'C', 42), ('A', 'D', 35), ('B', 'C', 30)]
+	# graph_input = [('A', 'B', 20), ('B', 'D', 34), ('C', 'D', 12), ('A', 'C', 42), ('A', 'D', 35), ('B', 'C', 30)]
 
 	# Creating the graph
 	if graph_input is not None:
