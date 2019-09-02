@@ -84,18 +84,18 @@ def find_optimal_tsp_path(graph):
 	'''
 	fringe_list, expanded_list, tree_node_id = [], Tree(), 1
 
-	# Fringe List stores nodes generated and not yet expanded :: [(f-value, g-value, node, parent node), ... ]
-	# Expanded List stored nodes which has been expanded :: {'node': 'parent node along the tree', ... }
+	# Fringe List stores nodes generated and not yet expanded (min-heap implementation) :: [(f-value, g-value, node, parent node_id), ... ]
+	# Expanded List stores expanded nodes in form of a tree :: (node_data, unique_id, parent_unique_id)
 	fringe_list.append((0, 0, list(graph.keys())[0], '#'))
 	heapq.heapify(fringe_list)
 
-	# path_found = False
+	# Running the loop until an optimal path is found
 	while True:
-		# print(fringe_list)
+		# Picking the node with smallest f-value from fringe list
 		smallest_f_value = heapq.heappop(fringe_list)
-		# print(smallest_f_value)
 		g_value, node, p_node = smallest_f_value[1], smallest_f_value[2], smallest_f_value[3]
 
+		# Adding the node to the tree
 		if p_node == '#':
 			temp_node = expanded_list.create_node(identifier=str(tree_node_id), data=node)
 			tree_node_id = tree_node_id + 1
@@ -103,25 +103,28 @@ def find_optimal_tsp_path(graph):
 			temp_node = expanded_list.create_node(identifier=str(tree_node_id), data=node, parent=p_node)
 			tree_node_id = tree_node_id + 1
 
+		# Storing all the nodes from root to the current node
 		parent_nodes = [node]
 		while expanded_list.parent(temp_node.identifier) != None:
 			temp_node = expanded_list.parent(temp_node.identifier)
 			parent_nodes.append(temp_node.data)
 
-		# print(len(parent_nodes), parent_nodes[0])
+		# If number of collected nodes is the actual total number of nodes, then path has been found, returning it
 		if len(parent_nodes) == len(graph):
 			return (parent_nodes[::-1])
 		else:
+			# Otherwise, finding the h-value of the successor nodes via find_MST() unction
 			unvisited_nodes = list(set(graph.keys()).difference(set(parent_nodes)))
-			# print(unvisited_nodes)
+			# Call to MST function
 			mst_path = find_MST(graph, unvisited_nodes)
 
 			h_value, min_dist_start, min_dist_end = 0, sys.maxsize, sys.maxsize 
+			# Calculating the MST weight
 			for n1, n2 in mst_path:
-				# print(n1, n2)
 				if n1 != '#' and n2 != '#': 
 					h_value = h_value + graph[n1][n2]
 
+			# Finding shortest distance from start and end of the already determined path which connect the rest of MST
 			for node_el in unvisited_nodes:
 				if graph[parent_nodes[0]].get(node_el, None) is not None:
 					min_dist_end = min(min_dist_end, graph[parent_nodes[0]][node_el])
@@ -130,8 +133,8 @@ def find_optimal_tsp_path(graph):
 					if graph[parent_nodes[-1]].get(node_el, None) is not None:
 						min_dist_start = min(min_dist_start, graph[parent_nodes[-1]][node_el])
 
-					else:
-						min_dist_start = 0
+				else:
+					min_dist_start = 0
 
 			if min_dist_start == sys.maxsize:
 				min_dist_start = 0
@@ -139,8 +142,10 @@ def find_optimal_tsp_path(graph):
 			if min_dist_end == sys.maxsize:
 				min_dist_end = 0
 
+			# Calculating Final h-value
 			h_value = h_value + min_dist_start + min_dist_end
 
+			# Adding the successor nodes to the fringe list with it's h-value, f-value and, parent_node_id
 			for neighbour, true_val in graph[node].items():
 				if neighbour not in parent_nodes:
 					f_value = h_value + true_val + g_value
