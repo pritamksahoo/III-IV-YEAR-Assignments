@@ -70,7 +70,9 @@ def find_MST(graph, nodes=None):
 			if NOT_MST.get(neighbour, None) is not None:
 				NOT_MST[neighbour] = (min_key, val)
 
-	MST.pop(0)
+	if len(MST) > 0:
+		MST.pop(0)
+
 	return MST
 
 
@@ -110,7 +112,7 @@ def find_optimal_tsp_path(graph):
 			parent_nodes.append(temp_node.data)
 
 		# If number of collected nodes is the actual total number of nodes, then path has been found, returning it
-		if len(parent_nodes) == len(graph):
+		if len(parent_nodes) == len(graph)+1:
 			return (parent_nodes[::-1])
 		else:
 			# Otherwise, finding the h-value of the successor nodes via find_MST() unction
@@ -150,6 +152,8 @@ def find_optimal_tsp_path(graph):
 				if neighbour not in parent_nodes:
 					f_value = h_value + true_val + g_value
 					heapq.heappush(fringe_list, (f_value, true_val + g_value, neighbour, str(tree_node_id-1)))
+				elif len(parent_nodes) == len(graph) and neighbour == parent_nodes[-1]:
+					heapq.heappush(fringe_list, (f_value, true_val + g_value, neighbour, str(tree_node_id-1)))
 
 
 
@@ -177,6 +181,14 @@ if __name__ == '__main__':
 	if len(graph) != 0:
 		# Solving the TSP Problem
 		optimal_tsp = find_optimal_tsp_path(graph)
-		print("\nOptimal TSP : \n\n", optimal_tsp, "\n")
+		print("\nOptimal TSP : \n")
+		print(optimal_tsp)
+
+		optimal_cost = 0
+		for i in range(1,len(optimal_tsp)):
+			optimal_cost = optimal_cost + graph[optimal_tsp[i-1]][optimal_tsp[i]]
+
+		print("\nOptimal Cost :", optimal_cost, '\n')
+
 	else:
 		print("Graph is empty")
