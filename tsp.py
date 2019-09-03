@@ -69,7 +69,7 @@ def find_MST(graph, nodes=None):
 		# Updating the source and cost from source of neighbour nodes of the returned key
 		for neighbour, val in graph[min_key].items():
 			if NOT_MST.get(neighbour, None) is not None:
-				NOT_MST[neighbour] = (min_key, val)
+				NOT_MST[neighbour] = (min_key, min(val, NOT_MST.get(neighbour)[1]))
 
 	if len(MST) > 0:
 		MST.pop(0)
