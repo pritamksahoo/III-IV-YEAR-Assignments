@@ -166,8 +166,8 @@ if __name__ == '__main__':
 	'''
 	Prerequisites
 	'''
-	print("\nInstalling Some prerequisites (Make sure pip3 is installed) - \n\n")
-	subprocess.call(['pip3', 'install', 'treelib'])
+	# print("\nInstalling Some prerequisites (Make sure pip3 is installed) - \n\n")
+	# subprocess.call(['pip3', 'install', 'treelib'])
 
 	graph = defaultdict(dict)
 	graph_input = None
@@ -179,7 +179,7 @@ if __name__ == '__main__':
 			add_new_edge(graph, n1, n2, c)
 
 	else:
-		print("\n\nEnter source, dest, cost (Put a '/' as EOF) : ")
+		print("\nEnter source node, destination node, cost (Space seperated. One record in each line. And put a '/' as EOF) : ")
 		line = input()
 		while line != '/':
 			elem = line.split()
