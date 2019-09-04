@@ -85,7 +85,7 @@ def find_optimal_tsp_path(graph):
 	Returns:
 		The optimal path (In form of a list)
 	'''
-	fringe_list, expanded_list, tree_node_id = [], Tree(), 1
+	fringe_list, expanded_list, tree_node_id, no_nodes_expanded, no_nodes_generated = [], Tree(), 1, 0, 0
 
 	# Fringe List stores nodes generated and not yet expanded (min-heap implementation) :: [(f-value, g-value, node, parent node_id), ... ]
 	# Expanded List stores expanded nodes in form of a tree :: (node_data, unique_id, parent_unique_id)
@@ -114,7 +114,7 @@ def find_optimal_tsp_path(graph):
 
 		# If number of collected nodes is the actual total number of nodes, then path has been found, returning it
 		if len(parent_nodes) == len(graph)+1:
-			return (parent_nodes[::-1])
+			return (parent_nodes[::-1]), no_nodes_expanded, no_nodes_generated
 		else:
 			# Otherwise, finding the h-value of the successor nodes via find_MST() unction
 			unvisited_nodes = list(set(graph.keys()).difference(set(parent_nodes)))
@@ -153,8 +153,14 @@ def find_optimal_tsp_path(graph):
 				if neighbour not in parent_nodes:
 					f_value = h_value + true_val + g_value
 					heapq.heappush(fringe_list, (f_value, true_val + g_value, neighbour, str(tree_node_id-1)))
+					no_nodes_generated = no_nodes_generated + 1
+
 				elif len(parent_nodes) == len(graph) and neighbour == parent_nodes[-1]:
 					heapq.heappush(fringe_list, (f_value, true_val + g_value, neighbour, str(tree_node_id-1)))
+					no_nodes_generated = no_nodes_generated + 1
+
+			no_nodes_expanded = no_nodes_expanded + 1
+			# print(no_nodes_expanded)
 
 
 
@@ -166,8 +172,8 @@ if __name__ == '__main__':
 	'''
 	Prerequisites
 	'''
-	# print("\nInstalling Some prerequisites (Make sure pip3 is installed) - \n\n")
-	# subprocess.call(['pip3', 'install', 'treelib'])
+	print("\nInstalling Some prerequisites (Make sure pip3 is installed) - \n\n")
+	subprocess.call(['pip3', 'install', 'treelib'])
 
 	graph = defaultdict(dict)
 	graph_input = None
@@ -188,7 +194,7 @@ if __name__ == '__main__':
 
 	if len(graph) != 0:
 		# Solving the TSP Problem
-		optimal_tsp = find_optimal_tsp_path(graph)
+		optimal_tsp, expanded_nodes, generated_nodes = find_optimal_tsp_path(graph)
 		print("\nOptimal TSP : \n")
 		print(optimal_tsp)
 
@@ -197,6 +203,8 @@ if __name__ == '__main__':
 			optimal_cost = optimal_cost + graph[optimal_tsp[i-1]][optimal_tsp[i]]
 
 		print("\nOptimal Cost :", optimal_cost, '\n')
+		print("Expanded Nodes : ", expanded_nodes, '\n')
+		print("Generated nodes : ", generated_nodes, '\n')
 
 	else:
 		print("Graph is empty")

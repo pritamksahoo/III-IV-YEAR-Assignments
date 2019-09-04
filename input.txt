@@ -1,20 +1,3 @@
-'''
-Sample Input (On 50 Nodes, fully connected graph) ::
-Edges(from_node, to_node, cost):
-Input created by the following code:
-------------------------------------
-import random
-
-for i in range(1, 50):
-	for j in range(i+1, 51):
-		print(i, j, random.randint(10, 50))
-------------------------------------
-i 	 : from_node
-j    : to_node
-cost : random number between [10, 50]
-'''
-
-
 1 2 47
 1 3 13
 1 4 50
@@ -1240,3 +1223,4 @@ cost : random number between [10, 50]
 48 49 39
 48 50 19
 49 50 25
+/
