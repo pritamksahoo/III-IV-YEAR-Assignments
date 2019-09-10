@@ -138,7 +138,7 @@ def find_optimal_tsp_path(graph):
 		graph : The actual graph
 	Prints optimal path accounted so far
 	'''
-	max_tries = 100000
+	max_tries = 200000
 	actual_tries = 0
 	pop_size = int(input("Enter the population size : "))
 	print()
@@ -150,34 +150,33 @@ def find_optimal_tsp_path(graph):
 	optimal_so_far, optimal_path = sys.maxsize, None
 
 	print("Execution start ---------------------")
-	while max_tries != 0:
-		actual_tries = actual_tries + 1
+	try:
+		while True:
+			actual_tries = actual_tries + 1
 
-		fitness = []
-		for i in range(pop_size):
-			fitness.append(fitness_value(graph, ga_state[i]))
+			fitness = []
+			for i in range(pop_size):
+				fitness.append(fitness_value(graph, ga_state[i]))
 
-		min_fitness = min(fitness)
-		min_fitness_index = fitness.index(min(fitness))
+			min_fitness = min(fitness)
+			min_fitness_index = fitness.index(min(fitness))
 
-		if min_fitness < optimal_so_far:
-			optimal_so_far, optimal_path = min_fitness, ga_state[min_fitness_index]
+			if min_fitness < optimal_so_far:
+				optimal_so_far, optimal_path = min_fitness, ga_state[min_fitness_index]
 
-			print("Current path", ga_state[min_fitness_index], "Cost", min_fitness)
-			max_tries = 100000
-
-		else:
-			max_tries = max_tries - 1
+				print("Current path", ga_state[min_fitness_index], "Cost", min_fitness, "Trial", actual_tries)
 
 
-		dom_parents = roulette_wheel_selection(fitness, 2)
+			dom_parents = roulette_wheel_selection(fitness, 2)
 
-		crossover(ga_state, dom_parents, pop_size)
+			crossover(ga_state, dom_parents, pop_size)
 
-		mutation(ga_state, dom_parents)
+			mutation(ga_state, dom_parents)
 
-	return optimal_path, optimal_so_far, actual_tries
+		return optimal_path, optimal_so_far, actual_tries
 
+	except KeyboardInterrupt:
+		return optimal_path, optimal_so_far, actual_tries
 
 
 
