@@ -56,6 +56,80 @@ def fitness_value(graph, chromosome):
 	return ret
 
 
+def roulette_wheel_selection(fitness_arr, max_parent):
+	'''
+	Select two parents from the population, between which crossover is to be performed to create next generation child
+	Parameters:
+		fitness_array : An array consisting of fitness value of each chromosome in the population
+	Returns:
+		Two parents
+	'''
+	total_fitness = sum(fitness_array)
+	roulette_wheel = [0.0]
+
+	for fit in fitness_array:
+		new_val = roulette_wheel[-1] + (fit / total_fitness)
+		roulette_wheel.append(new_val)
+
+	no_parent, length, parents = 0, len(roulette_wheel), []
+	
+	while no_parent != max_parent:
+		prob = np.random.random()
+
+		for i in range(1, length):
+			if prob >= roulette_wheel[i-1] and prob <= roulette_wheel[i]:
+				p = i - 1
+				if p not in parents:
+					parents.append(i-1)
+					no_parent = no_parent + 1
+
+				break
+
+	return parents
+
+
+def crossover(state, parents, pop_size):
+	'''
+	Performs a crossover operation between parents, and replace the parents with childs in population
+	Parameters:
+		state    : Population
+		parents  : Two parents selected by roulette-wheel-selection process
+		pop_size : Size of the population
+	'''
+	no_nodes, no_parents = len(state[0]), len(parents)
+
+	for i in range(0, no_parents-1, 2):
+		cross_point = np.random.randint(1,no_nodes//2)
+
+		offspring1 = state[i].copy()
+		for j in range(cross_point):
+			c_index = state[i].index(state[i+1][cross_point])
+			offspring1[i][cross_point], offspring1[i][c_index] = offspring1[i][c_index], offspring1[i][cross_point]
+
+		offspring2 = state[i+1].copy()
+		for j in range(cross_point):
+			c_index = state[i+1].index(state[i][cross_point])
+			offspring2[i][cross_point], offspring2[i][c_index] = offspring2[i][c_index], offspring2[i][cross_point]
+
+		state[i], state[i+1] = offspring1, offspring2
+
+
+def mutation(state, parents):
+	'''
+	Performs mutation on the childs created after crossover
+	Parameters:
+		state    : Population
+		parents  : Two parents selected by roulette-wheel-selection process
+	'''
+	no_nodes = len(state[0])
+	for p in parents:
+		index1, index2 = np.random.randint(0, no_nodes-1), np.random.randint(0, no_nodes-1)
+		while index2 == index1:
+			index2 = np.random.randint(0, no_nodes-1)
+
+		state[p][index1], state[p][index2] = state[p][index2], state[p][index1]
+
+
 def find_optimal_tsp_path(graph):
 	'''
 	Tries to finds the optimal tour (min-cost tour) given the consition that each node has to visited only once
@@ -64,6 +138,7 @@ def find_optimal_tsp_path(graph):
 	Prints optimal path accounted so far
 	'''
 	pop_size = int(input("Enter the population size : "))
+	max_parent = int(input("Enter the no. of parents selected to create child for next generation : "))
 	ga_state = list()
 
 	initialize_population(list(graph.keys()), ga_state, pop_size)
