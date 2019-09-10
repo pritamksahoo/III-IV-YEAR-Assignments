@@ -5,6 +5,7 @@ Solving Traveling Salesman Problem using Genetic Algorithm
 
 from collections import defaultdict
 import numpy as np
+import sys
 
 
 def add_new_edge(graph, node1, node2, cost):
@@ -32,8 +33,8 @@ def initialize_population(arr, state, size):
 	for i in range(size):
 		permutation = np.random.permutation(arr)
 
-		while permutation in state:
-			permutation = np.random.permutation(arr)
+		# while permutation in state:
+		# permutation = np.random.permutation(arr)
 
 		state.append(list(permutation))
 
@@ -56,7 +57,7 @@ def fitness_value(graph, chromosome):
 	return ret
 
 
-def roulette_wheel_selection(fitness_arr, max_parent):
+def roulette_wheel_selection(fitness_array, max_parent):
 	'''
 	Select two parents from the population, between which crossover is to be performed to create next generation child
 	Parameters:
@@ -103,13 +104,13 @@ def crossover(state, parents, pop_size):
 
 		offspring1 = state[i].copy()
 		for j in range(cross_point):
-			c_index = state[i].index(state[i+1][cross_point])
-			offspring1[i][cross_point], offspring1[i][c_index] = offspring1[i][c_index], offspring1[i][cross_point]
+			c_index = state[i].index(state[i+1][j])
+			offspring1[j], offspring1[c_index] = offspring1[c_index], offspring1[j]
 
 		offspring2 = state[i+1].copy()
 		for j in range(cross_point):
-			c_index = state[i+1].index(state[i][cross_point])
-			offspring2[i][cross_point], offspring2[i][c_index] = offspring2[i][c_index], offspring2[i][cross_point]
+			c_index = state[i+1].index(state[i][j])
+			offspring2[j], offspring2[c_index] = offspring2[c_index], offspring2[j]
 
 		state[i], state[i+1] = offspring1, offspring2
 
@@ -137,12 +138,45 @@ def find_optimal_tsp_path(graph):
 		graph : The actual graph
 	Prints optimal path accounted so far
 	'''
+	max_tries = 100000
+	actual_tries = 0
 	pop_size = int(input("Enter the population size : "))
+	print()
 	max_parent = int(input("Enter the no. of parents selected to create child for next generation : "))
+	print("\n")
 	ga_state = list()
 
 	initialize_population(list(graph.keys()), ga_state, pop_size)
+	optimal_so_far, optimal_path = sys.maxsize, None
 
+	print("Execution start ---------------------")
+	while max_tries != 0:
+		actual_tries = actual_tries + 1
+
+		fitness = []
+		for i in range(pop_size):
+			fitness.append(fitness_value(graph, ga_state[i]))
+
+		min_fitness = min(fitness)
+		min_fitness_index = fitness.index(min(fitness))
+
+		if min_fitness < optimal_so_far:
+			optimal_so_far, optimal_path = min_fitness, ga_state[min_fitness_index]
+
+			print("Current path", ga_state[min_fitness_index], "Cost", min_fitness)
+			max_tries = 100000
+
+		else:
+			max_tries = max_tries - 1
+
+
+		dom_parents = roulette_wheel_selection(fitness, 2)
+
+		crossover(ga_state, dom_parents, pop_size)
+
+		mutation(ga_state, dom_parents)
+
+	return optimal_path, optimal_so_far, actual_tries
 
 
 
@@ -177,7 +211,12 @@ if __name__ == '__main__':
 
 	if len(graph) != 0:
 		# Solving the TSP Problem via genetic algorithm
-		find_optimal_tsp_path(graph)
-
+		optimal = find_optimal_tsp_path(graph)
+		print("\n------------------------------\nAfter", optimal[2], "tries : -")
+		print("Optimal path -")
+		print(optimal[0])
+		print("Optimal Cost -")
+		print(optimal[1])
+		print("------------------------------")
 	else:
 		print("Graph is empty")
