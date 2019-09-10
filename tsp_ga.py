@@ -185,13 +185,6 @@ if __name__ == '__main__':
 	'''
 	Main Function
 	'''
-
-	'''
-	Prerequisites
-	'''
-	# print("\nInstalling Some prerequisites (Make sure pip3 is installed) - \n\n")
-	# subprocess.call(['pip3', 'install', 'treelib'])
-
 	graph = defaultdict(dict)
 	graph_input = None
 	# graph_input = [('A', 'B', 20), ('B', 'D', 34), ('C', 'D', 12), ('A', 'C', 42), ('A', 'D', 35), ('B', 'C', 30)]
