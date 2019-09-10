@@ -68,8 +68,8 @@ def find_MST(graph, nodes=None):
 
 		# Updating the source and cost from source of neighbour nodes of the returned key
 		for neighbour, val in graph[min_key].items():
-			if NOT_MST.get(neighbour, None) is not None:
-				NOT_MST[neighbour] = (min_key, min(val, NOT_MST.get(neighbour)[1]))
+			if NOT_MST.get(neighbour, None) is not None and val < NOT_MST.get(neighbour)[1]:
+				NOT_MST[neighbour] = (min_key, val)
 
 	if len(MST) > 0:
 		MST.pop(0)
@@ -117,7 +117,7 @@ def find_optimal_tsp_path(graph):
 			return (parent_nodes[::-1]), no_nodes_expanded, no_nodes_generated
 		else:
 			# Otherwise, finding the h-value of the successor nodes via find_MST() unction
-			unvisited_nodes = list(set(graph.keys()).difference(set(parent_nodes)))
+			unvisited_nodes = sorted(list(set(graph.keys()).difference(set(parent_nodes))))
 			# Call to MST function
 			mst_path = find_MST(graph, unvisited_nodes)
 
@@ -172,8 +172,8 @@ if __name__ == '__main__':
 	'''
 	Prerequisites
 	'''
-	print("\nInstalling Some prerequisites (Make sure pip3 is installed) - \n\n")
-	subprocess.call(['pip3', 'install', 'treelib'])
+	# print("\nInstalling Some prerequisites (Make sure pip3 is installed) - \n\n")
+	# subprocess.call(['pip3', 'install', 'treelib'])
 
 	graph = defaultdict(dict)
 	graph_input = None
