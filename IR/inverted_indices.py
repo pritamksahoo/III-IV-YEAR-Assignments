@@ -53,6 +53,10 @@ def sequential_search(l, left, right, current):
 
 
 def next_occurrance(inv_adt, term, doc_id, position, flag='BINARY'):
+	'''
+	Finding the next occurrance of a word in a document
+	flag : search method used in next_occurrance method
+	'''
 	global cache
 
 	posting_list = inv_adt.get(term, None)
@@ -88,6 +92,7 @@ def next_occurrance(inv_adt, term, doc_id, position, flag='BINARY'):
 
 def next_phrase_occurrance(inv_adt, phrase, doc_id, position, flag='BINARY'):
 	'''
+	Finding the next occurrance of a phrase in a particular document
 	flag : search method used in next_occurrance method
 	'''
 	pos1 = next_occurrance(inv_adt, phrase[0], doc_id, position, flag)
@@ -97,7 +102,10 @@ def next_phrase_occurrance(inv_adt, phrase, doc_id, position, flag='BINARY'):
 	for i in range(1,len(phrase)):
 		pos2 = next_occurrance(inv_adt, phrase[i], doc_id, pos2, flag)
 
-	if pos2 == 'INF':
+		if pos2 == 'INF' or pos2 is None:
+			break
+
+	if pos2 == 'INF' or pos2 is None:
 		return ['INF', 'INF']
 
 	else:
@@ -108,6 +116,9 @@ def next_phrase_occurrance(inv_adt, phrase, doc_id, position, flag='BINARY'):
 
 
 def tokenize(text, doc_id, corpus):
+	'''
+	Splitting the text aginst some pre-defined delimiter
+	'''
 	split_chars = [" ", "\n", "\-", ",", "\.", "\(", "\)", "\?", "\[", "\]", "\*", ";"]
 
 	delimiter = '|'.join(split_chars)
@@ -147,4 +158,4 @@ if __name__ == '__main__':
 	# print(next_occurrance(inverted_index, 'the', 2, 108, 'BINARY'))
 	# print(next_occurrance(inverted_index, 'the', 2, 108, 'GALLOPING'))
 	# print(next_occurrance(inverted_index, 'the', 2, 108, 'SEQUENTIAL'))
-	print(next_phrase_occurrance(inverted_index, ['the', 'best'], 1, 10))
+	print(next_phrase_occurrance(inverted_index, ['the', 'Indian', 'team'], 1, 21))
