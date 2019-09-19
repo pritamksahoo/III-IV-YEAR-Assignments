@@ -5,7 +5,7 @@ import time
 from matplotlib import pyplot as plt
 
 
-cache = 0
+cache = np.load("cache.npy")
 
 
 def binary_search(l, left, right, current):
@@ -151,8 +151,8 @@ if __name__ == '__main__':
 	text = ""
 	no_files_in_corpus = 4
 
-	methods = ['BINARY', 'GALLOPING', 'SEQUENTIAL']
-	colors = ['r', 'g', 'b']
+	methods = ['SEQUENTIAL', 'GALLOPING', 'BINARY']
+	colors = ['red', 'green', 'blue']
 
 	corpus = []
 
@@ -190,7 +190,7 @@ if __name__ == '__main__':
 
 			for method in methods:
 				start = time.time()
-				next_phrase_occurrance(inverted_index, token, i, 0, method)
+				temp = next_phrase_occurrance(inverted_index, token, i, 0, method)
 				end = time.time()
 
 				time_taken[method] = time_taken.get(method, 0) + (end - start)
@@ -205,7 +205,11 @@ if __name__ == '__main__':
 
 		avg_response[length]['count'] = count
 		for method in methods:
-			avg_response[length][method] = (avg_response[length].get(method, 0)*(count-1) + time_taken[method])/count
+			avg_response[length][method] = avg_response[length].get(method, 0) + time_taken[method]
+
+	for key in avg_response.keys():
+		for method in methods:
+			avg_response[key][method] = avg_response[key][method]/avg_response[key]['count']
 
 	print(avg_response)
 
@@ -226,3 +230,5 @@ if __name__ == '__main__':
 	plt.ylabel("Avg. respose (microsecond)")
 	plt.legend()
 	plt.show()
+
+	np.save("cache", cache)
