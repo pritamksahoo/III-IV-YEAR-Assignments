@@ -119,7 +119,7 @@ def tokenize(text, doc_id, corpus):
 	'''
 	Splitting the text aginst some pre-defined delimiter
 	'''
-	split_chars = [" ", "\n", "\-", ",", "\.", "\(", "\)", "\?", "\[", "\]", "\*", ";"]
+	split_chars = [" ", "\n", "\-", ",", "\.", "\"", "\(", "\)", "\?", "\[", "\]", "\*", ";"]
 
 	delimiter = '|'.join(split_chars)
 
@@ -158,4 +158,4 @@ if __name__ == '__main__':
 	# print(next_occurrance(inverted_index, 'the', 2, 108, 'BINARY'))
 	# print(next_occurrance(inverted_index, 'the', 2, 108, 'GALLOPING'))
 	# print(next_occurrance(inverted_index, 'the', 2, 108, 'SEQUENTIAL'))
-	print(next_phrase_occurrance(inverted_index, ['the', 'Indian', 'team'], 1, 21))
+	print(next_phrase_occurrance(inverted_index, ['the', 'indian', 'team'], 1, 250))
