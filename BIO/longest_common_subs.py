@@ -58,4 +58,6 @@ if __name__ == '__main__':
 
 	longest_sub_list = find_longest_substring(suffixes)
 
+	print("\nLongest common substring(s) is(are) : \n")
 	print(' | '.join(longest_sub_list))
+	print()
