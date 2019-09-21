@@ -324,19 +324,34 @@ if __name__ == '__main__':
 			print('4) Plot_avg_response_against_length_of_posting_list')
 			print('5) EXIT')
 
-			print('\nEnter : ')
+			print('\nEnter : ', end='')
 			option = int(input())
 
 			if option == 1:
-				pass
+				word = input('\nEnter term (word) : ')
+				pos = int(input('Current position : '))
+
+				for i in range(1, no_files_in_corpus+1):
+					print("\nNext occurrance of \'", word, "\' in doc", '#'+str(i), ":-", next_occurrance(inverted_index, word, i, pos))
+
 			elif option == 2:
-				pass
+
+				phrases = input('\nEnter phrase (word) : ')
+				pos = int(input('Current position : '))
+
+				phrase = tokenize(phrases)
+
+				for i in range(1, no_files_in_corpus+1):
+					print("\nNext occurrance of \'", phrases, "\' in doc", '#'+str(i), ":-", next_phrase_occurrance(inverted_index, phrase, i, pos))
+				
 			elif option == 3:
+
 				print("\nPlotting avg. resonse time against phrase length......", end='')
 				plot_avg_response_against_phrase_length(inverted_index)
 				print("Done")
 
 			elif option == 4:
+				
 				print('\nPlotting avg. response time against length of the longest posting list......', end='')
 				plot_avg_response_against_length_of_posting_list(inverted_index)
 				print("Done\n")
@@ -348,7 +363,7 @@ if __name__ == '__main__':
 
 			# print(inverted_index)
 			# print(next_phrase_occurrance(inverted_index, ['the', 'indian', 'team'], 1, 250))
-			
+
 			'''
 			Saving the cache for later use
 			'''
