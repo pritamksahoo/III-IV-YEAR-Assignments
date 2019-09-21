@@ -3,7 +3,7 @@ import re
 
 text = None
 
-with open('phrase.txt', 'r') as f:
+with open('phrase_len_2.txt', 'r') as f:
 	text = f.read()
 
 split_chars = [" ", "\n", "\-", ",", "\.", "\"", "\(", "\)", "\?", "\[", "\]", "\*", ";", "\\", "/"]
@@ -24,7 +24,7 @@ while len(tokens) != 0:
 	if length < len(tokens):
 		phrase = ' '.join(tokens[:length])
 
-		with open("phrase.txt", "a") as myfile:
+		with open("phrase_len_2.txt", "a") as myfile:
 			myfile.write(phrase + '\n')
 
 		tokens = tokens[length:]
