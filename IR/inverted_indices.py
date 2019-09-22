@@ -145,7 +145,7 @@ def tokenize(text, doc_id=0, corpus = None):
 			corpus.append((t.lower(), doc_id, index))
 
 	else:
-		return tokens
+		return list(map(lambda x: x.lower(), tokens))
 
 
 def plot_avg_response_against_phrase_length(inverted_index):
