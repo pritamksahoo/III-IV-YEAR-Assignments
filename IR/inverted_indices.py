@@ -7,10 +7,10 @@ from matplotlib import pyplot as plt
 
 methods = ['SEQUENTIAL', 'GALLOPING', 'BINARY']
 colors = ['red', 'green', 'blue']
-cache = np.load("cache.npy")
+cache = dict()
 
 
-def binary_search(l, left, right, current):
+def binary_search(term, l, left, right, current):
 	global cache
 
 	while right-left > 1:
@@ -21,12 +21,12 @@ def binary_search(l, left, right, current):
 		else:
 			right = mid
 
-	cache = right
+	cache[term] = right
 
 	return right
 
 
-def galloping_search(l, left, max_index, current):
+def galloping_search(term, l, left, max_index, current):
 	global cache
 
 	jump = 1
@@ -38,13 +38,13 @@ def galloping_search(l, left, max_index, current):
 
 	right = min(max_index, right)
 
-	ret_index = binary_search(l, left, right, current)
-	cache = ret_index
+	ret_index = binary_search(term, l, left, right, current)
+	cache[term] = ret_index
 
 	return ret_index 
 
 
-def sequential_search(l, left, right, current):
+def sequential_search(term, l, left, right, current):
 	'''
 	Linear Search
 	'''
@@ -53,7 +53,7 @@ def sequential_search(l, left, right, current):
 	while l[left] <= current and left <= right:
 		left = left + 1
 
-	cache = left
+	cache[term] = left
 
 	return left
 
@@ -80,20 +80,20 @@ def next_occurrance(inv_adt, term, doc_id, position, flag='BINARY'):
 			return "INF"
 
 		elif posting_list[0] > position:
-			cache = 0
+			cache[term] = 0
 			return posting_list[0]
 
-		if cache > 0 and cache < len(posting_list) and posting_list[cache-1] <= position:
-			low = cache-1
+		if cache[term] > 0 and cache[term] < len(posting_list) and posting_list[cache[term]-1] <= position:
+			low = cache[term]-1
 		else:
 			low = 0
 
 		if flag == 'BINARY':
-			return posting_list[binary_search(posting_list, low, len(posting_list)-1, position)]
+			return posting_list[binary_search(term, posting_list, low, len(posting_list)-1, position)]
 		elif flag == 'GALLOPING':
-			return posting_list[galloping_search(posting_list, low, len(posting_list)-1, position)]
+			return posting_list[galloping_search(term, posting_list, low, len(posting_list)-1, position)]
 		elif flag == 'SEQUENTIAL':
-			return posting_list[sequential_search(posting_list, low, len(posting_list)-1, position)]
+			return posting_list[sequential_search(term, posting_list, low, len(posting_list)-1, position)]
 
 
 def next_phrase_occurrance(inv_adt, phrase, doc_id, position, flag='BINARY'):
@@ -311,6 +311,9 @@ if __name__ == '__main__':
 
 	for term, doc_id, index in corpus:
 		inverted_index[term].append((doc_id, index))
+
+		if cache.get(term, None) is None:
+			cache[term] = 0
 
 	print("Done")
 
