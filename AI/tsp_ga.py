@@ -102,17 +102,17 @@ def crossover(state, parents, pop_size):
 	for i in range(0, no_parents-1, 2):
 		cross_point = np.random.randint(1,no_nodes//2)
 
-		offspring1 = state[i].copy()
+		offspring1 = state[parents[i]].copy()
 		for j in range(cross_point):
-			c_index = state[i].index(state[i+1][j])
+			c_index = state[parents[i]].index(state[parents[i+1]][j])
 			offspring1[j], offspring1[c_index] = offspring1[c_index], offspring1[j]
 
-		offspring2 = state[i+1].copy()
+		offspring2 = state[parents[i+1]].copy()
 		for j in range(cross_point):
-			c_index = state[i+1].index(state[i][j])
+			c_index = state[parents[i+1]].index(state[parents[i]][j])
 			offspring2[j], offspring2[c_index] = offspring2[c_index], offspring2[j]
 
-		state[i], state[i+1] = offspring1, offspring2
+		state[parents[i]], state[parents[i+1]] = offspring1, offspring2
 
 
 def mutation(state, parents):
