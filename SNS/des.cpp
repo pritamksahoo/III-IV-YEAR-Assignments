@@ -91,7 +91,7 @@ int main()
 	cin >> P;
 	cin >> K;
 
-	int len = P.length(), index = 0;
+	int len = P.length(), index = 0, key_index = 0;
 	for (int i=0; i<len; i++)
 	{
 		if (P[i] != ' ')
@@ -100,19 +100,27 @@ int main()
 		}
 	}
 
-	index = 0, len = K.size();
+	len = K.size();
 	for (int i=0; i<len; i++)
 	{
 		if (K[i] != ' ')
 		{
-			key[index++] = (int)(K[i]);
+			key[key_index++] = (int)(K[i]);
 		}
-		if (index == 8)
+		if (key_index == 8)
 		{
 			break;
 		}
 	}
 
+	bitset<64> key_org (string(DecToBinary(key, 0, 7)));
+
+	for (int i=0; i<index; i++)
+	{
+		bitset<64> plain_org (string(DecToBinary(plain, 8*i, 8*(i+1)-1)));
+		encrypt(plain_org, key_org);
+		cout << plain_org << endl;
+	}
 
 }
 
