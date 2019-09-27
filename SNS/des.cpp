@@ -87,45 +87,46 @@ void substitution(bitset<N1>& bs1, bitset<N2>& bs2, int s_box[8][4][16])
 
 int main()
 {
-	// string P, K;
-	// int plain[MAX], key[8];
-	// cin >> P;
-	// cin >> K;
+	string P, K;
+	int plain[MAX], key[8];
+	cin >> P;
+	cin >> K;
 
-	// int len = P.length(), index = 0, key_index = 0;
-	// for (int i=0; i<len; i++)
-	// {
-	// 	if (P[i] != ' ')
-	// 	{
-	// 		plain[index++] = (int)(P[i]);
-	// 	}
-	// }
+	int len = P.length(), index = 0, key_index = 0;
+	for (int i=0; i<len; i++)
+	{
+		if (P[i] != ' ')
+		{
+			plain[index++] = (int)(P[i]);
+		}
+	}
 
-	// len = K.size();
-	// for (int i=0; i<len; i++)
-	// {
-	// 	if (K[i] != ' ')
-	// 	{
-	// 		key[key_index++] = (int)(K[i]);
-	// 	}
-	// 	if (key_index == 8)
-	// 	{
-	// 		break;
-	// 	}
-	// }
+	len = K.size();
+	for (int i=0; i<len; i++)
+	{
+		if (K[i] != ' ')
+		{
+			key[key_index++] = (int)(K[i]);
+		}
+		if (key_index == 8)
+		{
+			break;
+		}
+	}
 
-	// bitset<64> key_org (DecToBinary(key, 0, 7));
+	bitset<64> key_org (DecToBinary(key, 0, 7));
 
-	// for (int i=0; i<index; i=i+8)
-	// {
-	// 	bitset<64> plain_org (DecToBinary(plain, 8*i, 8*(i+1)-1));
-	// 	encrypt(plain_org, key_org);
-	// 	cout << plain_org << endl;
-	// }
-	bitset<64> plain (string("0000000100100011010001010110011110001001101010111100110111101111"));
-	bitset<64> key (string("0001001100110100010101110111100110011011101111001101111111110001"));
-	encrypt(plain, key);
-	cout << plain << endl;
+	for (int i=0; i<index; i=i+8)
+	{
+		bitset<64> plain_org (DecToBinary(plain, 8*i, 8*(i+1)-1));
+		encrypt(plain_org, key_org);
+		cout << plain_org;
+	}
+	cout << '\n' << DecToBinary(plain,0,index-1);
+	// bitset<64> plain (string("0000000100100011010001010110011110001001101010111100110111101111"));
+	// bitset<64> key (string("0001001100110100010101110111100110011011101111001101111111110001"));
+	// encrypt(plain, key);
+	// cout << plain << endl;
 
 }
 
