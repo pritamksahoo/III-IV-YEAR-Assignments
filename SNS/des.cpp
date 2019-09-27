@@ -63,8 +63,8 @@ void substitution(bitset<N1> bs1, bitset<N2> bs2, int s_box[8][4][16])
 		bitset<4> bs_col;
 
 		bs_row[0] = bs1[end], bs_row[1] = bs1[start];
-		col_index = 0;
-		for (j=start+1; j<=end-1; j++)
+		int col_index = 0;
+		for (int j=start+1; j<=end-1; j++)
 		{
 			bs_col[col_index++] = bs1[j];
 		}
@@ -77,7 +77,7 @@ void substitution(bitset<N1> bs1, bitset<N2> bs2, int s_box[8][4][16])
 
 		start = 4*i, end = 4*(i+1)-1;
 		int index = binary.length()-1;
-		for (j=start; j<=end; j++)
+		for (int j=start; j<=end; j++)
 		{
 			bs2[j] = (int)(binary[index--]) - (int)('0');
 		}
@@ -135,7 +135,7 @@ string DecToBinary(int num[], int start, int end)
 		int n = num[i], j=0;
 		while (n != 0)
 		{
-			rem = n%2;
+			int rem = n%2;
 			n /= 2;
 			ret[index + (j++)] = rem;
 		}
@@ -177,7 +177,14 @@ void KeyGen(bitset<56> key, bitset<48> round_key, int round)
 	}
 
 	int CP[] = {
-
+		14, 17, 11, 24, 1, 5,
+      	3, 28, 15, 6, 21, 10,
+        23, 19, 12, 4, 26, 8,
+        16, 7, 27, 20, 13, 2,
+        41, 52, 31, 37, 47, 55,
+    	30, 40, 51, 45, 33, 48,
+        44, 49, 39, 56, 34, 53,
+        46, 42, 50, 36, 29, 32
 	};
 
 	permutation(key, round_key, CP);
@@ -188,7 +195,7 @@ void mixer(bitset<32> input, bitset<48> round_key, bitset<32> output)
 {
 	bitset<48> temp_input;
 	bitset<32> temp_output;
-	int ED = {
+	int ED[] = {
 		32,  1,  2,  3,  4,  5,
 	   	4,  5,  6,  7,  8,  9,
 	   	8,  9, 10, 11, 12, 13,
@@ -223,7 +230,7 @@ void mixer(bitset<32> input, bitset<48> round_key, bitset<32> output)
 
 void encrypt(bitset<64> bs_plain, bitset<64> key_org)
 {
-	biset<56> key;
+	bitset<56> key;
 	int CP[] = {
 		57,49,41,33,25,17,9, 
         1,58,50,42,34,26,18, 
