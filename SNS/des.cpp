@@ -9,6 +9,7 @@ using namespace std;
 string DecToBinary(int num[], int start, int end);
 void KeyGen(bitset<56> key, bitset<48> round_key, int round);
 void encrypt(bitset<64> bs_plain, bitset<56> key);
+void mixer(bitset<32> input, bitset<48> round_key, bitset<32> output);
 
 template<size_t N>
 int BinaryToDec(bitset<N> bs)
@@ -53,7 +54,7 @@ void permutation(bitset<N1> bs1, bitset<N2> bs2, int p_box[])
 }
 
 template<size_t N1, size_t N2>
-void substitution(bitset<N1> bs1, bitset<N2> bs2, int s_box[][16])
+void substitution(bitset<N1> bs1, bitset<N2> bs2, int s_box[8][4][16])
 {
 	for (int i=0; i<8; i++)
 	{
@@ -71,7 +72,7 @@ void substitution(bitset<N1> bs1, bitset<N2> bs2, int s_box[][16])
 		int row = BinaryToDec(bs_row);
 		int col = BinaryToDec(bs_col);
 
-		int dec[] = {s_box[row][col]};
+		int dec[] = {s_box[i][row][col]};
 		string binary = DecToBinary(dec, 0, 0);
 
 		start = 4*i, end = 4*(i+1)-1;
@@ -156,6 +157,7 @@ void KeyGen(bitset<56> key, bitset<48> round_key, int round)
 	}
 	ShiftLeft(bs1, rotate);
 	ShiftLeft(bs2, rotate);
+
 	i = 0;
 	for (int j=0; j<29; j++)
 	{
@@ -166,13 +168,70 @@ void KeyGen(bitset<56> key, bitset<48> round_key, int round)
 		key[i++] = bs2[j];
 	}
 
-	int cp[] = {};
+	int CP[] = {};
 
-	permutation(key, round_key, cp);
+	permutation(key, round_key, CP);
 
+}
+
+void mixer(bitset<32> input, bitset<48> round_key, bitset<32> output)
+{
+	bitset<48> temp_input;
+	bitset<32> temp_output;
+	int ED = {};
+	
+	permutation(input, temp_input, ED);
+
+	temp_input ^= round_key;
+
+	int S[8][4][16] = {};
+
+	substitution(temp_input, temp_output, S);
+
+	int P[] = {};
+
+	permutation(temp_output, output, P);
 }
 
 void encrypt(bitset<64> bs_plain, bitset<56> key)
 {
-	
+	int IP[] = {};
+	int FP[] = {};
+	bitset<64> bs_int;
+	bitset<48> round_key;
+	permutation(bs_plain, bs_int, IP);
+
+	for (int i=1; i<=16; i++)
+	{
+		// Round Key
+		KeyGen(key, round_key, i);
+		bitset<32> feistel, l, r;
+		
+		int j = 0;
+		for (j=0; j<33; j++)
+		{
+			l[i] = bs_int[i];
+		}
+		for(int k=0; k<33; k++)
+		{
+			r[k] = bs_int[j++];
+		}		
+
+		// Mixer
+		mixer(r, round_key, feistel);
+		l ^= feistel;
+
+		// Swapper
+		j = 0;
+		for (int k=0; k<33; k++)
+		{
+			bs_int[j++] = r[k];
+		}
+		for (int k=0; k<33; k++)
+		{
+			bs_int[j++] = l[k];
+		}
+	}
+
+	permutation(bs_int, bs_plain, FP);
 }
