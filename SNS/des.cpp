@@ -7,9 +7,9 @@ using namespace std;
 #define MAX 1000
 
 string DecToBinary(int num[], int start, int end);
-void KeyGen(bitset<56> key, bitset<48> round_key, int round);
-void encrypt(bitset<64> bs_plain, bitset<64> key);
-void mixer(bitset<32> input, bitset<48> round_key, bitset<32> output);
+void KeyGen(bitset<56>& key, bitset<48>& round_key, int round);
+void encrypt(bitset<64>& bs_plain, bitset<64>& key);
+void mixer(bitset<32>& input, bitset<48>& round_key, bitset<32>& output);
 
 template<size_t N>
 int BinaryToDec(bitset<N> bs)
@@ -24,7 +24,7 @@ int BinaryToDec(bitset<N> bs)
 }
 
 template<size_t N>
-void ShiftLeft(bitset<N> bs, int byRotate)
+void ShiftLeft(bitset<N>& bs, int byRotate)
 {
 	bitset<N> temp_bs;
 	for (int i=byRotate; i<=N-1; i++)
@@ -44,17 +44,18 @@ void ShiftLeft(bitset<N> bs, int byRotate)
 }
 
 template<size_t N1, size_t N2>
-void permutation(bitset<N1> bs1, bitset<N2> bs2, int p_box[])
+void permutation(bitset<N1>& bs1, bitset<N2>& bs2, int p_box[])
 {
 	int index = N2-1;
 	for (int i=0; i<N2; i++)
 	{
-		bs2[index--] = bs1[N1-1-i];
+		bs2[index--] = bs1[N1-1-p_box[i]];
 	}
+	// cout << bs2 << endl;
 }
 
 template<size_t N1, size_t N2>
-void substitution(bitset<N1> bs1, bitset<N2> bs2, int s_box[8][4][16])
+void substitution(bitset<N1>& bs1, bitset<N2>& bs2, int s_box[8][4][16])
 {
 	for (int i=0; i<8; i++)
 	{
@@ -62,7 +63,7 @@ void substitution(bitset<N1> bs1, bitset<N2> bs2, int s_box[8][4][16])
 		bitset<2> bs_row;
 		bitset<4> bs_col;
 
-		bs_row[0] = bs1[end], bs_row[1] = bs1[start];
+		bs_row[0] = bs1[start], bs_row[1] = bs1[end];
 		int col_index = 0;
 		for (int j=start+1; j<=end-1; j++)
 		{
@@ -72,7 +73,7 @@ void substitution(bitset<N1> bs1, bitset<N2> bs2, int s_box[8][4][16])
 		int row = BinaryToDec(bs_row);
 		int col = BinaryToDec(bs_col);
 
-		int dec[] = {s_box[i][row][col]};
+		int dec[] = {s_box[7-i][row][col]};
 		string binary = DecToBinary(dec, 0, 0);
 
 		start = 4*i, end = 4*(i+1)-1;
@@ -86,41 +87,45 @@ void substitution(bitset<N1> bs1, bitset<N2> bs2, int s_box[8][4][16])
 
 int main()
 {
-	string P, K;
-	int plain[MAX], key[8];
-	cin >> P;
-	cin >> K;
+	// string P, K;
+	// int plain[MAX], key[8];
+	// cin >> P;
+	// cin >> K;
 
-	int len = P.length(), index = 0, key_index = 0;
-	for (int i=0; i<len; i++)
-	{
-		if (P[i] != ' ')
-		{
-			plain[index++] = (int)(P[i]);
-		}
-	}
+	// int len = P.length(), index = 0, key_index = 0;
+	// for (int i=0; i<len; i++)
+	// {
+	// 	if (P[i] != ' ')
+	// 	{
+	// 		plain[index++] = (int)(P[i]);
+	// 	}
+	// }
 
-	len = K.size();
-	for (int i=0; i<len; i++)
-	{
-		if (K[i] != ' ')
-		{
-			key[key_index++] = (int)(K[i]);
-		}
-		if (key_index == 8)
-		{
-			break;
-		}
-	}
+	// len = K.size();
+	// for (int i=0; i<len; i++)
+	// {
+	// 	if (K[i] != ' ')
+	// 	{
+	// 		key[key_index++] = (int)(K[i]);
+	// 	}
+	// 	if (key_index == 8)
+	// 	{
+	// 		break;
+	// 	}
+	// }
 
-	bitset<64> key_org (string(DecToBinary(key, 0, 7)));
+	// bitset<64> key_org (DecToBinary(key, 0, 7));
 
-	for (int i=0; i<index; i++)
-	{
-		bitset<64> plain_org (string(DecToBinary(plain, 8*i, 8*(i+1)-1)));
-		encrypt(plain_org, key_org);
-		cout << plain_org << endl;
-	}
+	// for (int i=0; i<index; i=i+8)
+	// {
+	// 	bitset<64> plain_org (DecToBinary(plain, 8*i, 8*(i+1)-1));
+	// 	encrypt(plain_org, key_org);
+	// 	cout << plain_org << endl;
+	// }
+	bitset<64> plain (string("0000000100100011010001010110011110001001101010111100110111101111"));
+	bitset<64> key (string("0001001100110100010101110111100110011011101111001101111111110001"));
+	encrypt(plain, key);
+	cout << plain << endl;
 
 }
 
@@ -132,30 +137,32 @@ string DecToBinary(int num[], int start, int end)
 
 	for (int i=start; i<=end; i++)
 	{
-		int n = num[i], j=0;
+		int n = num[i], j=7;
 		while (n != 0)
 		{
 			int rem = n%2;
 			n /= 2;
-			ret[index + (j++)] = rem;
+			ret[index + (j--)] = (char)(rem + (int)('0'));
 		}
 		index += 8;
 	}
-	
+	// cout << ret << endl;
 	return ret;
 }
 
-void KeyGen(bitset<56> key, bitset<48> round_key, int round)
+void KeyGen(bitset<56>& key, bitset<48>& round_key, int round)
 {
-	bitset<28> bs1, bs2;
+	bitset<28> bs1;
+	bitset<28> bs2;
+	// cout << "key : " << key << endl;
 	int i = 0;
-	for (i=0; i<29; i++)
+	for (i=0; i<28; i++)
 	{
-		bs1[i] = key[i];
+		bs2[i] = key[i];
 	}
-	for(int j=0; j<29; j++)
+	for(int j=0; j<28; j++)
 	{
-		bs2[j] = key[i++];
+		bs1[j] = key[i++];
 	}
 
 	int rotate = 2;
@@ -163,17 +170,21 @@ void KeyGen(bitset<56> key, bitset<48> round_key, int round)
 	{
 		rotate = 1;
 	}
+	// cout << "c #" << round << "(before) : " << bs1 << endl;
 	ShiftLeft(bs1, rotate);
+	// cout << "c #" << round << "(after) : " << bs1 << endl;
+	// cout << "d #" << round << "(before) : " << bs2 << endl;
 	ShiftLeft(bs2, rotate);
+	// cout << "d #" << round << "(after) : " << bs2 << endl;
 
 	i = 0;
-	for (int j=0; j<29; j++)
-	{
-		key[i++] = bs1[j];
-	}
-	for (int j=0; j<29; j++)
+	for (int j=0; j<28; j++)
 	{
 		key[i++] = bs2[j];
+	}
+	for (int j=0; j<28; j++)
+	{
+		key[i++] = bs1[j];
 	}
 
 	int CP[] = {
@@ -188,10 +199,11 @@ void KeyGen(bitset<56> key, bitset<48> round_key, int round)
 	};
 
 	permutation(key, round_key, CP);
+	// cout << "Round Key #" << round << " : " << round_key << endl;
 
 }
 
-void mixer(bitset<32> input, bitset<48> round_key, bitset<32> output)
+void mixer(bitset<32>& input, bitset<48>& round_key, bitset<32>& output)
 {
 	bitset<48> temp_input;
 	bitset<32> temp_output;
@@ -207,8 +219,10 @@ void mixer(bitset<32> input, bitset<48> round_key, bitset<32> output)
 	};
 	
 	permutation(input, temp_input, ED);
+	// cout << "E(R) : " << temp_input << endl;
 
 	temp_input ^= round_key;
+	// cout << "K + E(R) : " << temp_input << endl;
 
 	int S[8][4][16] = {
 		{
@@ -262,6 +276,7 @@ void mixer(bitset<32> input, bitset<48> round_key, bitset<32> output)
 	};
 
 	substitution(temp_input, temp_output, S);
+	// cout << "S-Box : " << temp_output << endl;
 
 	int P[] = {
 		15,  6, 19, 20,
@@ -275,9 +290,10 @@ void mixer(bitset<32> input, bitset<48> round_key, bitset<32> output)
 	};
 
 	permutation(temp_output, output, P);
+	// cout << "Final-P-Box : " << output << endl;
 }
 
-void encrypt(bitset<64> bs_plain, bitset<64> key_org)
+void encrypt(bitset<64>& bs_plain, bitset<64>& key_org)
 {
 	bitset<56> key;
 	int CP[] = {
@@ -292,7 +308,9 @@ void encrypt(bitset<64> bs_plain, bitset<64> key_org)
 	};
 
 	// Parity Drop
+	// cout << "org key : " << key_org << endl;
 	permutation(key_org, key, CP);
+	// cout << "parity key : " << key << endl;
 
 	int IP[] = {
 		57, 49, 41, 33, 25, 17,  9,  1,
@@ -317,38 +335,47 @@ void encrypt(bitset<64> bs_plain, bitset<64> key_org)
 	bitset<64> bs_int;
 	bitset<48> round_key;
 	permutation(bs_plain, bs_int, IP);
+	// cout << "After initial permutation : " << bs_int << endl;
 
 	for (int i=1; i<=16; i++)
 	{
 		// Round Key
 		KeyGen(key, round_key, i);
+		// cout << "Round #" << i << " : " << endl;
 		bitset<32> feistel, l, r;
 		
 		int j = 0;
-		for (j=0; j<33; j++)
+		for (j=0; j<32; j++)
 		{
-			l[j] = bs_int[j];
+			r[j] = bs_int[j];
 		}
-		for(int k=0; k<33; k++)
+		for(int k=0; k<32; k++)
 		{
-			r[k] = bs_int[j++];
+			l[k] = bs_int[j++];
 		}		
 
+		// cout << "l(old) : " << l << endl;
+		// cout << "r(old) : " << r << endl;
 		// Mixer
 		mixer(r, round_key, feistel);
+		// cout << "feistel key : " << feistel << endl;
 		l ^= feistel;
+		// cout << "New l : " << l << endl;
 
 		// Swapper
 		j = 0;
-		for (int k=0; k<33; k++)
-		{
-			bs_int[j++] = r[k];
-		}
-		for (int k=0; k<33; k++)
+		for (int k=0; k<32; k++)
 		{
 			bs_int[j++] = l[k];
 		}
+		for (int k=0; k<32; k++)
+		{
+			bs_int[j++] = r[k];
+		}
+		// cout << "Finally : " << bs_int << endl;
 	}
+
+	ShiftLeft(bs_int, 32);
 
 	permutation(bs_int, bs_plain, FP);
 }
