@@ -131,7 +131,12 @@ int main()
 		cout << plain_org;
 	}
 	cout << "" << endl;
-	cout << DecToBinary(plain,0,index-1);
+	for (int i=0; i<index; i++)
+	{
+		int arr[] = {plain[i]};
+		cout << DecToBinary(arr,0,0);
+	}
+	
 	// bitset<64> plain (string("0000000100100011010001010110011110001001101010111100110111101111"));
 	// bitset<64> key (string("0001001100110100010101110111100110011011101111001101111111110001"));
 	// encrypt(plain, key);
@@ -142,6 +147,7 @@ int main()
 string DecToBinary(int num[], int start, int end)
 {
 	string ret ("0000000000000000000000000000000000000000000000000000000000000000");
+	ret.reserve(1024);
 	ret.resize((end-start+1)*8);
 	int index = 0;
 
