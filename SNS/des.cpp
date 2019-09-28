@@ -100,6 +100,14 @@ int main()
 			plain[index++] = (int)(P[i]);
 		}
 	}
+	int rem = 8 - index%8;
+	if (rem != 8)
+	{
+		for (int i=0; i<rem; i++)
+		{
+			plain[index++] = 0;
+		}
+	}
 
 	len = K.size();
 	for (int i=0; i<len; i++)
@@ -118,11 +126,12 @@ int main()
 
 	for (int i=0; i<index; i=i+8)
 	{
-		bitset<64> plain_org (DecToBinary(plain, 8*i, 8*(i+1)-1));
+		bitset<64> plain_org (DecToBinary(plain, i, i+7));
 		encrypt(plain_org, key_org);
 		cout << plain_org;
 	}
-	cout << '\n' << DecToBinary(plain,0,index-1);
+	cout << "" << endl;
+	cout << DecToBinary(plain,0,index-1);
 	// bitset<64> plain (string("0000000100100011010001010110011110001001101010111100110111101111"));
 	// bitset<64> key (string("0001001100110100010101110111100110011011101111001101111111110001"));
 	// encrypt(plain, key);
