@@ -87,60 +87,60 @@ void substitution(bitset<N1>& bs1, bitset<N2>& bs2, int s_box[8][4][16])
 
 int main()
 {
-	string P, K;
-	int plain[MAX], key[8];
-	cin >> P;
-	cin >> K;
+	// string P, K;
+	// int plain[MAX], key[8];
+	// cin >> P;
+	// cin >> K;
 
-	int len = P.length(), index = 0, key_index = 0;
-	for (int i=0; i<len; i++)
-	{
-		if (P[i] != ' ')
-		{
-			plain[index++] = (int)(P[i]);
-		}
-	}
-	int rem = 8 - index%8;
-	if (rem != 8)
-	{
-		for (int i=0; i<rem; i++)
-		{
-			plain[index++] = 0;
-		}
-	}
+	// int len = P.length(), index = 0, key_index = 0;
+	// for (int i=0; i<len; i++)
+	// {
+	// 	if (P[i] != ' ')
+	// 	{
+	// 		plain[index++] = (int)(P[i]);
+	// 	}
+	// }
+	// int rem = 8 - index%8;
+	// if (rem != 8)
+	// {
+	// 	for (int i=0; i<rem; i++)
+	// 	{
+	// 		plain[index++] = 0;
+	// 	}
+	// }
 
-	len = K.size();
-	for (int i=0; i<len; i++)
-	{
-		if (K[i] != ' ')
-		{
-			key[key_index++] = (int)(K[i]);
-		}
-		if (key_index == 8)
-		{
-			break;
-		}
-	}
+	// len = K.size();
+	// for (int i=0; i<len; i++)
+	// {
+	// 	if (K[i] != ' ')
+	// 	{
+	// 		key[key_index++] = (int)(K[i]);
+	// 	}
+	// 	if (key_index == 8)
+	// 	{
+	// 		break;
+	// 	}
+	// }
 
-	bitset<64> key_org (DecToBinary(key, 0, 7));
+	// bitset<64> key_org (DecToBinary(key, 0, 7));
 
-	for (int i=0; i<index; i=i+8)
-	{
-		bitset<64> plain_org (DecToBinary(plain, i, i+7));
-		encrypt(plain_org, key_org);
-		cout << plain_org;
-	}
-	cout << "" << endl;
-	for (int i=0; i<index; i++)
-	{
-		int arr[] = {plain[i]};
-		cout << DecToBinary(arr,0,0);
-	}
+	// for (int i=0; i<index; i=i+8)
+	// {
+	// 	bitset<64> plain_org (DecToBinary(plain, i, i+7));
+	// 	encrypt(plain_org, key_org);
+	// 	cout << plain_org;
+	// }
+	// cout << "" << endl;
+	// for (int i=0; i<index; i++)
+	// {
+	// 	int arr[] = {plain[i]};
+	// 	cout << DecToBinary(arr,0,0);
+	// }
 	
-	// bitset<64> plain (string("0000000100100011010001010110011110001001101010111100110111101111"));
-	// bitset<64> key (string("0001001100110100010101110111100110011011101111001101111111110001"));
-	// encrypt(plain, key);
-	// cout << plain << endl;
+	bitset<64> plain (string("0000000100100011010001010110011110001001101010111100110111101111"));
+	bitset<64> key (string("0001001100110100010101110111100110011011101111001101111111110001"));
+	encrypt(plain, key);
+	cout << plain << endl;
 
 }
 
@@ -351,7 +351,7 @@ void encrypt(bitset<64>& bs_plain, bitset<64>& key_org)
 	bitset<64> bs_int;
 	bitset<48> round_key;
 	permutation(bs_plain, bs_int, IP);
-	// cout << "After initial permutation : " << bs_int << endl;
+	cout << "After initial permutation : " << bs_int << endl;
 
 	for (int i=1; i<=16; i++)
 	{
