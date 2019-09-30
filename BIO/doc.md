@@ -59,8 +59,8 @@ aababcabbba<br>
 aaababcaabbba<br>
 #### Output Demo :
 ababc<br>
-abbba
-(Both are length 5)
+abbba<br>
+(Both are of length 5)
 #### Time Complexity:
 **N1** : Length of 1st string<br>
 **N2** : Length of 2nd string<br>
