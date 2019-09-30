@@ -47,3 +47,26 @@ ggg<br>
 #### Space Complexity :
 As, there can be at most 64 different triplets. So, maximum space required is in the order of (3x64).<br>
 So, Space Complexity is **constant**.
+
+## Q3 : Given three strings, Determine their longest common substring
+#### Solution :
+* Firstly, we have extracted all the suffixes of all the three strings and sorted them.
+* Then, we traverse over the suffix array and find all the ranges **i..j** where there is at least one suffix from each given string, and find out the **longest common prefix** of the first and last suffix in that range.
+* The pefix having the maximum length is our solution.
+#### Input Demo :
+abababccabbba<br>
+aababcabbba<br>
+aaababcaabbba<br>
+#### Output Demo :
+ababc<br>
+abbba
+(Both are length 5)
+#### Time Complexity:
+**N1** : Length of 1st string<br>
+**N2** : Length of 2nd string<br>
+**N3** : Length of 3rd string<br>
+**N** : N1 + N2 + N3<br>
+**M** : MAX(N1, N2, N3)<br>
+**Time Complexity** : O(NlogN + MN)
+#### Space Complexity :
+O(MN) (To store all the strings)
