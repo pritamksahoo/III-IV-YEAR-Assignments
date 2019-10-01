@@ -24,7 +24,7 @@ w
 #### Time Complexity :
 **L** : length of longest string<br>
 **N** : No. of strings<br>
-**Time Complexity** : O(NL)
+**Time Complexity** : O(NL<sup>2</sup>)
 #### Space Complexity :
 **L** : length of longest string<br>
 **N** : No. of strings<br>
