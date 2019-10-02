@@ -4,7 +4,7 @@
 
 using namespace std;
 
-bitset<8> modulus(string("00011011"));
+bitset<8> modulo(string("00011011"));
 bitset<8> global_round_key[11][4][4];
 
 bitset<32> round_key_constant[10];
@@ -74,7 +74,7 @@ template<size_t N>
 void multiply(bitset<N> bs1, bitset<N> bs2, bitset<N>& output)
 {
 	bitset<8> mult[8];
-	mult[0] = bs1[0];
+	mult[0] = bs1;
 
 	for (int i=1; i<8; i++)
 	{
@@ -87,7 +87,7 @@ void multiply(bitset<N> bs1, bitset<N> bs2, bitset<N>& output)
 		else
 		{
 			ShiftBitLeftWOWrapping(mult[i], 1);
-			mult[i] ^= modulus;
+			mult[i] ^= modulo;
 		}
 	}
 
@@ -173,15 +173,15 @@ void SubWord(bitset<32>& word)
 			temp_word[index--] = word[j];
 		}
 
-		bitset<8> inverse_byte(0);
+		bitset<8> inverse_byte (0);
 		inverse(temp_word, inverse_byte);
 
-		bitset<8> temp_byte(0);
+		bitset<8> temp_byte (0);
 		for (int k=0; k<8; k++)
 		{
 			temp_byte[7-i] = inverse_byte[7-i] ^ inverse_byte[7-(i+4)%8] ^ inverse_byte[7-(i+5)%8] ^ inverse_byte[7-(i+6)%8] ^ inverse_byte[7-(i+7)%8];
-			temp_byte[7-i] ^= constant;
 		}
+		temp_byte ^= constant;
 		
 		index = 7;
 		for (int j=i; j>i-8; j--)
@@ -205,8 +205,8 @@ void SubByte(bitset<8> bs[][4])
 			for (int k=0; k<8; k++)
 			{
 				temp_byte[7-i] = inverse_byte[7-i] ^ inverse_byte[7-(i+4)%8] ^ inverse_byte[7-(i+5)%8] ^ inverse_byte[7-(i+6)%8] ^ inverse_byte[7-(i+7)%8];
-				temp_byte[7-i] ^= constant;
 			}
+			temp_byte ^= constant;
 			bs[i][j] = temp_byte;
 		}
 	}
@@ -343,7 +343,7 @@ void KeyGen(bitset<128> key)
 
 void encrypt(bitset<128> plain)
 {
-	
+
 }
 
 int main()
