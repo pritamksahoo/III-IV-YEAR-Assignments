@@ -89,70 +89,71 @@ void substitution(bitset<N1>& bs1, bitset<N2>& bs2, int s_box[8][4][16])
 
 int main()
 {
-	// string P, K;
-	// int plain[MAX], key[8], cipher[MAX];
-	// cin >> P;
-	// cin >> K;
+	string P, K;
+	int plain[MAX], key[8], cipher[MAX];
+	cin >> P;
+	cin >> K;
 
-	// int len = P.length(), index = 0, key_index = 0;
-	// for (int i=0; i<len; i++)
-	// {
-	// 	if (P[i] != ' ')
-	// 	{
-	// 		plain[index++] = (int)(P[i]);
-	// 	}
-	// }
-	// int rem = 8 - index%8;
-	// if (rem != 8)
-	// {
-	// 	for (int i=0; i<rem; i++)
-	// 	{
-	// 		plain[index++] = 0;
-	// 	}
-	// }
+	int len = P.length(), index = 0, key_index = 0;
+	for (int i=0; i<len; i++)
+	{
+		if (P[i] != ' ')
+		{
+			plain[index++] = (int)(P[i]);
+		}
+	}
+	int rem = 8 - index%8;
+	if (rem != 8)
+	{
+		for (int i=0; i<rem; i++)
+		{
+			plain[index++] = 0;
+		}
+	}
 
-	// len = K.size();
-	// for (int i=0; i<len; i++)
-	// {
-	// 	if (K[i] != ' ')
-	// 	{
-	// 		key[key_index++] = (int)(K[i]);
-	// 	}
-	// 	if (key_index == 8)
-	// 	{
-	// 		break;
-	// 	}
-	// }
+	len = K.size();
+	for (int i=0; i<len; i++)
+	{
+		if (K[i] != ' ')
+		{
+			key[key_index++] = (int)(K[i]);
+		}
+		if (key_index == 8)
+		{
+			break;
+		}
+	}
 
-	// bitset<64> key_org (DecToBinary(key, 0, 7));
-	// int cipher_index = 0;
+	bitset<64> key_org (DecToBinary(key, 0, 7));
+	int cipher_index = 0;
 
-	// for (int i=0; i<index; i=i+8)
-	// {
-	// 	bitset<64> plain_org (DecToBinary(plain, i, i+7));
-	// 	encrypt(plain_org, key_org);
-	// 	cout << plain_org;
+	for (int i=0; i<index; i=i+8)
+	{
+		bitset<64> plain_org (DecToBinary(plain, i, i+7));
+		// cout << '\n' << plain_org << endl;
+		encrypt(plain_org, key_org);
+		cout << plain_org;
 		
-	// 	bitset<8> temp_cipher;
-	// 	for (int j=63; j>0; j=j-8)
-	// 	{
-	// 		for (int k=0; k<8; k++)
-	// 		{
-	// 			temp_cipher[k] = plain_org[j-7+k];
-	// 		}
-	// 		cipher[cipher_index++] = BinaryToDec(temp_cipher);
-	// 	}
+		bitset<8> temp_cipher;
+		for (int j=63; j>0; j=j-8)
+		{
+			for (int k=0; k<8; k++)
+			{
+				temp_cipher[k] = plain_org[j-7+k];
+			}
+			cipher[cipher_index++] = BinaryToDec(temp_cipher);
+		}
 		
-	// }
+	}
 
-	// cout << endl;
+	cout << endl;
 
-	// for (int i=0; i<index; i=i+8)
-	// {
-	// 	bitset<64> cipher_org (DecToBinary(cipher, i, i+7));
-	// 	decrypt(cipher_org);
-	// 	cout << cipher_org;
-	// }
+	for (int i=0; i<index; i=i+8)
+	{
+		bitset<64> cipher_org (DecToBinary(cipher, i, i+7));
+		decrypt(cipher_org);
+		cout << cipher_org;
+	}
 
 	// for (int i=0; i<index; i++)
 	// {
@@ -160,12 +161,12 @@ int main()
 	// 	cout << DecToBinary(arr,0,0);
 	// }
 	
-	bitset<64> plain (string("0000000100100011010001010110011110001001101010111100110111101111"));
-	bitset<64> key (string("0001001100110100010101110111100110011011101111001101111111110001"));
-	encrypt(plain, key);
-	cout << plain << endl;
-	decrypt(plain);
-	cout << plain;
+	// bitset<64> plain (string("0000000100100011010001010110011110001001101010111100110111101111"));
+	// bitset<64> key (string("0001001100110100010101110111100110011011101111001101111111110001"));
+	// encrypt(plain, key);
+	// cout << plain << endl;
+	// decrypt(plain);
+	// cout << plain;
 }
 
 string DecToBinary(int num[], int start, int end)
@@ -375,14 +376,14 @@ void encrypt(bitset<64>& bs_plain, bitset<64>& key_org)
 	bitset<64> bs_int;
 	bitset<48> round_key;
 	permutation(bs_plain, bs_int, IP);
-	// cout << "After initial permutation : " << bs_int << endl;
+	cout << "After initial permutation : " << bs_int << endl;
 
 	for (int i=1; i<=16; i++)
 	{
 		// Round Key
 		KeyGen(key, round_key, i);
 		global_round_key[i-1] = round_key;
-		// cout << "Round #" << i << " : " << endl;
+		cout << "Round #" << i << " : " << endl;
 		bitset<32> feistel, l, r;
 		
 		int j = 0;
@@ -395,13 +396,13 @@ void encrypt(bitset<64>& bs_plain, bitset<64>& key_org)
 			l[k] = bs_int[j++];
 		}		
 
-		// cout << "l(old) : " << l << endl;
-		// cout << "r(old) : " << r << endl;
+		cout << "l(old) : " << l << endl;
+		cout << "r(old) : " << r << endl;
 		// Mixer
 		mixer(r, round_key, feistel);
-		// cout << "feistel key : " << feistel << endl;
+		cout << "feistel key : " << feistel << endl;
 		l ^= feistel;
-		// cout << "New l : " << l << endl;
+		cout << "New l : " << l << endl;
 
 		// Swapper
 		j = 0;
@@ -413,10 +414,7 @@ void encrypt(bitset<64>& bs_plain, bitset<64>& key_org)
 		{
 			bs_int[j++] = r[k];
 		}
-		cout << "New left : " << r << endl;
-		cout << "New right : " << l << endl;
 		cout << "Finally : " << bs_int << endl;
-		cout << "" << endl;
 	}
 
 	ShiftLeft(bs_int, 32);
