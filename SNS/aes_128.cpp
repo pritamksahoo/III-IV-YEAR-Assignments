@@ -485,22 +485,12 @@ int main()
 	cin >> plain;
 	cin >> key;
 
+	int plain_len = plain.length();
+
 	bitset<128> plain_bs;
 	bitset<128> key_bs;
 
 	int index = 127;
-	for (int i=0; i<32; i++)
-	{
-		bitset<4> tt (hexaToBinary(plain[i]));
-		for (int j=3; j>=0; j--)
-		{
-			plain_bs[index--] = tt[j];
-		}
-	}
-
-	// cout << "Plain Text : " << plain_bs << endl;
-
-	index = 127;
 	for (int i=0; i<32; i++)
 	{
 		bitset<4> tt (hexaToBinary(key[i]));
@@ -512,7 +502,37 @@ int main()
 
 	KeyGen(key_bs);
 
-	encrypt(plain_bs);
+	int i=0;
+	index = 127;
+	for (i=0; i<plain_len; i++)
+	{
+		bitset<4> tt (hexaToBinary(plain[i]));
+		for (int j=3; j>=0; j--)
+		{
+			plain_bs[index--] = tt[j];
+		}
+		if ((i+1)%32 == 0)
+		{
+			encrypt(plain_bs);
+			index = 127;
+		}
+	}
+
+	if (i%32 != 0)
+	{
+		int k = i;
+		while (k%32 != 0)
+		{
+			bitset<4> tt (hexaToBinary('0'));
+			for (int j=3; j>=0; j--)
+			{
+				plain_bs[index--] = tt[j];
+			}
+			k++;
+		}
+		encrypt(plain_bs);
+	}
+	
 
 	// bitset<8> b1(string("11001111"));
 	// bitset<8> b2(string("11100110"));
@@ -523,5 +543,12 @@ int main()
 
 	cout << "" << endl;
 	cout << plain;
-
+	if (plain_len % 32 != 0)
+	{
+		int extra = 32 - plain_len%32;
+		for (i=0; i<extra; i++)
+		{
+			cout << '0';
+		}
+	}
 }
