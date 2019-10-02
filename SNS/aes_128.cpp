@@ -9,21 +9,100 @@ bitset<8> global_round_key[11][4][4];
 
 bitset<32> round_key_constant[10];
 
-template<size_t N>
-void ShiftBytetLeft(bitset<N> bs[4], int byRotate)
+string hexaToBinary(char ch)
 {
-	bitset<N> temp_bs[4];
-	for (int i=byRotate; i<=N-1; i++)
+    switch(toupper(ch))
+    {
+        case '0': return "0000";
+        case '1': return "0001";
+        case '2': return "0010";
+        case '3': return "0011";
+        case '4': return "0100";
+        case '5': return "0101";
+        case '6': return "0110";
+        case '7': return "0111";
+        case '8': return "1000";
+        case '9': return "1001";
+        case 'A': return "1010";
+        case 'B': return "1011";
+        case 'C': return "1100";
+        case 'D': return "1101";
+        case 'E': return "1110";
+        case 'F': return "1111";
+    }
+}
+
+
+template<size_t N>
+int BinaryToDec(bitset<N> s)
+{
+    int ret=0, ex=1;
+    for (int i=0; i<N; i++)
+    {
+        if (s[i] == 1)
+        {
+            ret += ex;
+        }
+        ex *= 2;
+    }
+    return ret;
+}
+
+string BinaryToHexa(bitset<8> bs)
+{
+	string ret ("00");
+
+	int ret_index = 0;
+	
+	for (int i=7; i>0; i=i-4)
 	{
-		temp_bs[i] = bs[i - byRotate];
+		bitset<4> bt;
+		int index = 3;
+		for (int j=i; j>i-4; j--)
+		{
+			bt[index--] = bs[j];
+		}
+		// cout << "\nBit : " << bt << endl;
+		int dec = BinaryToDec(bt);
+		// cout << "Dec : " << dec << endl;
+	    switch(dec)
+	    {
+	        case 0: ret[ret_index] = '0'; break;
+	        case 1: ret[ret_index] = '1'; break;
+	        case 2: ret[ret_index] = '2'; break;
+	        case 3: ret[ret_index] = '3'; break;
+	        case 4: ret[ret_index] = '4'; break;
+	        case 5: ret[ret_index] = '5'; break;
+	        case 6: ret[ret_index] = '6'; break;
+	        case 7: ret[ret_index] = '7'; break;
+	        case 8: ret[ret_index] = '8'; break;
+	        case 9: ret[ret_index] = '9'; break;
+	        case 10: ret[ret_index] = 'a'; break;
+	        case 11: ret[ret_index] = 'b'; break;
+	        case 12: ret[ret_index] = 'c'; break;
+	        case 13: ret[ret_index] = 'd'; break;
+	        case 14: ret[ret_index] = 'e'; break;
+	        case 15: ret[ret_index] = 'f'; break;
+	    }
+	    ret_index++;
 	}
-	int index = N - byRotate;
-	for (int i=0; i<byRotate; i++)
+	return ret;
+}
+
+void ShiftBytetLeft(bitset<8> bs[4], int byRotate)
+{
+	bitset<8> temp_bs[4];
+	for (int i=0; i<4-byRotate; i++)
+	{
+		temp_bs[i] = bs[i + byRotate];
+	}
+	int index = 0;
+	for (int i=4-byRotate; i<4; i++)
 	{
 		temp_bs[i] = bs[index++];
 	}
 
-	for (int i=0; i<N; i++)
+	for (int i=0; i<4; i++)
 	{
 		bs[i] = temp_bs[i];
 	}
@@ -40,7 +119,7 @@ void ShiftBytetLeftWithWrapping(bitset<8> bs[4][4])
 template<size_t N>
 void ShiftBitLeftWOWrapping(bitset<N>& bs, int byRotate)
 {
-	for (int i=byRotate; i<=N-1; i++)
+	for (int i=N-1; i>=byRotate; i--)
 	{
 		bs[i] = bs[i - byRotate];
 	}
@@ -75,7 +154,7 @@ void multiply(bitset<N> bs1, bitset<N> bs2, bitset<N>& output)
 {
 	bitset<8> mult[8];
 	mult[0] = bs1;
-
+	// cout << "Mult : " << mult[0] << endl;
 	for (int i=1; i<8; i++)
 	{
 		mult[i] = mult[i-1];
@@ -89,6 +168,7 @@ void multiply(bitset<N> bs1, bitset<N> bs2, bitset<N>& output)
 			ShiftBitLeftWOWrapping(mult[i], 1);
 			mult[i] ^= modulo;
 		}
+		// cout << "Mult " << i << " : " << mult[i] << endl;
 	}
 
 	for (int i=0; i<8; i++)
@@ -96,6 +176,7 @@ void multiply(bitset<N> bs1, bitset<N> bs2, bitset<N>& output)
 		if (bs2[i] == 1)
 		{
 			output ^= mult[i];
+			// cout << "Output : " << output << endl;
 		}
 	}
 }
@@ -163,10 +244,10 @@ void inverse(bitset<N> bs, bitset<N>& output)
 
 void SubWord(bitset<32>& word)
 {
-	bitset<8> constant (string("11000110"));
+	bitset<8> constant (string("01100011"));
 	for (int i=31; i>0; i=i-8)
 	{
-		bitset<8> temp_word;
+		bitset<8> temp_word (0);
 		int index = 7;
 		for (int j=i; j>i-8; j--)
 		{
@@ -175,14 +256,17 @@ void SubWord(bitset<32>& word)
 
 		bitset<8> inverse_byte (0);
 		inverse(temp_word, inverse_byte);
+		// cout << "Act. byte : " << temp_word << endl;
+ 	// 	cout << "Inverse Byte : " << inverse_byte << endl;
 
 		bitset<8> temp_byte (0);
 		for (int k=0; k<8; k++)
 		{
-			temp_byte[7-i] = inverse_byte[7-i] ^ inverse_byte[7-(i+4)%8] ^ inverse_byte[7-(i+5)%8] ^ inverse_byte[7-(i+6)%8] ^ inverse_byte[7-(i+7)%8];
+			temp_byte[k] = inverse_byte[k] ^ inverse_byte[(k+4)%8] ^ inverse_byte[(k+5)%8] ^ inverse_byte[(k+6)%8] ^ inverse_byte[(k+7)%8];
 		}
+		// cout << "After Multiplication : " << temp_byte << endl;
 		temp_byte ^= constant;
-		
+		// cout << "After Subword : " << temp_byte << endl;
 		index = 7;
 		for (int j=i; j>i-8; j--)
 		{
@@ -193,7 +277,7 @@ void SubWord(bitset<32>& word)
 
 void SubByte(bitset<8> bs[][4])
 {
-	bitset<8> constant (string("11000110"));
+	bitset<8> constant (string("01100011"));
 	for (int i=0; i<4; i++)
 	{
 		for (int j=0; j<4; j++)
@@ -204,7 +288,7 @@ void SubByte(bitset<8> bs[][4])
 			bitset<8> temp_byte(0);
 			for (int k=0; k<8; k++)
 			{
-				temp_byte[7-i] = inverse_byte[7-i] ^ inverse_byte[7-(i+4)%8] ^ inverse_byte[7-(i+5)%8] ^ inverse_byte[7-(i+6)%8] ^ inverse_byte[7-(i+7)%8];
+				temp_byte[k] = inverse_byte[k] ^ inverse_byte[(k+4)%8] ^ inverse_byte[(k+5)%8] ^ inverse_byte[(k+6)%8] ^ inverse_byte[(k+7)%8];
 			}
 			temp_byte ^= constant;
 			bs[i][j] = temp_byte;
@@ -300,10 +384,12 @@ void KeyGen(bitset<128> key)
 			word[i][t_index--] = key[j];
 		}
 		index -= 32;
+		// cout << "Word " << i << " : " << word[i] << endl;
 	}
 
 	for (int i=4; i<44; i++)
 	{
+		// cout << "Word " << i << " : " << endl;
 		if (i%4 != 0)
 		{
 			word[i] = word[i-1] ^ word[i-4];
@@ -314,12 +400,15 @@ void KeyGen(bitset<128> key)
 			temp_word = word[i-1];
 
 			ShiftBitLeftWithWrapping(temp_word, 8);
+			// cout << "After RotWord : " << temp_word << endl;
 			SubWord(temp_word);
-
+			// cout << "After SubWord : " << temp_word << endl;
 			temp_word ^= round_key_constant[i/4 - 1];
-
-			word[i] = temp_word;
+			// cout << "After XOR with RCon : " << temp_word << endl;
+			word[i] = temp_word ^ word[i-4];
+			// cout << "After RotWord : " << temp_word << endl;
 		}
+		// cout << "Finally : " << word[i] << endl;
 	}
 
 	int word_index = 0;
@@ -343,10 +432,96 @@ void KeyGen(bitset<128> key)
 
 void encrypt(bitset<128> plain)
 {
+	bitset<8> plain_word[4][4];
 
+	int index = 127;
+	for (int i=0; i<4; i++)
+	{
+		for (int j=0; j<4; j++)
+		{
+			bitset<8> tt;
+			for (int k=7; k>=0; k--)
+			{
+				tt[k] = plain[index--];
+			}
+			plain_word[j][i] = tt;
+		}
+	}
+
+	AddRoundKey(plain_word, global_round_key[0]);
+
+	for (int i=1; i<10; i++)
+	{
+		// cout << "Round " << i << " : " << endl;
+		SubByte(plain_word);
+
+		ShiftBytetLeftWithWrapping(plain_word);
+
+		MixColumn(plain_word);
+
+		AddRoundKey(plain_word, global_round_key[i]);
+
+	}
+
+	SubByte(plain_word);
+	ShiftBytetLeftWithWrapping(plain_word);
+	AddRoundKey(plain_word, global_round_key[10]);
+
+	for (int i=0; i<4; i++)
+	{
+		for (int j=0; j<4; j++)
+		{
+			// cout << plain_word[j][i] << endl;
+			cout << BinaryToHexa(plain_word[j][i]);
+		}
+	}
 }
 
 int main()
 {
+	string plain;
+	string key;
+
+	cin >> plain;
+	cin >> key;
+
+	bitset<128> plain_bs;
+	bitset<128> key_bs;
+
+	int index = 127;
+	for (int i=0; i<32; i++)
+	{
+		bitset<4> tt (hexaToBinary(plain[i]));
+		for (int j=3; j>=0; j--)
+		{
+			plain_bs[index--] = tt[j];
+		}
+	}
+
+	// cout << "Plain Text : " << plain_bs << endl;
+
+	index = 127;
+	for (int i=0; i<32; i++)
+	{
+		bitset<4> tt (hexaToBinary(key[i]));
+		for (int j=3; j>=0; j--)
+		{
+			key_bs[index--] = tt[j];
+		}
+	}
+
+	KeyGen(key_bs);
+
+	encrypt(plain_bs);
+
+	// bitset<8> b1(string("11001111"));
+	// bitset<8> b2(string("11100110"));
+	// bitset<8> b3;
+
+	// multiply(b1, b2, b3);
+	// cout << "Multiply : " << b3 << endl;
+
+	cout << "" << endl;
+	cout << plain;
 
 }
