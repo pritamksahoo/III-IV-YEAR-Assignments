@@ -1,11 +1,17 @@
 #include <iostream>
 #include <bitset>
 #include <string>
+#include <map>
 
 using namespace std;
 
+#define MAX 1000
+
 bitset<8> modulo(string("00011011"));
 bitset<8> global_round_key[11][4][4];
+
+map< string, string > inv_sbox;
+map< string, string >::iterator it;
 
 bitset<32> round_key_constant[10];
 
@@ -113,6 +119,33 @@ void ShiftBytetLeftWithWrapping(bitset<8> bs[4][4])
 	for (int i=1; i<4; i++)
 	{
 		ShiftBytetLeft(bs[i], i);
+	}
+}
+
+void ShiftBytetRight(bitset<8> bs[4], int byRotate)
+{
+	bitset<8> temp_bs[4];
+	for (int i=byRotate; i<4; i++)
+	{
+		temp_bs[i] = bs[i - byRotate];
+	}
+	int index = 4-byRotate;
+	for (int i=0; i<byRotate; i++)
+	{
+		temp_bs[i] = bs[index++];
+	}
+
+	for (int i=0; i<4; i++)
+	{
+		bs[i] = temp_bs[i];
+	}
+}
+
+void ShiftBytetRightWithWrapping(bitset<8> bs[4][4])
+{
+	for (int i=1; i<4; i++)
+	{
+		ShiftBytetRight(bs[i], i);
 	}
 }
 
@@ -275,6 +308,38 @@ void SubWord(bitset<32>& word)
 	}
 }
 
+void Inv_S_Box()
+{
+	bitset<8> constant (string("01100011"));
+	for (int i = 0; i < 16; ++i)
+	{
+		for (int j = 0; j < 16; ++j)
+		{
+			bitset<4> l (i);
+			bitset<4> r (j);
+			bitset<8> temp_bs;
+
+			for (int k=0; k<4; k++)
+			{
+				temp_bs[k] = r[k];
+				temp_bs[k+4] = l[k];
+			}
+
+			bitset<8> inverse_byte(0);
+			inverse(temp_bs, inverse_byte);
+
+			bitset<8> temp_byte(0);
+			for (int k=0; k<8; k++)
+			{
+				temp_byte[k] = inverse_byte[k] ^ inverse_byte[(k+4)%8] ^ inverse_byte[(k+5)%8] ^ inverse_byte[(k+6)%8] ^ inverse_byte[(k+7)%8];
+			}
+			temp_byte ^= constant;
+
+			inv_sbox[temp_byte.to_string()] = temp_bs.to_string();
+		}
+	}
+}
+
 void SubByte(bitset<8> bs[][4])
 {
 	bitset<8> constant (string("01100011"));
@@ -291,9 +356,27 @@ void SubByte(bitset<8> bs[][4])
 				temp_byte[k] = inverse_byte[k] ^ inverse_byte[(k+4)%8] ^ inverse_byte[(k+5)%8] ^ inverse_byte[(k+6)%8] ^ inverse_byte[(k+7)%8];
 			}
 			temp_byte ^= constant;
+
+			// inv_sbox[temp_byte.to_string()] = bs[i][j].to_string();
+
 			bs[i][j] = temp_byte;
 		}
 	}
+}
+
+void InvSubByte(bitset<8> bs[4][4])
+{
+	bitset<8> constant (string("01100011"));
+	for (int i=0; i<4; i++)
+	{
+		for (int j=0; j<4; j++)
+		{
+			it = inv_sbox.find(bs[i][j].to_string());
+			bitset<8> tt (it->second);
+			bs[i][j] = tt;
+		}
+	}
+	
 }
 
 void MixColumn(bitset<8> bs[][4])
@@ -305,6 +388,51 @@ void MixColumn(bitset<8> bs[][4])
 	string three = "00000011";
 
 	string MixMult[4][4] = {two, three, one, one, one, two, three, one, one, one, two, three, three, one, one, two};
+	bitset<8> multBy[4][4];
+	for (int i=0; i<4; i++)
+	{
+		for (int j=0; j<4; j++)
+		{
+			bitset<8> bt(MixMult[i][j]);
+			multBy[i][j] = bt;
+		}
+	}
+
+	for (int i=0; i<4; i++)
+	{
+		for (int j=0; j<4; j++)
+		{
+			temp_bs[i][j] = only_zero;
+			for (int k=0; k<4; k++)
+			{
+				bitset<8> ans;
+				ans = only_zero;
+				multiply(multBy[i][k], bs[k][j], ans);
+
+				temp_bs[i][j] ^= ans;
+			}
+		}
+	}
+
+	for (int i=0; i<4; i++)
+	{
+		for (int j=0; j<4; j++)
+		{
+			bs[i][j] = temp_bs[i][j];
+		}
+	}
+}
+
+void InvMixColumn(bitset<8> bs[][4])
+{
+	bitset<8> temp_bs[4][4];
+	bitset<8> only_zero (string("00000000"));
+	string nine = "00001001";
+	string bee = "00001011";
+	string dee = "00001101";
+	string ee = "00001110";
+
+	string MixMult[4][4] = {ee, bee, dee, nine, nine, ee, bee, dee, dee, nine, ee, bee, bee, dee, nine, ee};
 	bitset<8> multBy[4][4];
 	for (int i=0; i<4; i++)
 	{
@@ -430,7 +558,7 @@ void KeyGen(bitset<128> key)
 
 }
 
-void encrypt(bitset<128> plain)
+void encrypt(bitset<128> plain, char cipher[], int* cipher_index)
 {
 	bitset<8> plain_word[4][4];
 
@@ -472,9 +600,60 @@ void encrypt(bitset<128> plain)
 		for (int j=0; j<4; j++)
 		{
 			// cout << plain_word[j][i] << endl;
-			cout << BinaryToHexa(plain_word[j][i]);
+			string hex = BinaryToHexa(plain_word[j][i]);
+			cipher[(*cipher_index)++] = hex[0];
+			cipher[(*cipher_index)++] = hex[1];
+
+			// cout << hex;
 		}
 	}
+}
+
+void decipher(bitset<128>cipher_bs, char decrypted[], int* decrypted_index)
+{
+	bitset<8> cipher_word[4][4];
+
+	int index = 127;
+	for (int i=0; i<4; i++)
+	{
+		for (int j=0; j<4; j++)
+		{
+			bitset<8> tt;
+			for (int k=7; k>=0; k--)
+			{
+				tt[k] = cipher_bs[index--];
+			}
+			cipher_word[j][i] = tt;
+		}
+	}
+
+	AddRoundKey(cipher_word, global_round_key[10]);
+	ShiftBytetRightWithWrapping(cipher_word);
+	InvSubByte(cipher_word);
+
+	for (int i=9; i>=1; i--)
+	{
+		// cout << "Round " << i << " : " << endl;
+		AddRoundKey(cipher_word, global_round_key[i]);
+		InvMixColumn(cipher_word);
+		ShiftBytetRightWithWrapping(cipher_word);
+		InvSubByte(cipher_word);
+	}
+	AddRoundKey(cipher_word, global_round_key[0]);
+
+	for (int i=0; i<4; i++)
+	{
+		for (int j=0; j<4; j++)
+		{
+			// cout << plain_word[j][i] << endl;
+			string hex = BinaryToHexa(cipher_word[j][i]);
+			decrypted[(*decrypted_index)++] = hex[0];
+			decrypted[(*decrypted_index)++] = hex[1];
+
+			// cout << hex;
+		}
+	}
+
 }
 
 int main()
@@ -489,6 +668,12 @@ int main()
 
 	bitset<128> plain_bs;
 	bitset<128> key_bs;
+	bitset<128> cipher_bs;
+
+	char cipher[MAX];
+	int cipher_index = 0;
+	char decrypted[MAX];
+	int decrypted_index = 0;
 
 	int index = 127;
 	for (int i=0; i<32; i++)
@@ -513,7 +698,7 @@ int main()
 		}
 		if ((i+1)%32 == 0)
 		{
-			encrypt(plain_bs);
+			encrypt(plain_bs, cipher, &cipher_index);
 			index = 127;
 		}
 	}
@@ -530,9 +715,31 @@ int main()
 			}
 			k++;
 		}
-		encrypt(plain_bs);
+		encrypt(plain_bs, cipher, &cipher_index);
 	}
 	
+	cipher[cipher_index] = '\0';
+	cout << cipher << endl;
+
+	Inv_S_Box();
+
+	index = 127;
+	for (i=0; i<cipher_index; i++)
+	{
+		bitset<4> tt (hexaToBinary(cipher[i]));
+		for (int j=3; j>=0; j--)
+		{
+			cipher_bs[index--] = tt[j];
+		}
+		if ((i+1)%32 == 0)
+		{
+			decipher(cipher_bs, decrypted, &decrypted_index);
+			index = 127;
+		}
+	}
+
+	decrypted[decrypted_index] = '\0';
+	cout << decrypted;
 
 	// bitset<8> b1(string("11001111"));
 	// bitset<8> b2(string("11100110"));
@@ -541,14 +748,13 @@ int main()
 	// multiply(b1, b2, b3);
 	// cout << "Multiply : " << b3 << endl;
 
-	cout << "" << endl;
-	cout << plain;
-	if (plain_len % 32 != 0)
-	{
-		int extra = 32 - plain_len%32;
-		for (i=0; i<extra; i++)
-		{
-			cout << '0';
-		}
-	}
+	// cout << plain;
+	// if (plain_len % 32 != 0)
+	// {
+	// 	int extra = 32 - plain_len%32;
+	// 	for (i=0; i<extra; i++)
+	// 	{
+	// 		cout << '0';
+	// 	}
+	// }
 }
