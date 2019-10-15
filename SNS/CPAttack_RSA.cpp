@@ -11,25 +11,20 @@ ll calc_phi(ll num);
 
 int main()
 {
-	ll N, e, d, M, C[2];
-	cin >> C[0];
+	ll N, e, M, modfd_M, C;
+	cin >> C;
 	cin >> e;
 	cin >> N;
-	cin >> C[1];
-	d = calc_inverse(e, calc_phi(N));
-// 	N = 77, e = 13, d = 37;
+	cin >> modfd_M;
 
-    for (int i=0; i<2; i++)
-    {
-    	ll modfd_C = (C[2-i-1]*fast_exponent(2,e,N))%N;
-    	ll pt = fast_exponent(modfd_C, d, N);
-    
-    	ll inv = calc_inverse(2, N);
-    
-    	ll answer = (pt*inv)%N;
-    
-    	cout << answer << endl;
-    }
+	ll modfd_C = (C*fast_exponent(2,e,N))%N;
+
+	cout << modfd_C << endl;
+
+	ll inv = calc_inverse(2, N);
+	ll answer = (modfd_M*inv)%N;
+
+	cout << answer << endl;
 
 }
 
