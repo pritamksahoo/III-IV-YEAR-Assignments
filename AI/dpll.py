@@ -1,4 +1,7 @@
 def make_clause(clause, line, count_dict):
+	'''
+	Storing the propositional clauses
+	'''
 	proposition = line.split()
 	new_clause = dict()
 
