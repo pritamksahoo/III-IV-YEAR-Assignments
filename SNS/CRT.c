@@ -39,6 +39,11 @@ ll calc_inverse(ll num, ll mod)
 		t1 = t2, t2 = t;
 	}
 
+	if (t1 < 0)
+	{
+		t1 += mod;
+	}
+
 	return t1;
 }
 
