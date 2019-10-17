@@ -1,5 +1,6 @@
-A !B C
-B !C A
+!B C
+B !C !A
 A !C
-!B
+B
+C !B
 /
