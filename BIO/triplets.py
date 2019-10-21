@@ -31,10 +31,10 @@ def add_to_suffix_tree(triplet, part):
 
 		else:
 			trip = trip.children[val]
-			trip.freq = trip.freq + 1
 
-			if i == pair-1:
-				ret = trip.freq
+		if i == pair-1:
+			trip.freq = trip.freq + 1
+			ret = trip.freq
 
 	return ret
 
