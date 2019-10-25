@@ -18,6 +18,10 @@ def approx_rect(con):
     return boundRect
 
 def all_contour(th):
+    '''
+    Returns all contour and the particular contours which may contain digit
+    '''
+    
     cnts = cv.findContours(th.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
 
@@ -26,10 +30,13 @@ def all_contour(th):
     for c_el in cnts:
         boundRect = approx_rect(c_el)
         area, wh_ratio = boundRect[2]*boundRect[3], boundRect[2]/boundRect[3] 
+        
         if area > 80 and area < 300 and wh_ratio < 3.5 and wh_ratio > 0.28:
-#             print(cv.contourArea(c_el))
-    #         print(boundRect)
             rect.append([(int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))])
+        
+#             cv.rectangle(drawing, (int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3])), 0, 1)
+#     cv.imshow("wrap", drawing)
+#     cv.waitKey(0)
         
     return rect, cnts
 
@@ -57,26 +64,9 @@ def extract_num(image):
     thresh1 = cv.dilate(thresh, kernel, iterations=1)
 #     cv.imshow("thresh", thresh)
 #     cv.waitKey(0)
+
     thresh1 = cv.erode(thresh1, kernel, iterations=1)
 #     cv.imshow("thresh", thresh)
-#     cv.waitKey(0)
-
-#     cnts = cv.findContours(thresh1.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-#     cnts = imutils.grab_contours(cnts)
-
-#     drawing = image.copy()
-#     rect = list()
-#     for c_el in cnts:
-#         boundRect = approx_rect(c_el)
-#         area, wh_ratio = boundRect[2]*boundRect[3], boundRect[2]/boundRect[3] 
-#         if area > 80 and area < 300 and wh_ratio < 3.5 and wh_ratio > 0.28:
-#             print(cv.contourArea(c_el))
-#     #         print(boundRect)
-#             rect.append([(int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))])
-
-#             cv.rectangle(drawing, (int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3])), 0, 1)
-
-#     cv.imshow("wrap", drawing)
 #     cv.waitKey(0)
 
     rect, cnts = all_contour(thresh1)
@@ -105,18 +95,3 @@ def extract_num(image):
         cv.waitKey(0)
 
         return ret_val, image
-
-# def extract_digit(image):
-#     ret, thresh = extract_num(image.copy())
-
-#     ret = sorted(ret, key=lambda x: (x[0], x[1]))
-#     counter = 0
-#     for r in ret:
-#         temp = thresh[r[0][1]:r[1][1], r[0][0]:r[1][0]]
-#         cv.imshow("temp", temp)
-#         cv.waitKey(0)
-# #         cv.imwrite(path + "i" + str(counter) + ".jpg", temp)
-# #         counter = counter + 1
-
-
-#     cv.destroyAllWindows()
