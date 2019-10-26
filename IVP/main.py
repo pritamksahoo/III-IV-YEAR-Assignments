@@ -9,7 +9,7 @@ from number_detection import *
 path = "/home/pks/Downloads/Assignment/IVP/mini project/"
 
 if __name__ == '__main__':
-    image = cv.imread(path+"sample6.jpg", 0)
+    image = cv.imread(path+"sample7.jpg", 0)
     
     roi, cells = extract_roi(image)
     

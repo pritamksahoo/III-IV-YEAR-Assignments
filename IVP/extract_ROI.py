@@ -120,7 +120,7 @@ def extract_roi(image):
     cv.waitKey(0)
     
     # Hough Line Detection
-    lines = cv.HoughLines(edges,1,np.pi/180,200)
+    lines = cv.HoughLines(edges,1,np.pi/180,150)
     
     # Removing multiple ambiguous Lines <--start-->
     points = np.array([[line[0][0], line[0][1]] for line in lines])

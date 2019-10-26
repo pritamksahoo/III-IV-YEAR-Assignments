@@ -30,8 +30,10 @@ def all_contour(th):
     for c_el in cnts:
         boundRect = approx_rect(c_el)
         area, wh_ratio = boundRect[2]*boundRect[3], boundRect[2]/boundRect[3] 
-        
-        if area > 80 and area < 300 and wh_ratio < 3.5 and wh_ratio > 0.28:
+        top, left = th.shape
+        print(top, left, boundRect)
+#         if area > 80 and area < 300 and wh_ratio < 3.5 and wh_ratio > 0.28:
+        if 10 <= boundRect[3] <= 25 and 2 <= boundRect[2] <= 25 and 10 < area < 500 and boundRect[0] < left-5 and boundRect[1] > 5:
             rect.append([(int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))])
         
 #             cv.rectangle(drawing, (int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3])), 0, 1)
