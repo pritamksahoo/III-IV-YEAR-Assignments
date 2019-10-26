@@ -27,16 +27,19 @@ def k_mean(no_points, points_in_5D, no_clusters, origins):
 				clusters[index_point] = closest_org
 				change = True
 
-	origins = [[0, 0]]*no_clusters
+		origins = [[0, 0]]*no_clusters
 
-	for index_cluster, cluster in enumerate(clusters):
-		origins[cluster] = [origins[cluster][0]+points_in_5D[index_cluster][0], origins[cluster][1]+points_in_5D[index_cluster][1]]
+		for index_cluster, cluster in enumerate(clusters):
+			origins[cluster] = [origins[cluster][0]+points_in_5D[index_cluster][0], origins[cluster][1]+points_in_5D[index_cluster][1]]
 
-	# print("origins", origins, "clusters", clusters)
+		# print("origins", origins, "clusters", clusters)
 
-	for cluster in range(no_clusters):
-		cnt = clusters.count(cluster)
-		origins[cluster] = [origins[cluster][0]/cnt, origins[cluster][1]/cnt]
+		for cluster in range(no_clusters):
+			cnt = clusters.count(cluster)
+			if cnt != 0:
+				origins[cluster] = [origins[cluster][0]/cnt, origins[cluster][1]/cnt]
+
+		# print(clusters, origins, '\n')
 
 	return clusters, origins
 
