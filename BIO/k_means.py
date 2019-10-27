@@ -38,7 +38,7 @@ def k_mean(no_points, points_in_5D, no_clusters, origins):
 
 		for index_cluster, cluster in enumerate(clusters):
 			for i in range(dim):
-				origins[cluster][i] = origins[cluster][i]+points_in_5D[index_cluster][i]
+				origins[cluster][i] = origins[cluster][i] + points_in_5D[index_cluster][i]
 
 		# print("origins", origins, "clusters", clusters)
 
