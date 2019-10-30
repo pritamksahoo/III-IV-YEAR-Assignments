@@ -53,23 +53,24 @@ def extract_num(image):
     '''
     
 #     image = cv.GaussianBlur(image, (3,3), 0)
+    row, col = image.shape
+    # image = image[2:row-2, 1:col-1]
+
     cv.imshow("img", image)
     cv.waitKey(0)
 
     _, thresh = cv.threshold(image, 0, 255, cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
-#     thresh = cv.adaptiveThreshold(image, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY_INV, 11, 2)
-#     thresh = cv.Canny(image, 80, 120)
-#     cv.imshow("thresh", thresh)
-#     cv.waitKey(0)
+    # thresh = cv.adaptiveThreshold(image, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY_INV, 11, 2)
+    # thresh = cv.Canny(image, 80, 120)
+    cv.imshow("thresh", thresh)
+    cv.waitKey(0)
     
-    kernel = np.ones((3,3), np.uint8)
-    thresh1 = cv.dilate(thresh, kernel, iterations=1)
-#     cv.imshow("thresh", thresh)
-#     cv.waitKey(0)
+    # kernel = np.ones((3,3), np.uint8)
+    kernel = cv.getStructuringElement(cv.MORPH_CROSS, (2, 3))
+    thresh1 = cv.morphologyEx(thresh, cv.MORPH_CLOSE, kernel)
 
-    thresh1 = cv.erode(thresh1, kernel, iterations=1)
-#     cv.imshow("thresh", thresh)
-#     cv.waitKey(0)
+    cv.imshow("thresh1", thresh1)
+    cv.waitKey(0)
 
     rect, cnts = all_contour(thresh1)
     if len(rect) == 0:
@@ -97,3 +98,8 @@ def extract_num(image):
         cv.waitKey(0)
 
         return ret_val, image
+
+if __name__ == '__main__':
+    
+    image = cv.imread(path+"img13.jpg", 0)
+    conts, number = extract_num(image)

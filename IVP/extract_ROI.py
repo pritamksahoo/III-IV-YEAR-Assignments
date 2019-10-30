@@ -176,6 +176,11 @@ def extract_roi(image):
             p4 = intersection_bw_2_lines(hl2, vl2)
             
             ret_cell.append([p1, p2, p3, p4])
+
+            # cell = image[p1[1]:p3[1]+1, p1[0]:p2[0]+1]
+            
+            # cv.imwrite(path + "img" + str(counter) + ".jpg", cell)
+            # counter = counter + 1
     
     cv.destroyAllWindows()
     
