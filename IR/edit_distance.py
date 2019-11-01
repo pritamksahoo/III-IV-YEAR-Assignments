@@ -4,9 +4,12 @@ keyboard = 	[['q', '#', 'w', '#', 'e', '#', 'r', '#', 't', '#', 'y', '#', 'u', '
 
 i_cost, rm_cost = 1, 1
 
-def rp_cost(ch1, ch2):
+def rp_cost(ch1, ch2, key_dict):
 	'''Calculate replacement cost'''
-	return 1
+	loc1, loc2 = key_dict[ch1], key_dict[ch2]
+	diff_x, diff_y = abs(loc1[0] - loc2[0]), abs(loc1[1] - loc2[1])
+
+	return max(diff_x, diff_y)
 
 def min_mat_ind(m):
 	'''Return index with minimum value'''
@@ -22,6 +25,16 @@ def min_mat_ind(m):
 
 
 if __name__ == '__main__':
+
+	'''Remembering location of all keys on keyboard'''
+	key_dict = {}
+
+	row_len = len(keyboard[0])
+	for i in range(3):
+		for j in range(row_len):
+			if keyboard[i][j] != '#':
+				key_dict[keyboard[i][j]] = (i,j)
+
 	# String input
 	s1, s2 = input(), input()
 	len1, len2 = len(s1), len(s2)
@@ -49,7 +62,7 @@ if __name__ == '__main__':
 			else:
 				mat[i][j][0] = i_cost + mat[i][j-1][3]
 				mat[i][j][1] = rm_cost + mat[i-1][j][3]
-				mat[i][j][2] = rp_cost(s1[i-1], s2[j-1]) + mat[i-1][j-1][3]
+				mat[i][j][2] = rp_cost(s1[i-1], s2[j-1], key_dict) + mat[i-1][j-1][3]
 
 			min_ind = min_mat_ind(mat[i][j])
 
