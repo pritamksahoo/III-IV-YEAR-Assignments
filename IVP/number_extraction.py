@@ -56,21 +56,21 @@ def extract_num(image):
     row, col = image.shape
     # image = image[2:row-2, 1:col-1]
 
-    cv.imshow("img", image)
-    cv.waitKey(0)
+    # cv.imshow("img", image)
+    # cv.waitKey(0)
 
     _, thresh = cv.threshold(image, 0, 255, cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
     # thresh = cv.adaptiveThreshold(image, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY_INV, 11, 2)
     # thresh = cv.Canny(image, 80, 120)
-    cv.imshow("thresh", thresh)
-    cv.waitKey(0)
+    # cv.imshow("thresh", thresh)
+    # cv.waitKey(0)
     
     # kernel = np.ones((3,3), np.uint8)
-    kernel = cv.getStructuringElement(cv.MORPH_CROSS, (2, 3))
+    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))
     thresh1 = cv.morphologyEx(thresh, cv.MORPH_CLOSE, kernel)
 
-    cv.imshow("thresh1", thresh1)
-    cv.waitKey(0)
+    # cv.imshow("thresh1", thresh1)
+    # cv.waitKey(0)
 
     rect, cnts = all_contour(thresh1)
     if len(rect) == 0:
@@ -94,8 +94,8 @@ def extract_num(image):
             if top <= start[1] and bottom >= end[1] and left <= start[0] and right >= end[0]:
                 ret_val.append([(int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))])
 
-        cv.imshow("wrap", drawing)
-        cv.waitKey(0)
+        # cv.imshow("wrap", drawing)
+        # cv.waitKey(0)
 
         return ret_val, image
 

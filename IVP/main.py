@@ -9,10 +9,10 @@ from number_detection import *
 path = "/home/pks/Downloads/Assignment/IVP/mini project/"
 
 if __name__ == '__main__':
-    image = cv.imread(path+"sample6.jpg", 0)
+    image = cv.imread(path+"sample11.jpg", 0)
     
     roi, cells = extract_roi(image)
-    
+    counter = 1
     for cell in cells:
         p1, p2, p3, p4 = cell
         cell_image = roi[p1[1]:p3[1]+1, p1[0]:p2[0]+1]
@@ -29,7 +29,10 @@ if __name__ == '__main__':
             conts = sorted(conts, key=lambda x: (x[0], x[1]))
             for r in conts:
                 temp = number[r[0][1]:r[1][1], r[0][0]:r[1][0]]
-                cv.imshow("temp", temp)
-                cv.waitKey(0)
+                # cv.imshow("temp", temp)
+                # cv.waitKey(0)
                 
+                # cv.imwrite(path + "test" + str(counter) + ".jpg", temp)
+                # counter = counter + 1
+
                 digit = detect_digit(temp)

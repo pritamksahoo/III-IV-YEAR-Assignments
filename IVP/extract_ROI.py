@@ -4,6 +4,53 @@ import imutils
 
 path = "/home/pks/Downloads/Assignment/IVP/mini project/"
 
+def orientation(image):
+    '''
+    Rotate the image before any operation
+    based on the pos. of roll no. box w.r.t number table
+    '''
+    row, col = image.shape
+    thresh = cv.Canny(image, 40, 90)
+    thresh = cv.dilate(thresh, None, iterations=1)
+     
+    '''Find max (Number table) and 2nd max (Roll no. box) contour'''
+    cnts = cv.findContours(thresh.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    cnts = sorted(cnts, key=lambda x: cv.contourArea(x), reverse=True)
+    c1, c2 = cnts[:2]
+
+    rect1, rect2 = cv.minAreaRect(c1), cv.minAreaRect(c2)
+    box1, box2 = cv.boxPoints(rect1), cv.boxPoints(rect2)
+
+    # Max
+    box1 = sorted(box1, key=lambda x: x[0])
+    r_most1, l_most1 = box1[-1], box1[0]
+
+    # 2nd Max
+    box2 = sorted(box2, key=lambda x: x[0])
+    r_most2, l_most2 = box2[-1], box2[0]
+
+    x,y = 450, 600
+    pts1 = np.float32([[0,row], [0,0], [col,row], [col,0]])
+
+    '''Roll no box is at right of number table, rotate left'''
+    if l_most2[0] >= r_most1[0]:
+        pts2 = np.float32([[x,y], [0,y], [x,0], [0,0]])
+
+    elif r_most2[0] <= l_most1[0]:
+        '''Opposite, rotate right'''
+        pts2 = np.float32([[0,0], [x,0], [0,y], [x,y]])
+
+    else:
+        return image
+
+    M = cv.getPerspectiveTransform(pts1,pts2)
+    image = cv.warpPerspective(image,M,(x,y))
+
+    return image
+    '''END'''
+
+
 def intersection_bw_2_lines(l1, l2):
     '''
     Returns point of intersection between 2 lines
@@ -66,15 +113,15 @@ def extract_roi(image):
     Returns:
         extracted table and four points of each rectangular cell
     '''
-    
-    row, col = image.shape
-    if row < col:
-        x,y = 450, 600
-        pts1 = np.float32([[0,row], [0,0], [col,row], [col,0]])
-        # w,h = image.shape
-        pts2 = np.float32([[0,0], [x,0], [0,y], [x,y]])
-        M = cv.getPerspectiveTransform(pts1,pts2)
-        image = cv.warpPerspective(image,M,(x,y))
+    image = orientation(image)
+    # row, col = image.shape
+    # if row < col:
+    #     x,y = 450, 600
+    #     pts1 = np.float32([[0,row], [0,0], [col,row], [col,0]])
+    #     # w,h = image.shape
+    #     pts2 = np.float32([[0,0], [x,0], [0,y], [x,y]])
+    #     M = cv.getPerspectiveTransform(pts1,pts2)
+    #     image = cv.warpPerspective(image,M,(x,y))
 #         image = cv.resize(image, (450, 600))
         
 #     image = image[:image.shape[0]-150, :]
