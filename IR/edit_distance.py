@@ -9,6 +9,12 @@ def rp_cost(ch1, ch2, key_dict):
 	loc1, loc2 = key_dict[ch1], key_dict[ch2]
 	diff_x, diff_y = abs(loc1[0] - loc2[0]), abs(loc1[1] - loc2[1])
 
+	if diff_x == 0:
+		diff_y = diff_y - 1
+
+	elif diff_y == 0:
+		diff_x = diff_x - 1
+
 	return max(diff_x, diff_y)
 
 def min_mat_ind(m):
@@ -88,7 +94,10 @@ if __name__ == '__main__':
 		prev_x, prev_y = mat[x][y][4]
 
 		if prev_x == x-1 and prev_y == y-1:
-			print("Replace", s1[x-1], "with", s2[y-1])
+			if s1[x-1] == s2[y-1]:
+				print("Keep", s1[x-1])
+			else:
+				print("Replace", s1[x-1], "with", s2[y-1])
 
 		elif prev_x == x-1:
 			print("Remove", s1[x-1])
