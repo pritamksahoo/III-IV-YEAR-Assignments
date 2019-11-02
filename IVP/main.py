@@ -34,9 +34,9 @@ if __name__ == '__main__':
                 conts = sorted(conts, key=lambda x: (x[0], x[1]))
                 for r in conts:
                     temp = number[r[0][1]:r[1][1], r[0][0]:r[1][0]]
-                    if row == 10 and count == 5:
-                        cv.imshow("temp", temp)
-                        cv.waitKey(0)
+
+                    # cv.imshow("temp", temp)
+                    # cv.waitKey(0)
                     
                     # cv.imwrite(path + "test" + str(counter) + ".jpg", temp)
                     # counter = counter + 1
