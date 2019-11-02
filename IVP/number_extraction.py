@@ -31,7 +31,7 @@ def all_contour(th):
         boundRect = approx_rect(c_el)
         area, wh_ratio = boundRect[2]*boundRect[3], boundRect[2]/boundRect[3] 
         top, left = th.shape
-        print(top, left, boundRect)
+        # print(top, left, boundRect)
 #         if area > 80 and area < 300 and wh_ratio < 3.5 and wh_ratio > 0.28:
         if 10 <= boundRect[3] <= 25 and 2 <= boundRect[2] <= 25 and 10 < area < 500 and boundRect[0] < left-5 and boundRect[1] > 5:
             rect.append([(int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))])
@@ -41,6 +41,24 @@ def all_contour(th):
 #     cv.waitKey(0)
         
     return rect, cnts
+
+
+def trapped(start, end, rect):
+    '''Remove extra contour pixel created from morphological operation'''
+    ret_val = False
+
+    if [start, end] in rect:
+        return ret_val
+
+    for point in rect:
+        s, e = point
+
+        if start >= s and end <= e:
+            ret_val = True
+            break
+
+    return ret_val
+
 
 def extract_num(image):
     '''
@@ -91,7 +109,7 @@ def extract_num(image):
             start, end = (int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))
             cv.rectangle(drawing, start, end, 0, 1)
 
-            if top <= start[1] and bottom >= end[1] and left <= start[0] and right >= end[0]:
+            if start[0] > 2 and top <= start[1] and bottom >= end[1] and left <= start[0] and right >= end[0] and not trapped(start, end, rect):
                 ret_val.append([(int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))])
 
         # cv.imshow("wrap", drawing)
