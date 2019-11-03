@@ -44,6 +44,7 @@ if __name__ == '__main__':
                     # counter = counter + 1
 
                     digit = prediction(temp, model)
+                    # print(digit)
 
                     if digit == 'decimal':
                         isFraction = True

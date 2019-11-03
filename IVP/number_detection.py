@@ -10,11 +10,11 @@ early_stopping_monitor = EarlyStopping(patience=3)
 path = "/home/pks/Downloads/Assignment/IVP/mini project/"
 
 def resize_image(img, size=(28,28)):
-	_,img=cv2.threshold(img,0,255,cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
-	#img=cv2.bitwise_not(img)
-	# cv2.imshow('image1', img)
-	# cv2.waitKey(0)
-	#img=cv2.dilate(img,None,iterations=2)
+	'''
+	Resizing image into 28x28 pixels according to MNIST Standard
+	'''
+	_, img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV+cv2.THRESH_OTSU)
+
 	# cv2.imshow('image1', img) 
 	# cv2.waitKey(0)
 
@@ -48,6 +48,9 @@ def resize_image(img, size=(28,28)):
 
 
 def decimal_check(img):
+	'''
+	Check if img is decimal point or not
+	'''
 	row, col = img.shape
 	# print(row*col)
 
@@ -56,18 +59,33 @@ def decimal_check(img):
 	else:
 		return False
 
-def prediction(img, model):
-	flag = decimal_check(img)
 
-	if flag == True:
+def one_check(img):
+	'''Check if img is obvious 1'''
+	h, w = img.shape
+	wh_ratio = h/w
+
+	if wh_ratio >= 5:
+		return True
+
+	else:
+		return False
+
+
+def prediction(img, model):
+	'''
+	Digit Prediction
+	'''
+	d_flag = decimal_check(img)
+	one_flag = one_check(img)
+
+	if d_flag == True:
 		return 'decimal'
+	elif one_flag == True:
+		return 1
 	else:
 		#Predicting
 		img = resize_image(img)
-		# print(img.shape)
-		#print(img_inv.shape)
-
-
 		# Output img with window name as 'image' 
 		# cv2.imshow('image', img)
 		# cv2.waitKey(0)         
@@ -79,6 +97,7 @@ def prediction(img, model):
 		return num
 
 if __name__ == '__main__':
-	img = cv2.imread(path+"img43.jpg", 0)
+	img = cv2.imread(path+"img7.jpg", 0)
 	model = load_model('apna_model.h5')
-	prediction(img, model)
+
+	print(prediction(img, model))

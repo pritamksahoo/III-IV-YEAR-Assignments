@@ -94,9 +94,11 @@ def remove_mult_lines(set_of_lines, dist):
             
             if index == len(set_of_lines)-1:
                 temp_lines.append(temp[len(temp)//2])
+                # temp_lines.append(np.median(temp, axis=0))
             
         else:
             temp_lines.append(temp[len(temp)//2])
+            # temp_lines.append(np.median(temp, axis=0))
             temp = [point]
             
             if index == len(set_of_lines)-1:

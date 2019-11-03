@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import imutils
+from number_detection import *
 
 path = "/home/pks/Downloads/Assignment/IVP/mini project/"
 
@@ -46,12 +47,12 @@ def all_contour(th):
 def isThere(l, el):
     return el in l
 
-def trapped(start, end, rect, h, w):
+def trapped(start, end, rect, w, h):
     '''Remove extra contour pixel created from morphological operation'''
     ret_val = False
     # print("t", start, end, h, w)
 
-    if isThere(start,0) or isThere(end,0) or isThere(start,h) or isThere(start,w) or isThere(end,h) or isThere(end,w):
+    if isThere(start,0) or isThere(end,0) or start[0] == h or start[1] == w or end[0] == h or end[1] == w:
         ret_val = True
         return ret_val
 
@@ -86,6 +87,11 @@ def extract_num(image):
     # cv.waitKey(0)
 
     _, thresh = cv.threshold(image, 0, 255, cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
+
+    # thresh[:, :2] = 0
+    # thresh[:, -3:] = 0
+    # thresh[:3, :] = 0
+    # thresh[-3:, :] = 0
     # thresh = cv.adaptiveThreshold(image, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY_INV, 11, 2)
     # thresh = cv.Canny(image, 80, 120)
     # cv.imshow("thresh", thresh)
@@ -127,5 +133,6 @@ def extract_num(image):
 
 if __name__ == '__main__':
     
-    image = cv.imread(path+"img13.jpg", 0)
+    image = cv.imread(path+"img6.jpg", 0)
     conts, number = extract_num(image)
+    print(conts)
