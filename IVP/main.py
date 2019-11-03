@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import imutils
+from keras.models import load_model
 
 from extract_ROI import *
 from number_extraction import *
@@ -9,7 +10,8 @@ from number_detection import *
 path = "/home/pks/Downloads/Assignment/IVP/mini project/"
 
 if __name__ == '__main__':
-    image = cv.imread(path+"sample7.jpg", 0)
+    image = cv.imread(path+"sample8.jpg", 0)
+    model = load_model('apna_model.h5')
     
     roi, cells = extract_roi(image)
     counter, count, row = 1, 0, 0
@@ -41,7 +43,7 @@ if __name__ == '__main__':
                     # cv.imwrite(path + "test" + str(counter) + ".jpg", temp)
                     # counter = counter + 1
 
-                    digit = detect_digit(temp)
+                    digit = prediction(temp, model)
 
                     if digit == 'decimal':
                         isFraction = True

@@ -43,17 +43,25 @@ def all_contour(th):
     return rect, cnts
 
 
-def trapped(start, end, rect):
+def isThere(l, el):
+    return el in l
+
+def trapped(start, end, rect, h, w):
     '''Remove extra contour pixel created from morphological operation'''
     ret_val = False
+    # print("t", start, end, h, w)
+
+    if isThere(start,0) or isThere(end,0) or isThere(start,h) or isThere(start,w) or isThere(end,h) or isThere(end,w):
+        ret_val = True
+        return ret_val
 
     if [start, end] in rect:
         return ret_val
-
+    
     for point in rect:
         s, e = point
 
-        if start >= s and end <= e:
+        if (start >= s and end <= e):
             ret_val = True
             break
 
@@ -109,7 +117,7 @@ def extract_num(image):
             start, end = (int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))
             cv.rectangle(drawing, start, end, 0, 1)
 
-            if start[0] > 2 and top <= start[1] and bottom >= end[1] and left <= start[0] and right >= end[0] and not trapped(start, end, rect):
+            if start[0] > 2 and top <= start[1] and bottom >= end[1] and left <= start[0] and right >= end[0] and not trapped(start, end, rect, row, col):
                 ret_val.append([(int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))])
 
         # cv.imshow("wrap", drawing)
