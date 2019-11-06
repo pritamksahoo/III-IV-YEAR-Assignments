@@ -124,16 +124,12 @@ def extract_roi(image):
     cv.waitKey(0)
     
     # Thresholding
-#     ret, thresh = cv.threshold(image, 115, 255, cv.THRESH_BINARY_INV)
     thresh = cv.Canny(image, 40, 90)
-    # thresh = cv.dilate(thresh, None, iterations=1)
+    # Closing
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2, 3))
     thresh = cv.morphologyEx(thresh, cv.MORPH_CLOSE, kernel)
 
     row, col = image.shape
-
-    cut = row//4
-    thresh[image.shape[0]-cut:, :] = 0
     
     cv.imshow("thresh", thresh)
     cv.waitKey(0)
@@ -142,19 +138,42 @@ def extract_roi(image):
     cnts = cv.findContours(thresh.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     c = max(cnts, key=cv.contourArea)
+    cnt = [list(el[0]) for el in c]
+
+    '''Removing some araeas not needed'''
+    b_r = max(cnt, key=lambda x: x[0]+x[1])
+    b_l = min(cnt, key=lambda x: x[0]-x[1])
+
+    b_r[1] = b_r[1] - 35
+    b_l[1] = b_l[1] - 35
+    
+    m = (b_l[1]-b_r[1]) / (b_l[0]-b_r[0])
+    a, b, c = 1, (-1)*m, m*b_l[0] - b_l[1]
+    
+    org_sign = a*0 + b*0 + c
+    thresh_r = np.array([np.array([(a*i + b*j + c) for j in range(col)]) for i in range(row)])
+
+    if org_sign > 0:
+        thresh[thresh_r < 0] = 0
+    else:
+        thresh[thresh_r > 0] = 0
+
+    '''END'''
+
+    '''Contour detection for extract the ROI'''
+    cnts = cv.findContours(thresh.copy(), cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    c = max(cnts, key=cv.contourArea)
 
     cnt = [list(el[0]) for el in c]
-#     print(cnt)
+
+    '''Four corners ofthe ROI'''
     b_r = max(cnt, key=lambda x: x[0]+x[1])
     t_l = min(cnt, key=lambda x: x[0]+x[1])
     t_r = max(cnt, key=lambda x: x[0]-x[1])
     b_l = min(cnt, key=lambda x: x[0]-x[1])
-
-    b_r[0], b_r[1] = b_r[0] + 1, b_r[1] + 1
-    b_l[0], b_l[1] = b_l[0] - 1, b_l[1] + 1
-    t_r[0], t_r[1] = t_r[0] + 1, t_r[1] - 1
-    t_l[0], t_l[1] = t_l[0] - 1, t_l[1] - 1
     
+    '''Extract only the ROI'''
     w,h = 600, 450
     # pts1 = np.float32(crop)
     pts1 = np.float32([t_l, t_r, b_l, b_r])
@@ -218,7 +237,13 @@ def extract_roi(image):
     
     # Detecting cells
     counter = 1
-    for i in range(1,len(h_lines)-1):
+
+    if len(h_lines) >= 14:
+        start = 1
+    else:
+        start = 0
+
+    for i in range(start,len(h_lines)-1):
         for j in range(1,len(v_lines)-1):
             hl1, hl2 = h_lines[i], h_lines[i+1]
             vl1, vl2 = v_lines[j], v_lines[j+1]
