@@ -11,6 +11,7 @@ path = "/home/pks/Downloads/Assignment/IVP/mini project/"
 
 if __name__ == '__main__':
     image = cv.imread(path+"sample8.jpg", 0)
+
     model = load_model('apna_model.h5')
     
     roi, cells = extract_roi(image)

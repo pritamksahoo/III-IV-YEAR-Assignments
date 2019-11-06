@@ -30,6 +30,8 @@ def orientation(image):
     box2 = sorted(box2, key=lambda x: x[0])
     r_most2, l_most2 = box2[-1], box2[0]
 
+    C1, C2 = min(col, row), max(col, row)
+
     x,y = 450, 600
     pts1 = np.float32([[0,row], [0,0], [col,row], [col,0]])
 
@@ -116,25 +118,23 @@ def extract_roi(image):
         extracted table and four points of each rectangular cell
     '''
     image = orientation(image)
-    # row, col = image.shape
-    # if row < col:
-    #     x,y = 450, 600
-    #     pts1 = np.float32([[0,row], [0,0], [col,row], [col,0]])
-    #     # w,h = image.shape
-    #     pts2 = np.float32([[0,0], [x,0], [0,y], [x,y]])
-    #     M = cv.getPerspectiveTransform(pts1,pts2)
-    #     image = cv.warpPerspective(image,M,(x,y))
-#         image = cv.resize(image, (450, 600))
-        
-#     image = image[:image.shape[0]-150, :]
+    image = cv.resize(image.copy(), (450, 600))
+
     cv.imshow("org", image)
     cv.waitKey(0)
     
     # Thresholding
 #     ret, thresh = cv.threshold(image, 115, 255, cv.THRESH_BINARY_INV)
     thresh = cv.Canny(image, 40, 90)
-    thresh = cv.dilate(thresh, None, iterations=1)
-    thresh[image.shape[0]-150:, :] = 0
+    # thresh = cv.dilate(thresh, None, iterations=1)
+    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2, 3))
+    thresh = cv.morphologyEx(thresh, cv.MORPH_CLOSE, kernel)
+
+    row, col = image.shape
+
+    cut = row//4
+    thresh[image.shape[0]-cut:, :] = 0
+    
     cv.imshow("thresh", thresh)
     cv.waitKey(0)
     
@@ -143,17 +143,21 @@ def extract_roi(image):
     cnts = imutils.grab_contours(cnts)
     c = max(cnts, key=cv.contourArea)
 
-    rect = cv.minAreaRect(c)
-    box = cv.boxPoints(rect)
-    box = np.int0(box)
-    box = sorted(box, key=lambda x: x[1])
-    p12 = sorted(box[:2].copy(), key=lambda x: x[0])
-    p34 = sorted(box[2:].copy(), key=lambda x: x[0])
-    crop = np.array(p12 + p34)
-    crop[crop < 0] = 0
+    cnt = [list(el[0]) for el in c]
+#     print(cnt)
+    b_r = max(cnt, key=lambda x: x[0]+x[1])
+    t_l = min(cnt, key=lambda x: x[0]+x[1])
+    t_r = max(cnt, key=lambda x: x[0]-x[1])
+    b_l = min(cnt, key=lambda x: x[0]-x[1])
+
+    b_r[0], b_r[1] = b_r[0] + 1, b_r[1] + 1
+    b_l[0], b_l[1] = b_l[0] - 1, b_l[1] + 1
+    t_r[0], t_r[1] = t_r[0] + 1, t_r[1] - 1
+    t_l[0], t_l[1] = t_l[0] - 1, t_l[1] - 1
     
     w,h = 600, 450
-    pts1 = np.float32(crop)
+    # pts1 = np.float32(crop)
+    pts1 = np.float32([t_l, t_r, b_l, b_r])
     # w,h = image.shape
     pts2 = np.float32([[0,0], [h,0], [0,w], [h,w]])
     M = cv.getPerspectiveTransform(pts1,pts2)

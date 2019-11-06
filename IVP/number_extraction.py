@@ -87,15 +87,6 @@ def extract_num(image):
     # cv.waitKey(0)
 
     _, thresh = cv.threshold(image, 0, 255, cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
-
-    # thresh[:, :2] = 0
-    # thresh[:, -3:] = 0
-    # thresh[:3, :] = 0
-    # thresh[-3:, :] = 0
-    # thresh = cv.adaptiveThreshold(image, 255, cv.ADAPTIVE_THRESH_MEAN_C, cv.THRESH_BINARY_INV, 11, 2)
-    # thresh = cv.Canny(image, 80, 120)
-    # cv.imshow("thresh", thresh)
-    # cv.waitKey(0)
     
     # kernel = np.ones((3,3), np.uint8)
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))

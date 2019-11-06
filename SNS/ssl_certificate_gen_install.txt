@@ -10,7 +10,7 @@ cd /etc/apache2
 mkdir ssl && cd ssl
 sudo openssl genrsa -aes256 -out server.key 2048
 sudo openssl req -new -key server.key -out server.csr
-sudo openssl x509 -req -days 1 -in server.csr -signkey server.key -out server.crt
+sudo openssl x509 -req -days 5 -in server.csr -signkey server.key -out server.crt
 
 sudo gedit /etc/apache2/sites-available/000-default.conf
 sudo systemctl restart apache2
