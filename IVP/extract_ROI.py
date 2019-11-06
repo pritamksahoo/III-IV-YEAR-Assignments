@@ -172,6 +172,11 @@ def extract_roi(image):
     t_l = min(cnt, key=lambda x: x[0]+x[1])
     t_r = max(cnt, key=lambda x: x[0]-x[1])
     b_l = min(cnt, key=lambda x: x[0]-x[1])
+
+    b_r[0], b_r[1] = b_r[0] + 2, b_r[1] + 0
+    b_l[0], b_l[1] = b_l[0] - 2, b_l[1] + 0
+    t_r[0], t_r[1] = t_r[0] + 2, t_r[1] - 2
+    t_l[0], t_l[1] = t_l[0] - 2, t_l[1] - 2
     
     '''Extract only the ROI'''
     w,h = 600, 450
