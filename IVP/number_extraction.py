@@ -34,7 +34,7 @@ def all_contour(th):
         top, left = th.shape
         # print(top, left, boundRect)
 #         if area > 80 and area < 300 and wh_ratio < 3.5 and wh_ratio > 0.28:
-        if 10 <= boundRect[3] <= 25 and 2 <= boundRect[2] <= 25 and 10 < area < 700 and boundRect[0] < left-5 and boundRect[1] > 5:
+        if 10 <= boundRect[3] <= 35 and 2 <= boundRect[2] <= 40 and 20 < area < 1000 and boundRect[0] < left-5 and boundRect[1] > 5:
             rect.append([(int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))])
         
 #             cv.rectangle(drawing, (int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3])), 0, 1)
@@ -80,6 +80,7 @@ def extract_num(image):
     '''
     
 #     image = cv.GaussianBlur(image, (3,3), 0)
+    image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     row, col = image.shape
     # image = image[2:row-2, 1:col-1]
 
@@ -89,7 +90,7 @@ def extract_num(image):
     _, thresh = cv.threshold(image, 0, 255, cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
     
     # kernel = np.ones((3,3), np.uint8)
-    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))
+    kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2, 3))
     thresh1 = cv.morphologyEx(thresh, cv.MORPH_CLOSE, kernel)
 
     # cv.imshow("thresh1", thresh1)
@@ -124,6 +125,6 @@ def extract_num(image):
 
 if __name__ == '__main__':
     
-    image = cv.imread(path+"img6.jpg", 0)
+    image = cv.imread(path+"img19.jpg", 0)
     conts, number = extract_num(image)
     print(conts)

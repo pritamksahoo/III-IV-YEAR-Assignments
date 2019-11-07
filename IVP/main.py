@@ -10,11 +10,12 @@ from number_detection import *
 path = "/home/pks/Downloads/Assignment/IVP/mini project/"
 
 if __name__ == '__main__':
-    image = cv.imread(path+"sample13.jpg", 0)
+    image = cv.imread(path+"sample13.jpg")
 
     model = load_model('apna_model.h5')
     
     roi, cells = extract_roi(image)
+
     counter, count, row = 1, 0, 0
     for cell in cells:
         if row <= 10:
@@ -27,7 +28,7 @@ if __name__ == '__main__':
 
             cv.imwrite(path + "img.jpg", cell_image)
 
-            image = cv.imread(path+"img.jpg", 0)
+            image = cv.imread(path+"img.jpg")
 
             
             conts, number = extract_num(image)

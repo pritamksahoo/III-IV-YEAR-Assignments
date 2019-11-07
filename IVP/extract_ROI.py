@@ -9,7 +9,7 @@ def orientation(image):
     Rotate the image before any operation
     based on the pos. of roll no. box w.r.t number table
     '''
-    row, col = image.shape
+    row, col = image.shape[:2]
     thresh = cv.Canny(image, 40, 90)
     thresh = cv.dilate(thresh, None, iterations=1)
      
@@ -32,7 +32,7 @@ def orientation(image):
 
     C1, C2 = min(col, row), max(col, row)
 
-    x,y = 450, 600
+    x,y = 600, 800
     pts1 = np.float32([[0,row], [0,0], [col,row], [col,0]])
 
     '''Roll no box is at right of number table, rotate left'''
@@ -117,19 +117,21 @@ def extract_roi(image):
     Returns:
         extracted table and four points of each rectangular cell
     '''
-    image = orientation(image)
-    image = cv.resize(image.copy(), (450, 600))
+    image = orientation(image.copy())
+    image = cv.resize(image.copy(), (600, 800))
 
     cv.imshow("org", image)
     cv.waitKey(0)
-    
+
+    # Convert to gray image
+    gr_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     # Thresholding
-    thresh = cv.Canny(image, 40, 90)
+    thresh = cv.Canny(gr_image, 40, 120)
     # Closing
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2, 3))
     thresh = cv.morphologyEx(thresh, cv.MORPH_CLOSE, kernel)
 
-    row, col = image.shape
+    row, col = image.shape[:2]
     
     cv.imshow("thresh", thresh)
     cv.waitKey(0)
@@ -179,7 +181,7 @@ def extract_roi(image):
     t_l[0], t_l[1] = t_l[0] - 2, t_l[1] - 2
     
     '''Extract only the ROI'''
-    w,h = 600, 450
+    w,h = 800, 600
     # pts1 = np.float32(crop)
     pts1 = np.float32([t_l, t_r, b_l, b_r])
     # w,h = image.shape
@@ -191,8 +193,10 @@ def extract_roi(image):
     cv.imshow("org", image)
     cv.waitKey(0)
     
+    gr_image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+
     # TODO : Canny edge detection parameters
-    edges = cv.Canny(image, 45, 90)
+    edges = cv.Canny(gr_image, 45, 90)
     cv.imshow("edges", edges)
     cv.waitKey(0)
     
