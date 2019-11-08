@@ -34,7 +34,7 @@ def all_contour(th):
         top, left = th.shape
         # print(top, left, boundRect)
 #         if area > 80 and area < 300 and wh_ratio < 3.5 and wh_ratio > 0.28:
-        if 10 <= boundRect[3] <= 35 and 2 <= boundRect[2] <= 40 and 20 < area < 1000 and boundRect[0] < left-5 and boundRect[1] > 5:
+        if 10 <= boundRect[3] <= 35 and 2 <= boundRect[2] <= 40 and 20 < area < 1300 and boundRect[0] < left-5 and boundRect[1] > 5:
             rect.append([(int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))])
         
 #             cv.rectangle(drawing, (int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3])), 0, 1)
@@ -80,14 +80,31 @@ def extract_num(image):
     '''
     
 #     image = cv.GaussianBlur(image, (3,3), 0)
+    '''hsv thresholding'''
+    hsv_image = cv.cvtColor(image.copy(), cv.COLOR_BGR2HSV)
+    # cv.imshow("hsv", hsv_image)
+    # cv.waitKey(0)
+    lower_blue = np.array([100,1,1])
+    upper_blue = np.array([170,255,255])
+
+    mask = cv.inRange(hsv_image, lower_blue, upper_blue)
+    # cv.imshow("mask", mask)
+    # cv.waitKey(0)
+    inv_mask = cv.bitwise_not(mask)
+
+    '''gray thresholding'''
     image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     row, col = image.shape
-    # image = image[2:row-2, 1:col-1]
-
     # cv.imshow("img", image)
     # cv.waitKey(0)
 
     _, thresh = cv.threshold(image, 0, 255, cv.THRESH_BINARY_INV+cv.THRESH_OTSU)
+    # cv.imshow("thresh", thresh)
+    # cv.waitKey(0)
+    '''Removing border pixels'''
+    thresh = cv.bitwise_and(thresh, thresh, mask=inv_mask)
+    # cv.imshow("thresh", thresh)
+    # cv.waitKey(0)
     
     # kernel = np.ones((3,3), np.uint8)
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (2, 3))
