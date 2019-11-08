@@ -99,6 +99,7 @@ def rebuild_query(query, U, S):
 	'''
 	Reform the query according to reduced dimension
 	'''
+	print(query.shape, U.shape, S.shape)
 	query = np.dot(query.T, np.dot(U, np.linalg.inv(S)))
 
 	return query
