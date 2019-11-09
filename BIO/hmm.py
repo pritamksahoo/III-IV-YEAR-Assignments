@@ -1,6 +1,6 @@
 import numpy as np
 
-def print_hmm_probability(all_possibility, no_states, seq, hmm_prob):
+def calc_hmm_probability(all_possibility, no_states, seq, hmm_prob):
 	temp_all_possibility = all_possibility.copy()
 	tot_prob = 0.0
 
@@ -80,18 +80,21 @@ if __name__ == '__main__':
 
 	# print('\n',state_array,'\n\n', obs_array,'\n\n', pi_array, '\n')
 	print("\n\n--------------------------------------------\nState sequence probabilities : \n")
-	print("   Sequence               Probability")
+	print("   Sequence               Probability            Normalized Prob.")
 
 	all_possibility = create_hmm_table(state_array, obs_array, pi_array, seq, no_states)
 	# print(all_possibility)
+	tot_prob = 0.0
+	for pos, prob in all_possibility:
+		tot_prob = tot_prob + prob
 
 	for pos, prob in all_possibility:
-		print(pos, "-", prob)
+		print(pos, "  ", prob, "  ", prob/tot_prob)
 
 	print("\n--------------------------------------------\nHMM Probabilities : \n")
 
 	hmm_prob = [[], []]
-	print_hmm_probability(all_possibility, no_states, seq, hmm_prob)
+	calc_hmm_probability(all_possibility, no_states, seq, hmm_prob)
 
 	for index, state in enumerate(hmm_prob):
 		print("P(" + str(index) + ") :- ", end='')
