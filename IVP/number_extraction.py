@@ -34,7 +34,8 @@ def all_contour(th):
         top, left = th.shape
         # print(top, left, boundRect)
 #         if area > 80 and area < 300 and wh_ratio < 3.5 and wh_ratio > 0.28:
-        if 10 <= boundRect[3] <= 35 and 2 <= boundRect[2] <= 40 and 20 < area < 1300 and boundRect[0] < left-5 and boundRect[1] > 5:
+        if 10 <= boundRect[3] <= 50 and 2 <= boundRect[2] <= 45 and 20 < area < 1300:
+            # and boundRect[0] < left-5 and boundRect[1] > 5:
             rect.append([(int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3]))])
         
 #             cv.rectangle(drawing, (int(boundRect[0]), int(boundRect[1])), (int(boundRect[0]+boundRect[2]), int(boundRect[1]+boundRect[3])), 0, 1)
@@ -52,9 +53,9 @@ def trapped(start, end, rect, w, h):
     ret_val = False
     # print("t", start, end, h, w)
 
-    if isThere(start,0) or isThere(end,0) or start[0] == h or start[1] == w or end[0] == h or end[1] == w:
-        ret_val = True
-        return ret_val
+    # if isThere(start,0) or isThere(end,0) or start[0] == h or start[1] == w or end[0] == h or end[1] == w:
+    #     ret_val = True
+    #     return ret_val
 
     if [start, end] in rect:
         return ret_val

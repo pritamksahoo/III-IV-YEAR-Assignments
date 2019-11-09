@@ -99,7 +99,7 @@ def rebuild_query(query, U, S):
 	'''
 	Reform the query according to reduced dimension
 	'''
-	print(query.shape, U.shape, S.shape)
+	# print(query.shape, U.shape, S.shape)
 	query = np.dot(query.T, np.dot(U, np.linalg.inv(S)))
 
 	return query
@@ -110,7 +110,7 @@ def reduce_rank(corpus, rank):
 	Reduce the rank of matrix into no. of different topics in corpus
 	'''
 	u, s, vT = np.linalg.svd(corpus, full_matrices=True)
-	# print(u.shape, s.shape, vT.shape)
+	# print(corpus.shape, u.shape, s.shape, vT.shape)
 	s = np.diag(s)
 
 	# Slicing all the matrices to reduce rank
