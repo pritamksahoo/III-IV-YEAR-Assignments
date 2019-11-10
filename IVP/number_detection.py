@@ -54,7 +54,7 @@ def decimal_check(img):
 	row, col = img.shape
 	# print(row*col)
 
-	if (row*col < 25):
+	if (row*col <= 60):
 		return True
 	else:
 		return False

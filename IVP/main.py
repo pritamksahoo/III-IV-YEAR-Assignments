@@ -10,13 +10,13 @@ from number_detection import *
 path = "/home/pks/Downloads/Assignment/IVP/mini project/"
 
 if __name__ == '__main__':
-    image = cv.imread(path+"sample10.jpg")
+    image = cv.imread(path+"sample8.jpg")
 
-    model = load_model('apna_model.h5')
+    model = load_model('digit_model.h5')
     
     roi, cells = extract_roi(image)
 
-    counter, count, row = 1, 0, 0
+    counter, count, row, no = 1, 0, 0, 1
     for cell in cells:
         if row <= 10:
             if row == 10 and count != 5:
@@ -42,6 +42,8 @@ if __name__ == '__main__':
                     # if row == 10:
                     # cv.imshow("temp", temp)
                     # cv.waitKey(0)
+                    # cv.imwrite(path + "now" + str(no) + ".jpg", temp)
+                    # no  = no + 1
 
                     digit = prediction(temp, model)
                     # print(digit)
