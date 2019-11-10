@@ -13,11 +13,14 @@ Otherwise, if abs(*pointer1) < abs(*pointer2), then, pointer1 = pointer1 + 1
 **Solution :** We will use the **Merge Sort** approach to solve this problem. In merge sort, we divide the array in two halves, and 
 solve the problem for each half and merge them.
 Suppose, we know the count of inversions in each half of the array, then -<br>
-<pre>Total no. of inversions = no. of inv. in left half + no. of inv. in right half + no. of inv. to merge them</pre><br>
+<pre>Total no. of inversions = no. of inv. in left half 
+                              + no. of inv. in right half 
+                              + no. of inv. to merge them</pre><br>
 To count the number of inversions in each half - 
-<pre>In merge process, let i is used for indexing left sub-array and j for right sub-array. At any step in merge(), 
-if a[i] is greater than a[j], then there are (mid – i) inversions. because left and right subarrays are sorted, 
-so all the remaining elements in left-subarray (a[i+1], a[i+2] … a[mid]) will be greater than a[j].</pre>
+<pre>In merge process, let i is used for indexing left sub-array and j for right sub-array. 
+At any step in merge(), if a[i] is greater than a[j], then there are (mid – i) inversions. 
+Because left and right subarrays are sorted, so all the remaining elements in left-subarray 
+(a[i+1], a[i+2] … a[mid]) will be greater than a[j].</pre>
 
 ## Q3) K-Means
 **Problem :** Implement K-Means clustering for points in 5-D spaces, where origins are given initially.<br>
