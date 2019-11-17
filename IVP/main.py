@@ -10,7 +10,7 @@ from number_detection import *
 path = "/home/pks/Downloads/Assignment/IVP/mini project/"
 
 if __name__ == '__main__':
-    image = cv.imread(path+"sample8.jpg")
+    image = cv.imread(path+"sample12.jpg")
 
     model = load_model('digit_model.h5')
     
