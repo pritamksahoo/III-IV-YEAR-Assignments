@@ -1,6 +1,6 @@
 ## Marks extraction from Answersheets (Image) in Tabular Form
 There are three python files which act as modules and perform three seperate functions, and one main.py.
-The Three files are - 
+These three files are - <br>
 - **extract_ROI.py** <br>
   - Rectifies the orientation of the image to portrait form.<br>
   - Extract the ROI (Table containing marks), with help of Canny Edge Detection, Contour Detection, and Perspective Transformation.<br>
