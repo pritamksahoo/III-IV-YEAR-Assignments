@@ -10,8 +10,10 @@ server_port = 11111
 
 s.connect(('127.0.0.1', server_port))
 
-data = s.recv(1024).decode()
+# data = s.recv(1024).decode()
 # print(data)
+msg = "REQ"
+s.send(msg.encode())
 
 while data != "CON_ABORT":
 	print(data)
