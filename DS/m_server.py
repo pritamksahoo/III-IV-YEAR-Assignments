@@ -4,103 +4,134 @@ import threading
 import json
 from os import listdir
 from os.path import isfile, join
+from resources import allocator as ra
 
-filepath = "/home/pks/Desktop/CODE/DS/"
+# filepath = "/home/pks/Desktop/CODE/DS/"
 
-pos_shift = 3
+global_port = 12345
+
+resources = [(1, "Add two numbers"), (2, "Value of the global variable"), (3, "Increment the global variable")] 
 
 def threaded_client(c, s, addr): 
 	while True:
 		try:
+			# To store return message
+			msg = {}
+			# Received data from client
 			data = c.recv(1024).decode()
 
 			if not data: 
-				print("CON_ABORT")
-				msg = "SESSION_EXPIRED"
-				c.send(msg.encode())
+				print("\n### [", addr, "] Disconnected ###\n") 
+				msg['type'] = "SESSION_EXPIRED"
+				msg['data'] = "\n### Connection Terminated with server! ###\n"
+				message = json.dumps(msg)
+				c.sendall(message.encode())
 				break
 
 			else:
-				if data == "REQ_CON":
-					print("\nRequest to start communication [FROM] ", addr)
-					msg = "REQ_GRANTED"
-					c.sendall(msg.encode())
-					print("Request Granted [", addr, "]")
-				
-				elif data == "OP#1":
-					print("\nRequest to list all server files [FROM] ", addr)
-					allfiles = [f for f in listdir(filepath) if isfile(join(filepath, f))]
-					msg = json.dumps({"typ" : "FILELIST", "content" : allfiles})
-					c.sendall(msg.encode())
-					print("Request Granted [", addr, "]")
+				if data == "REQ_RESOURCE_INFO":
+					rec = dict(resources)
+					msg['type'] = "RESOURCE_INFO"
+					msg['data'] = rec
+					message = json.dumps(msg)
+					c.sendall(message.encode())
 
-				elif data == "OP#2":
-					print("\nRequest content of a file [FROM] ", addr)
-					msg = "REQ_FILENAME"
-					c.sendall(msg.encode())
-					
-					data = c.recv(1024).decode()
-					print("Filename [", addr, "] : ", data)
+				elif data == "LOG_OUT":
+					print("\n### [", addr, "] Connection Terminated ###\n")
+					msg['type'] = "SESSION_EXPIRED"
+					msg['data'] = "\n### Connection Terminated with server! ###\n"
+					message = json.dumps(msg)
+					c.sendall(message.encode())
+					break
 
-					with open(filepath + data, "r") as f:
-						d = f.read()
+				elif data[:-1] == "RC":
+					ret = ra.allocate(data, addr)
+					if ret == "SUCCESS":
+						msg['type'] = "REQ_GRANTED"
+						msg['data'] = "Resource successfully allocated ! \nType 'ACC<Resource number>' to access !"
+					elif ret == "WAIT":
+						msg['type'] = "REQ_WAIT"
+						msg['data'] = "Resource can't be allocated ! \nWAITING For Another process to release !"
+					else:
+						msg['type'] = "REQ_FAIL"
+						msg['data'] = "Resource allocation failed ! \nTry again !"
 
-					'''
-					Encryption
-					'''
-					new_d = ""
-					for ch in d:
-						if 65 <= ord(ch.upper()) <= 90:
-							new_d = new_d + chr(pos_shift + ord(ch))
+					message = json.dumps(msg)
+					c.sendall(message.encode())
 
+				elif data[:-1] == "ACC":
+					ret, val = ra.access(data, addr)
+					if ret == "SUCCESS":
+						msg['type'] = "ACC_GRANTED"
+						msg['data'] = val
+					elif ret == "ACC_WAIT_FOR_INPUT":
+						msg['type'] = "ACC_INPUT"
+						msg['data'] = val
+
+						message = json.dumps(msg)
+						c.sendall(message.encode())
+
+						io = c.recv(1024).decode()
+						ret, val = ra.access(data, addr, io)
+
+						if ret == "SUCCESS":
+							msg['type'] = "ACC_GRANTED"
+							msg['data'] = val
 						else:
-							new_d = new_d + ch 
+							msg['type'] = "ACC_FAIL"
+							msg['data'] = val
+					else:
+						msg['type'] = "ACC_FAIL"
+						msg['data'] = "Permission to resource denied ! \nMake a request first !"
 
-					msg = json.dumps({"typ": "FILECONTENT", "shift" : pos_shift, "content" : new_d})
-					c.sendall(msg.encode())
-					print("Request Granted [", addr, "]")
+					message = json.dumps(msg)
+					c.sendall(message.encode())
 
-				elif data == "OP#3":
-					msg = "SESSION_EXPIRED"
-					c.sendall(msg.encode())
+				elif data[:-1] == "REL":
+					ret = ra.release(data, addr)
+					if ret == "SUCCESS":
+						msg['type'] = "REL_GRANTED"
+						msg['data'] = "Resource successfully released !"
+					else:
+						msg['type'] = "REL_FAIL"
+						msg['data'] = "No such allocation exists ! \nTry again !"
 
-					break
+					message = json.dumps(msg)
+					c.sendall(message.encode())
 
-				elif data == "OP#INVALID":
-					print("\n### INVALID REQUEST ###\n")
-					msg = "SESSION_EXPIRED"
-					c.sendall(msg.encode())
+				else:
+					msg['type'] = "INVALID_RESOURCE_REQ"
+					msg['data'] = "!!! Choose a valid resource !!!"
+					message = json.dumps(msg)
+					c.sendall(message.encode())
 
-					break
-
-				elif data == "CONTINUE":
-					msg = "REQ_GRANTED"
-					c.sendall(msg.encode())
-		
-		except Exception as e:
+		except KeyboardInterrupt:
 			s.close()
 
-	print("\n### Connection [", addr, "] Closed ###\n")
+	print("### Connection with [", addr, "] Closed ###\n")
 	c.close() 
   
   
 if __name__ == '__main__': 
 	host = "" 
-	port = 12345
 
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-	s.bind((host, port)) 
+	s.bind((host, global_port)) 
 
-	print("### Socket binded to port ###", port) 
+	print("### Socket binded to port ###", global_port) 
 
 	s.listen(5) 
-	print("socket is listening ...\n") 
+	print("Socket is listening ...\n") 
 
 	while True:
-		c, addr = s.accept()
-		print('Connected to :', addr[0], ':', addr[1]) 
+		try:
+			c, addr = s.accept()
+			print('Connected to :', addr[0], ':', addr[1]) 
 
-		t1 = threading.Thread(target=threaded_client, args=(c,s,addr ))
-		t1.start()
+			t1 = threading.Thread(target=threaded_client, args=(c, s, addr, ))
+			t1.start()
+
+		except KeyboardInterrupt:
+			s.close()
 
 	s.close() 
