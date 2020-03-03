@@ -122,6 +122,8 @@ def req_cs():
 	while len(req_arr) > 0:
 		pass
 
+	local_server["state"] = "BUSY"
+
 
 def rel_cs():
 	f = open("active.pkl", "rb")
@@ -135,10 +137,11 @@ def rel_cs():
 		"from": local_server,
 	})
 
-	for pid, addr in json.loads(os.environ["all_process"]).items():
-		if int(pid) != int(local_server["id"]):
-			sender(addr, message)
-			def_arr.remove(addr)
+	global def_arr
+	for addr in def_arr:
+		sender(addr, message)
+	
+	def_arr = []
 
 
 if __name__ == '__main__': 
