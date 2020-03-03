@@ -113,7 +113,7 @@ def threaded_client(c, s, addr):
   
   
 if __name__ == '__main__': 
-	host = "" 
+	host = "127.0.0.1" 
 
 	s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 	s.bind((host, global_port)) 
