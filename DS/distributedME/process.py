@@ -28,8 +28,8 @@ if __name__ == '__main__':
 		message = input()
 
 		if message.lower()[:3] == "req":
-			ch.req_cs(message[4:])
+			ch.req_cs(int(message[4:]))
 			print("Lock acquired")
 		elif message.lower()[:3] == "rel":
-			ch.rel_cs(message[4:])
+			ch.rel_cs(int(message[4:]))
 			print("Lock released")
