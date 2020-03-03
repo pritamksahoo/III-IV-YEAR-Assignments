@@ -27,9 +27,9 @@ if __name__ == '__main__':
 	while True:
 		message = input()
 
-		if message.lower() == "req":
-			ch.req_cs()
+		if message.lower()[:3] == "req":
+			ch.req_cs(message[4:])
 			print("Lock acquired")
-		elif message.lower() == "rel":
-			ch.rel_cs()
+		elif message.lower()[:3] == "rel":
+			ch.rel_cs(message[4:])
 			print("Lock released")

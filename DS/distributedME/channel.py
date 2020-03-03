@@ -100,7 +100,7 @@ def handler(data):
 	return cont
 
 
-def req_cs():
+def req_cs(resource_id):
 	f = open("active.pkl", "rb")
 	data = pickle.load(f)
 	os.environ["all_process"] = json.dumps(data)
@@ -125,7 +125,7 @@ def req_cs():
 	local_server["state"] = "BUSY"
 
 
-def rel_cs():
+def rel_cs(resource_id):
 	f = open("active.pkl", "rb")
 	data = pickle.load(f)
 	os.environ["all_process"] = json.dumps(data)
