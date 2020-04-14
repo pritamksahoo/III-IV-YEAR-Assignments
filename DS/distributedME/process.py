@@ -24,12 +24,14 @@ if __name__ == '__main__':
 
 	ch.add_new_con("127.0.0.1", port, pid)
 
+	print("\nProcess :", pid, "| [ '127.0.0.1',", port, "]")
+
 	while True:
 		message = input()
 
 		if message.lower()[:3] == "req":
 			ch.req_cs(int(message[4:]))
-			print("Lock acquired")
+			# print("Lock acquired")
 		elif message.lower()[:3] == "rel":
 			ch.rel_cs(int(message[4:]))
-			print("Lock released")
+			# print("Lock released")

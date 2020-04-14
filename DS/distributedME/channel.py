@@ -96,6 +96,8 @@ def trigger():
 
 							sender(addr, message)
 
+							print("\nReply to", addr, "to grant access to #Resource", str(pid) + "#")
+
 					def_arr = list(filter(lambda x: x[1] != int(pid), def_arr))
 
 		except Exception as e:
@@ -120,6 +122,9 @@ def handler(data):
 		d_rec = int(data["resource"])
 
 		if d_type == "REQ":
+
+			print("\nRequest from [", d_sen["addr"], "-", d_sen["port"], "] for #Resource", str(d_rec) + "#")
+
 			if ([int(d_rec), "BUSY"] in local_server["state"] and rec_dict[d_rec]["available"] == 0) or ([int(d_rec), "QUEUED"] in local_server["state"] and local_server["timestamp"] < d_sen["timestamp"] and rec_dict[d_rec]["available"] == 0):
 				def_arr.append([[d_sen["addr"], d_sen["port"]], int(d_rec)])
 				# print("hello")
@@ -131,17 +136,20 @@ def handler(data):
 				})
 
 				sender((d_sen["addr"], d_sen["port"]), message)
+				print("\nReply to [", d_sen["addr"], "-", d_sen["port"], "] to grant access to #Resource", str(d_rec) + "#")
 
 		elif d_type == "REP":
+
+			print("\nReply from [", d_sen["addr"], "-", d_sen["port"], "] of #Resource", str(d_rec) + "#")
 			# print("rem")
 			try:
 				req_arr.remove([[d_sen["addr"], d_sen["port"]], int(d_rec)])
 			except Exception as e:
 				pass
 
-	print(local_server)
-	print(req_arr)
-	print(def_arr)
+	# print(local_server)
+	# print(req_arr)
+	# print(def_arr)
 
 	return cont
 
@@ -164,6 +172,7 @@ def req_cs(resource_id):
 	for pid, addr in json.loads(os.environ["all_process"]).items():
 		if int(pid) != int(local_server["id"]):
 			sender(addr, message)
+			print("\nRequest for #Resource", str(resource_id) + "#", "sent to", addr)
 			req_arr.append([list(addr), int(resource_id)])
 
 	while len(list(filter(lambda x: x[1] == int(resource_id), req_arr))) > 0:
@@ -172,11 +181,13 @@ def req_cs(resource_id):
 	local_server["state"].remove([int(resource_id), "QUEUED"])
 	local_server["state"].append([int(resource_id), "BUSY"])
 
+	print("\n### Resource", resource_id, ": ACQUIRED : Entering Critical Section ### ")
+
 	f = open("resource.pkl", "rb")
 	rec_dict = pickle.load(f)
 	f.close()
 
-	print(rec_dict[resource_id]["available"])
+	# print(rec_dict[resource_id]["available"])
 
 	rec_dict[int(resource_id)]["holder"].append([local_server["addr"], local_server["port"]])
 	rec_dict[int(resource_id)]["available"] = rec_dict[int(resource_id)]["available"] - 1
@@ -200,7 +211,9 @@ def rel_cs(resource_id):
 	rec_dict[int(resource_id)]["available"] = rec_dict[int(resource_id)]["available"] + 1
 	rec_dict[int(resource_id)]["holder"].remove([local_server["addr"], local_server["port"]])
 
-	print(rec_dict[int(resource_id)]["available"])
+	print("\n### Resource", resource_id, ": RELEASED : Exiting Critical Section ### ")
+
+	# print(rec_dict[int(resource_id)]["available"])
 
 	# if int(rec_dict[int(resource_id)]["available"]) == 1:
 	# 	print(rec_dict[int(resource_id)]["holder"])
@@ -231,6 +244,7 @@ def rel_cs(resource_id):
 	for addr, res_id in def_arr:
 		if int(res_id) == int(resource_id):
 			sender(addr, message)
+			print("\nRelease message of #Resource", str(resource_id) + "#", "sent to", addr)
 	
 	def_arr = list(filter(lambda x: x[1] != int(resource_id), def_arr))
 
