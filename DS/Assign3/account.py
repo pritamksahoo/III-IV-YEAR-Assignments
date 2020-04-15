@@ -28,13 +28,15 @@ def is_active(pid):
 
 def all_process():
     '''
-    Fetch PID of all active process
+    Fetch PID and active status of all process
     '''
 
     filepath = "./server/stable_storage/accounts/accounts.csv"
     accounts = pd.read_csv(filepath)
 
-    return accounts["pid"].to_list()
+    pid, active_status = accounts["pid"].to_list(), accounts["isActive"].to_list()
+
+    return [(pid[i], active_status[i]) for i in len(pid)]
 
 
 def create_account(pid, password, addr):

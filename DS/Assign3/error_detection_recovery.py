@@ -3,7 +3,7 @@ def check_log_consistency(pid=None):
     Check whether any deamon process has corrupted it's log file by comparing their hash value
     '''
     
-    return False, ['abcde']
+    return True, ['abcde']
 
 
 def create_checkpoint():

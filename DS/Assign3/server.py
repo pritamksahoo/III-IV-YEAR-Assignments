@@ -9,49 +9,65 @@ import account as acc
 import log_handling as logh
 import error_detection_recovery as er
 
-global_port = 12352
+global_port = 12356
 halt_process = False
 deamon_processes = []
-warning_phase = 0
+warning_phase = False
+running_process = {}
+error_detection_time = None
 
 
-def check_warning_phase(wrn):
+def cur_time():
 	'''
-	Check whether client has been warned about deamon process
+	Return current time in terms of yyyy-mm-dd hh:mm:ss
 	'''
-	if wrn != warning_phase:
-		return warning_phase
+
+	time_now = time.localtime()
+	y, mo, d, h, mi, s = time_now.tm_year, time_now.tm_mon, time_now.tm_mday, time_now.tm_hour, time_now.tm_min, time_now.tm_sec
+
+	timestamp = "{year}-{month}-{day} {hour}:{minute}:{second}".format(year=y, month=mo, day=d, hour=h, minute=mi, second=s)
+
+	return timestamp
 
 
 def background_error_check(sckt):
 	'''
-	Runs every 30 secs to check log inconsistency
+	Runs every 10 secs to check log inconsistency
 	'''
 
 	while True:
 		try:
 			# Check for error
 			global deamon_processes
-			status, deamon = er.check_log_consistency()
+			global halt_process
+			halt_process = True
+
+			idly = list(running_process.values())
+			print("Start idle check loop")
+			while "BUSY" in idly:
+				idly = list(running_process.values())
+
+			print("End idle check loop")
+
+			status, deamon_processes = er.check_log_consistency()
 			# print(status, deamon_processes)
 
 			if not status:
-				global halt_process
 				global warning_phase
+				global error_detection_time
 
-				halt_process = True
-				warning_phase = 1 - warning_phase
-
+				warning_phase = True
+				
 				for pid in deamon_processes:
 					acc.block(pid)
 					# print(pid)
 
 				all_process = acc.all_process()
-				notification = "Deamon process detected! Process - " + str(deamon)
+				error_detection_time = cur_time()
+				notification = "Deamon process detected at" + error_detection_time + " ! Processes - " + str(deamon_processes)
 
-				if deamon_processes != deamon:
-					deamon_processes = deamon.copy()
-					for pid in all_process:
+				for pid, status in all_process:
+					if status != 'Y':
 						logh.create_notification(pid, notification, 'N')
 
 				# Recover from fault
@@ -59,7 +75,18 @@ def background_error_check(sckt):
 
 				halt_process = False
 
+				print("Start checking if all logged out")
+				while len(running_process) != 0:
+					pass
+
+				print("Stop in checking if all logged out")
+
+				warning_phase = False
+
 			else:
+				deamon_processes = []
+				halt_process = False
+				warning_phase = False
 				print("\n---------------------------------\nBackground Error Detection Complete ... No error\n---------------------------------\n")
 
 		except KeyboardInterrupt:
@@ -67,40 +94,55 @@ def background_error_check(sckt):
 		except Exception as e:
 			pass
 
-		time.sleep(5.0)
+		warning_phase = False
+		halt_process = False
+		time.sleep(10.0)
 
 
 def threaded_client(con, sckt, addr):
 	'''
 	Threaded function. Each thread is assigned to listen for one client and respond to them
 	'''
-	client_pid, warning = None, 0
+	
+	client_pid, warning = None, False
+	global running_process
 
 	while True:
 
 		try:
-			# msg = {}
 			# Received data from client
+			print("\nWaiting for req. from", addr)
 			msg = con.recv(4096).decode()
 			data = json.loads(msg)
+			print("Req. from", addr)
 
-			while halt_process:
-				print("\n### Server Busy fixing consistency! Waiting for response ... ###")
-				pass
+			if halt_process:
+				print("Start in halt process loop")
+				while halt_process:
+					
+					# print("\n### Server Busy fixing consistency! Waiting for response ... ###")
+					pass
 
-			# If current process is detected as deamon process, then blocked
-			if client_pid in deamon_processes:
+				print("End in halt process loop")
+
+			if client_pid is None:
+				client_pid = data["pid"]
+				running_process[client_pid] = "NONE"
+
+			if warning_phase:
 				message = json.dumps({
-					"type" : "FORCED_BLOCK",
-					"warning": True,
-					"deamon_process": deamon_processes
+					"type": "RESTART",
+					"message": "Deamon process detected!",
+					"process": { k:v for k,v in enumerate(deamon_processes) },
+					"timestamp": error_detection_time
 				})
-				# Account becomes passive
-				acc.block(client_pid)
 
+				running_process.pop(client_pid)
+				acc.logout(client_pid)
 				con.sendall(message.encode())
-				sckt.close()
 				break
+			
+			running_process[client_pid] = "BUSY"
 
 			# Handling request from client
 			if not data: 
@@ -119,32 +161,32 @@ def threaded_client(con, sckt, addr):
 					print(addr, ":", ret_data["message"])
 
 					ret_data["type"] = type
-					ret_data["warning"] = True if warning != warning_phase else False
-					ret_data["deamon_process"] = deamon_processes
 
 					message = json.dumps(ret_data)
 					con.sendall(message.encode())
 
 					# If Log in or account creation fails, abort
 					if ret_data["status"] == 400 or type == "SIGN_UP":
+						running_process.pop(client_pid)
 						break
 
 					else:
+						print("\nWaitig from ACK from", addr)
 						acknowledgement = json.loads(con.recv(4096).decode())
-						
+						print("\nACK from", addr)
+						# print(acknowledgement)
+
 						if acknowledgement["type"] == "ACK":
 							notifications = logh.retrieve_unread_notifications(pid)
 							message = json.dumps({
 								"type" : "UNREAD_NOTIFICATIONS",
 								"message": { k:v for k,v in enumerate(notifications) },
-								"warning": True if warning != warning_phase else False,
-								"deamon_process": deamon_processes
 							})
 
-							warning = check_warning_phase(warning)
 							con.sendall(message.encode())
 
 						else:
+							running_process.pop(client_pid)
 							break
 
 				elif type == "LOG_OUT":
@@ -154,8 +196,9 @@ def threaded_client(con, sckt, addr):
 					message = json.dumps({
 						"type": "LOG_OUT_ACK",
 						"message": "You are logged out",
-						"warning": False
 					})
+
+					running_process.pop(client_pid)
 					con.sendall(message.encode())
 					break
 
@@ -163,18 +206,22 @@ def threaded_client(con, sckt, addr):
 					# Transaction
 					credit, amount = data["credit"], data["amount"]
 
+					timestamp = cur_time()
+
 					debit_log = json.dumps({
 						"TYPE": "DEBIT",
 						"FROM": client_pid,
 						"TO": credit,
-						"AMOUNT": amount
+						"AMOUNT": amount,
+						"TIMESTAMP": timestamp
 					})
 
 					credit_log = json.dumps({
 						"TYPE": "CREDIT",
 						"FROM": credit,
 						"TO": client_pid,
-						"AMOUNT": amount
+						"AMOUNT": amount,
+						"TIMESTAMP": timestamp
 					})
 
 					debit_notification = "$" + str(amount) + " debited from your account and credited to " + credit + ""
@@ -199,10 +246,7 @@ def threaded_client(con, sckt, addr):
 								"type": "TRANSACTION",
 								"status": 200,
 								"message": debit_notification,
-								"warning": True if warning != warning_phase else False,
-								"deamon_process": deamon_processes
 							})
-							warning = check_warning_phase(warning)
 							con.sendall(message.encode())
 						
 					else:
@@ -210,22 +254,21 @@ def threaded_client(con, sckt, addr):
 							"type": "TRANSACTION",
 							"status": 400,
 							"message": "Transaction Failed! Invalid credit account (or) Credit Account is blocked for malicious activity",
-							"warning": True if warning != warning_phase else False,
-							"deamon_process": deamon_processes
 						})
-						warning = check_warning_phase(warning)
 						con.sendall(message.encode())
 
 				else:
 					pass
 			
+			running_process[client_pid] = "IDLE"
+
 		except KeyboardInterrupt:
 			message = json.dumps({
 				"type" : "FORCED_LOG_OUT",
-				"warning": False
 			})
 			# Account becomes passive
 			acc.logout(client_pid)
+			running_process.pop(client_pid)
 
 			con.sendall(message.encode())
 			sckt.close()
@@ -235,14 +278,16 @@ def threaded_client(con, sckt, addr):
 			# print(e)
 			message = json.dumps({
 				"type" : "FORCED_LOG_OUT",
-				"warning": False
 			})
 			# Account becomes passive
 			acc.logout(client_pid)
+			running_process.pop(client_pid)
 
 			con.sendall(message.encode())
 			sckt.close()
 			break
+
+		running_process[client_pid] = "IDLE"
 
 
 	print("### Connection with [", addr, "] Closed ###\n")

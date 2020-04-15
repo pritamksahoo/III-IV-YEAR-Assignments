@@ -1,3 +1,7 @@
 "{\"TYPE\": \"DEBIT\", \"FROM\": \"pritam\", \"TO\": \"abcde\", \"AMOUNT\": 200.0}"
 "{\"TYPE\": \"DEBIT\", \"FROM\": \"pritam\", \"TO\": \"abcde\", \"AMOUNT\": 1000.0}"
 "{\"TYPE\": \"DEBIT\", \"FROM\": \"pritam\", \"TO\": \"abcde\", \"AMOUNT\": 1200.0}"
+"{\"TYPE\": \"CREDIT\", \"FROM\": \"pritam\", \"TO\": \"amrik\", \"AMOUNT\": 1200.0}"
+"{\"TYPE\": \"DEBIT\", \"FROM\": \"pritam\", \"TO\": \"amrik\", \"AMOUNT\": 12000.0, \"TIMESTAMP\": \"2020-4-15 17:27:29\"}"
+"{\"TYPE\": \"DEBIT\", \"FROM\": \"pritam\", \"TO\": \"amrik\", \"AMOUNT\": 12009.0, \"TIMESTAMP\": \"2020-4-15 17:29:36\"}"
+"{\"TYPE\": \"CREDIT\", \"FROM\": \"pritam\", \"TO\": \"amrik\", \"AMOUNT\": 3000.0, \"TIMESTAMP\": \"2020-4-15 17:42:16\"}"

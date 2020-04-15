@@ -33,12 +33,6 @@ def send_req(sck, data):
 	Send requests and handle response to and from server after successful login
 	'''
 
-	if data["warning"]:
-		print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\nDeamon process detected")
-		if len(data["deamon_process"]) != 0:
-			print("Process :", data["deamon_process"])
-		print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-
 	print("\nYour option - \n(1) Send Money\n(2) Request for client log\n(3) Log Out")
 	choice = int(input("\nYour choice (1,2,3) : "))
 
@@ -142,6 +136,15 @@ if __name__ == '__main__':
 									print(unread_notifications[note])
 
 							print('------------------------------')
+
+						elif notifications["type"] == "RESTART":
+							data = notifications
+							print(data["timestamp"], "-::-",  data["message"])
+							print(list(data["process"].values()))
+							print("\n### You have been logged out! Login again")
+
+							intialization(s)
+
 						else:
 							break
 
@@ -165,6 +168,13 @@ if __name__ == '__main__':
 				print('------------------------------')
 
 				state = send_req(s, data)
+
+			elif d_type == "RESTART":
+				print(data["timestamp"], "-::-",  data["message"])
+				print(list(data["process"].values()))
+				print("\n### You have been logged out! Login again")
+
+				intialization(s)
 
 			else:
 				# Start transactions

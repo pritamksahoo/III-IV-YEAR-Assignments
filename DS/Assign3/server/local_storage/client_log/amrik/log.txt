@@ -1,0 +1,4 @@
+"{\"TYPE\": \"DEBIT\", \"FROM\": \"amrik\", \"TO\": \"pritam\", \"AMOUNT\": 1200.0}"
+"{\"TYPE\": \"CREDIT\", \"FROM\": \"amrik\", \"TO\": \"pritam\", \"AMOUNT\": 12000.0, \"TIMESTAMP\": \"2020-4-15 17:27:29\"}"
+"{\"TYPE\": \"CREDIT\", \"FROM\": \"amrik\", \"TO\": \"pritam\", \"AMOUNT\": 12009.0, \"TIMESTAMP\": \"2020-4-15 17:29:36\"}"
+"{\"TYPE\": \"DEBIT\", \"FROM\": \"amrik\", \"TO\": \"pritam\", \"AMOUNT\": 3000.0, \"TIMESTAMP\": \"2020-4-15 17:42:16\"}"

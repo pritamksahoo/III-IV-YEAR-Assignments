@@ -1,3 +1,4 @@
 pid,password,host,port,isActive
 abcde,pass,127.0.0.1,33210,B
-pritam,pritam,127.0.0.1,41520,Y
+pritam,pritam,127.0.0.1,34996,N
+amrik,amrik,127.0.0.1,34994,N
