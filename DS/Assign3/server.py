@@ -2,26 +2,107 @@ import socket
 from _thread import *
 import threading 
 import json
+import time
 from os import listdir
 from os.path import isfile, join
 import account as acc
 import log_handling as logh
+import error_detection_recovery as er
 
-global_port = 12356
+global_port = 12352
+halt_process = False
+deamon_processes = []
+warning_phase = 0
+
+
+def check_warning_phase(wrn):
+	'''
+	Check whether client has been warned about deamon process
+	'''
+	if wrn != warning_phase:
+		return warning_phase
+
+
+def background_error_check(sckt):
+	'''
+	Runs every 30 secs to check log inconsistency
+	'''
+
+	while True:
+		try:
+			# Check for error
+			global deamon_processes
+			status, deamon = er.check_log_consistency()
+			# print(status, deamon_processes)
+
+			if not status:
+				global halt_process
+				global warning_phase
+
+				halt_process = True
+				warning_phase = 1 - warning_phase
+
+				for pid in deamon_processes:
+					acc.block(pid)
+					# print(pid)
+
+				all_process = acc.all_process()
+				notification = "Deamon process detected! Process - " + str(deamon)
+
+				if deamon_processes != deamon:
+					deamon_processes = deamon.copy()
+					for pid in all_process:
+						logh.create_notification(pid, notification, 'N')
+
+				# Recover from fault
+				er.backward_error_recovery()
+
+				halt_process = False
+
+			else:
+				print("\n---------------------------------\nBackground Error Detection Complete ... No error\n---------------------------------\n")
+
+		except KeyboardInterrupt:
+			pass
+		except Exception as e:
+			pass
+
+		time.sleep(5.0)
+
 
 def threaded_client(con, sckt, addr):
 	'''
 	Threaded function. Each thread is assigned to listen for one client and respond to them
 	'''
-	client_pid = None
+	client_pid, warning = None, 0
 
 	while True:
+
 		try:
 			# msg = {}
 			# Received data from client
 			msg = con.recv(4096).decode()
 			data = json.loads(msg)
 
+			while halt_process:
+				print("\n### Server Busy fixing consistency! Waiting for response ... ###")
+				pass
+
+			# If current process is detected as deamon process, then blocked
+			if client_pid in deamon_processes:
+				message = json.dumps({
+					"type" : "FORCED_BLOCK",
+					"warning": True,
+					"deamon_process": deamon_processes
+				})
+				# Account becomes passive
+				acc.block(client_pid)
+
+				con.sendall(message.encode())
+				sckt.close()
+				break
+
+			# Handling request from client
 			if not data: 
 				print("\n### [", addr, "] Disconnected ###\n")
 				break
@@ -38,6 +119,9 @@ def threaded_client(con, sckt, addr):
 					print(addr, ":", ret_data["message"])
 
 					ret_data["type"] = type
+					ret_data["warning"] = True if warning != warning_phase else False
+					ret_data["deamon_process"] = deamon_processes
+
 					message = json.dumps(ret_data)
 					con.sendall(message.encode())
 
@@ -52,20 +136,25 @@ def threaded_client(con, sckt, addr):
 							notifications = logh.retrieve_unread_notifications(pid)
 							message = json.dumps({
 								"type" : "UNREAD_NOTIFICATIONS",
-								"message": { k:v for k,v in enumerate(notifications) }
+								"message": { k:v for k,v in enumerate(notifications) },
+								"warning": True if warning != warning_phase else False,
+								"deamon_process": deamon_processes
 							})
+
+							warning = check_warning_phase(warning)
 							con.sendall(message.encode())
 
 						else:
 							break
 
 				elif type == "LOG_OUT":
-    				# Logging out of the system
+					# Logging out of the system
 					acc.logout(pid)
 
 					message = json.dumps({
 						"type": "LOG_OUT_ACK",
-						"message": "You are logged out"
+						"message": "You are logged out",
+						"warning": False
 					})
 					con.sendall(message.encode())
 					break
@@ -109,16 +198,22 @@ def threaded_client(con, sckt, addr):
 							message = json.dumps({
 								"type": "TRANSACTION",
 								"status": 200,
-								"message": debit_notification
+								"message": debit_notification,
+								"warning": True if warning != warning_phase else False,
+								"deamon_process": deamon_processes
 							})
+							warning = check_warning_phase(warning)
 							con.sendall(message.encode())
 						
 					else:
 						message = json.dumps({
 							"type": "TRANSACTION",
 							"status": 400,
-							"message": "Transaction Failed! Invalid credit account"
+							"message": "Transaction Failed! Invalid credit account (or) Credit Account is blocked for malicious activity",
+							"warning": True if warning != warning_phase else False,
+							"deamon_process": deamon_processes
 						})
+						warning = check_warning_phase(warning)
 						con.sendall(message.encode())
 
 				else:
@@ -127,6 +222,7 @@ def threaded_client(con, sckt, addr):
 		except KeyboardInterrupt:
 			message = json.dumps({
 				"type" : "FORCED_LOG_OUT",
+				"warning": False
 			})
 			# Account becomes passive
 			acc.logout(client_pid)
@@ -139,6 +235,7 @@ def threaded_client(con, sckt, addr):
 			# print(e)
 			message = json.dumps({
 				"type" : "FORCED_LOG_OUT",
+				"warning": False
 			})
 			# Account becomes passive
 			acc.logout(client_pid)
@@ -158,7 +255,11 @@ if __name__ == '__main__':
 	# Creating socket for listening to clients
 	sckt = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
 	sckt.bind((host, global_port))
-	print("\n### Socket binded to port -", global_port, "###") 
+	print("\n### Socket binded to port -", global_port, "###")
+
+	# Threaded function to check error in background
+	t = threading.Thread(target=background_error_check, args=(sckt, ))
+	t.start()
 
 	# Listen upto maximum 5 clients
 	sckt.listen(5) 
@@ -176,5 +277,13 @@ if __name__ == '__main__':
 
 		except KeyboardInterrupt:
 			sckt.close()
+			break
 
-	sckt.close() 
+		except Exception as e:
+			sckt.close()
+			break
+
+	try:
+		sckt.close() 
+	except Exception as exp:
+		pass

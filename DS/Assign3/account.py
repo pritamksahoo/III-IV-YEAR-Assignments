@@ -15,6 +15,9 @@ def is_active(pid):
     if record.empty:
         # Wrong PID
         return None
+    elif record["isActive"].to_list()[0] == 'B':
+        # Blocked account
+        return None
     elif record["isActive"].to_list()[0] == 'Y':
         # Active
         return True
@@ -23,7 +26,7 @@ def is_active(pid):
         return False
 
 
-def all_active_process():
+def all_process():
     '''
     Fetch PID of all active process
     '''
@@ -31,9 +34,7 @@ def all_active_process():
     filepath = "./server/stable_storage/accounts/accounts.csv"
     accounts = pd.read_csv(filepath)
 
-    record = accounts.loc[accounts['isActive'] == 'Y']
-
-    return record["pid"]
+    return accounts["pid"].to_list()
 
 
 def create_account(pid, password, addr):
@@ -101,6 +102,10 @@ def login(pid, password, addr):
         status = 400
         message = "Login Failed! Already running in another window"
 
+    elif not record.empty and record["isActive"].to_list()[0] == 'B':
+        status = 400
+        message = "Login Failed! Account is blocked"    
+    
     elif not record.empty:
         hostname, port = addr
 
@@ -138,6 +143,20 @@ def logout(pid):
 
     index = accounts.index[accounts["pid"] == pid].to_list()[0]
     accounts.at[index, "isActive"] = 'N'
+
+    accounts.to_csv(filepath, index=False, header=True)
+
+
+def block(pid):
+    '''
+    Client blocked the system
+    '''
+
+    filepath = "./server/stable_storage/accounts/accounts.csv"
+    accounts = pd.read_csv(filepath)
+
+    index = accounts.index[accounts["pid"] == pid].to_list()[0]
+    accounts.at[index, "isActive"] = 'B'
 
     accounts.to_csv(filepath, index=False, header=True)
 

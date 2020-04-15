@@ -37,6 +37,9 @@ def create_new_log(pid, log_data):
 
     log_path = "./server/local_storage/client_log/" + str(pid) + "/log.txt"
 
+    if acc.is_active(pid) is None:
+        return False
+
     try:
         with open(log_path, "a+") as fw:
             fw.write(json.dumps(log_data) + "\n")
@@ -46,23 +49,6 @@ def create_new_log(pid, log_data):
     except Exception as e:
         print(e)
         return False
-
-
-def check_log_consistency(pid=None):
-    '''
-    Check whether any deamon process has corrupted it's log file by comparing their hash value
-    '''
-    
-    pass
-
-
-def create_checkpoint():
-    '''
-    Save the current state of log files of all processes into a stable, and more reliable storeage (secondary storage)
-    '''
-
-    pass
-
 
 
 def create_notification(pid, message, status):

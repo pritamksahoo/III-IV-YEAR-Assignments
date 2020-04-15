@@ -28,10 +28,16 @@ def intialization(sck):
 		intialization(sck)
 
 
-def send_req(sck):
+def send_req(sck, data):
 	'''
 	Send requests and handle response to and from server after successful login
 	'''
+
+	if data["warning"]:
+		print("\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\nDeamon process detected")
+		if len(data["deamon_process"]) != 0:
+			print("Process :", data["deamon_process"])
+		print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
 
 	print("\nYour option - \n(1) Send Money\n(2) Request for client log\n(3) Log Out")
 	choice = int(input("\nYour choice (1,2,3) : "))
@@ -58,7 +64,7 @@ def send_req(sck):
 
 	else:
 		print("\n### Choose a correct option ###")
-		send_req(sck)
+		send_req(sck, data)
 
 	return True
 
@@ -140,10 +146,14 @@ if __name__ == '__main__':
 							break
 
 						# Start transactions
-						state = send_req(s)
+						state = send_req(s, data)
 
 			elif d_type == "FORCED_LOG_OUT":
 				print("\n### Server is not responding! Logging out of the system ###\n")
+				break
+
+			elif d_type == "FORCED_BLOCK":
+				print("\n### Your account has been blocked due to log hijacking ###\n")
 				break
 
 			elif d_type == "TRANSACTION":
@@ -154,11 +164,11 @@ if __name__ == '__main__':
 				print(message)
 				print('------------------------------')
 
-				state = send_req(s)
+				state = send_req(s, data)
 
 			else:
 				# Start transactions
-				state = send_req(s)
+				state = send_req(s, data)
 
 		except KeyboardInterrupt:
 			# Log Out before client disconnects
