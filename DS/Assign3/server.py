@@ -5,19 +5,22 @@ import json
 from os import listdir
 from os.path import isfile, join
 import account as acc
+import log_handling as logh
 
-global_port = 1231
+global_port = 12356
 
 def threaded_client(con, sckt, addr):
 	'''
 	Threaded function. Each thread is assigned to listen for one client and respond to them
 	'''
+	client_pid = None
 
 	while True:
 		try:
-			msg = {}
+			# msg = {}
 			# Received data from client
-			data = json.loads(con.recv(4096).decode())
+			msg = con.recv(4096).decode()
+			data = json.loads(msg)
 
 			if not data: 
 				print("\n### [", addr, "] Disconnected ###\n")
@@ -28,6 +31,7 @@ def threaded_client(con, sckt, addr):
 
 				if type == "SIGN_UP" or type == "LOG_IN":
 					pid, password = data["pid"], data["password"]
+					client_pid = pid
 
 					ret_data = acc.create_account(pid, password, addr) if type == "SIGN_UP" else acc.login(pid, password, addr)
 
@@ -41,11 +45,108 @@ def threaded_client(con, sckt, addr):
 					if ret_data["status"] == 400 or type == "SIGN_UP":
 						break
 
+					else:
+						acknowledgement = json.loads(con.recv(4096).decode())
+						
+						if acknowledgement["type"] == "ACK":
+							notifications = logh.retrieve_unread_notifications(pid)
+							message = json.dumps({
+								"type" : "UNREAD_NOTIFICATIONS",
+								"message": { k:v for k,v in enumerate(notifications) }
+							})
+							con.sendall(message.encode())
+
+						else:
+							break
+
+				elif type == "LOG_OUT":
+    				# Logging out of the system
+					acc.logout(pid)
+
+					message = json.dumps({
+						"type": "LOG_OUT_ACK",
+						"message": "You are logged out"
+					})
+					con.sendall(message.encode())
+					break
+
+				elif type == "TRANSACTION":
+					# Transaction
+					credit, amount = data["credit"], data["amount"]
+
+					debit_log = json.dumps({
+						"TYPE": "DEBIT",
+						"FROM": client_pid,
+						"TO": credit,
+						"AMOUNT": amount
+					})
+
+					credit_log = json.dumps({
+						"TYPE": "CREDIT",
+						"FROM": credit,
+						"TO": client_pid,
+						"AMOUNT": amount
+					})
+
+					debit_notification = "$" + str(amount) + " debited from your account and credited to " + credit + ""
+					credit_notification = "$" + str(amount) + " credited to your account, received from " + client_pid + ""
+
+					# Saving transaction history
+					status = logh.create_new_log(credit, credit_log)
+
+					if status:
+						logh.create_new_log(client_pid, debit_log)
+
+						# Notify sender and receiver about successfult transaction
+						logh.create_notification(client_pid, debit_notification, 'N')
+						logh.create_notification(credit, credit_notification, 'N')
+
+						client_note = logh.send_notifications_to_clients(client_pid)
+						
+						if client_note is None or client_note[0] is None:
+							pass
+						else:
+							message = json.dumps({
+								"type": "TRANSACTION",
+								"status": 200,
+								"message": debit_notification
+							})
+							con.sendall(message.encode())
+						
+					else:
+						message = json.dumps({
+							"type": "TRANSACTION",
+							"status": 400,
+							"message": "Transaction Failed! Invalid credit account"
+						})
+						con.sendall(message.encode())
+
 				else:
 					pass
 			
 		except KeyboardInterrupt:
+			message = json.dumps({
+				"type" : "FORCED_LOG_OUT",
+			})
+			# Account becomes passive
+			acc.logout(client_pid)
+
+			con.sendall(message.encode())
 			sckt.close()
+			break
+
+		except Exception as e:
+			# print(e)
+			message = json.dumps({
+				"type" : "FORCED_LOG_OUT",
+			})
+			# Account becomes passive
+			acc.logout(client_pid)
+
+			con.sendall(message.encode())
+			sckt.close()
+			break
+
 
 	print("### Connection with [", addr, "] Closed ###\n")
 	con.close() 

@@ -15,7 +15,7 @@ def is_active(pid):
     if record.empty:
         # Wrong PID
         return None
-    elif record.at[0, "isActive"] == 'Y':
+    elif record["isActive"].to_list()[0] == 'Y':
         # Active
         return True
     else:
@@ -127,6 +127,19 @@ def login(pid, password, addr):
 
     return data    
 
+
+def logout(pid):
+    '''
+    Client logged out of the system
+    '''
+
+    filepath = "./server/stable_storage/accounts/accounts.csv"
+    accounts = pd.read_csv(filepath)
+
+    index = accounts.index[accounts["pid"] == pid].to_list()[0]
+    accounts.at[index, "isActive"] = 'N'
+
+    accounts.to_csv(filepath, index=False, header=True)
 
 
 if __name__ == '__main__':

@@ -30,10 +30,55 @@ def intialization(sck):
 
 def send_req(sck):
 	'''
-	Send request to server after successful login
+	Send requests and handle response to and from server after successful login
 	'''
-	data = input()
-	pass
+
+	print("\nYour option - \n(1) Send Money\n(2) Request for client log\n(3) Log Out")
+	choice = int(input("\nYour choice (1,2,3) : "))
+
+	if choice == 1:
+		credit_acc = input("\nCredit account PID : ")
+		amount = float(input("Enter amount : "))
+
+		message = json.dumps({
+			"type": "TRANSACTION",
+			"credit": credit_acc,
+			"amount": amount
+		})
+		print("\nTransaction processing ...", end=' ')
+		sck.sendall(message.encode())
+
+	elif choice == 2:
+		pass
+
+	elif choice == 3:
+		# Log out
+		log_out(sck)
+		return False
+
+	else:
+		print("\n### Choose a correct option ###")
+		send_req(sck)
+
+	return True
+
+
+def log_out(sck):
+	'''
+	Logging out of client account. Due to any exception, server not responding, or keyboard interrupt like Ctrl-C or normal log out by client manually
+	'''
+
+	message = json.dumps({
+		"type": "LOG_OUT"
+	})
+	sck.sendall(message.encode())
+
+	data = json.loads(sck.recv(4096).decode())
+	if data["type"] == "LOG_OUT_ACK":
+		print("\n### " + data["message"] + " ###\n")
+
+	else:
+		print("\n### Server is not responding! Logged of the system ###\n")
 
 
 if __name__ == '__main__':
@@ -46,28 +91,85 @@ if __name__ == '__main__':
 
 	# Account creation or Log in
 	intialization(s)
+	state = True
 
 	while True: 
 		# Receive data from server
-		data = json.loads(s.recv(4096).decode())
-		d_type = data["type"]
-
-		if d_type == "SIGN_UP" or d_type == "LOG_IN":
-			status, message = data["status"], data["message"]
-			print("\n" + message)
-
-			if status == 400:	
+		try:
+			if not state:
 				break
 
-			else:
-				if d_type == "SIGN_UP":
+			data = json.loads(s.recv(4096).decode())
+			d_type = data["type"]
+
+			if d_type == "SIGN_UP" or d_type == "LOG_IN":
+				status, message = data["status"], data["message"]
+				print("\n" + message)
+
+				if status == 400:	
 					break
 
 				else:
-					# Send some req to server
-					send_req(s)
+					if d_type == "SIGN_UP":
+						break
 
-		else:
-			pass
+					else:
+						# Send some req to server
+						message = json.dumps({
+							"type": "ACK"						
+						})
+						s.sendall(message.encode())
+
+						# Fetching any outstanding notifications
+						notifications = json.loads(s.recv(4096).decode())
+						
+						if notifications["type"] == "UNREAD_NOTIFICATIONS":
+							unread_notifications = notifications["message"]
+							# print(unread_notifications)
+							print('\n------------------------------')
+							if len(unread_notifications) == 0:
+								print("### You have no unread notifications ###")
+
+							else:
+								print("### Notifications ###\n")
+								for note in unread_notifications:
+									print(unread_notifications[note])
+
+							print('------------------------------')
+						else:
+							break
+
+						# Start transactions
+						state = send_req(s)
+
+			elif d_type == "FORCED_LOG_OUT":
+				print("\n### Server is not responding! Logging out of the system ###\n")
+				break
+
+			elif d_type == "TRANSACTION":
+				status, message = data["status"], data["message"]
+				print("Done")
+
+				print("\n------------------------------\nTransaction stautus :", status)
+				print(message)
+				print('------------------------------')
+
+				state = send_req(s)
+
+			else:
+				# Start transactions
+				state = send_req(s)
+
+		except KeyboardInterrupt:
+			# Log Out before client disconnects
+			log_out(s)
+			break
+
+		except Exception as e:
+			print(e)
+			# Log Out before client disconnects
+			log_out(s)
+			break
 	
-	s.close() 
+	# END of Session
+	s.close()

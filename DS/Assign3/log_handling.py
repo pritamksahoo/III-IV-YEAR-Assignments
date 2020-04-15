@@ -37,8 +37,15 @@ def create_new_log(pid, log_data):
 
     log_path = "./server/local_storage/client_log/" + str(pid) + "/log.txt"
 
-    with open(log_path, "a+") as fw:
-        fw.write(json.dumps(log_data) + "\n")
+    try:
+        with open(log_path, "a+") as fw:
+            fw.write(json.dumps(log_data) + "\n")
+
+        return True
+
+    except Exception as e:
+        print(e)
+        return False
 
 
 def check_log_consistency(pid=None):
@@ -82,13 +89,17 @@ def retrieve_unread_notifications(pid):
     Fetch all unread notifications for a process
     '''
 
-    client_note_file = "./server/local_storage/client_log/" + str(pid) + "/notifications.csv"
+    client_note_file = "./server/stable_storage/notifications/" + str(pid) + "/notifications.csv"
 
     try:
         notifications = pd.read_csv(client_note_file)
         unread = notifications.loc[notifications['read'] == 'N']
         index = notifications.index[notifications['read'] == 'N'].tolist()
-        unread_notifiactions = unread['message']
+        unread_notifications = unread['message'].to_list()
+
+        # print(index)
+        # print(unread)
+        # print(unread_notifications)
 
         # Marking messages read
         for ind in index:
@@ -97,6 +108,7 @@ def retrieve_unread_notifications(pid):
         notifications.to_csv(client_note_file, index=False, header=True)
 
     except Exception as e:
+        print(e)
         unread_notifications = []
 
     return unread_notifications
@@ -112,6 +124,12 @@ def send_notifications_to_clients(pid):
     if status is None:
         return None
     elif status:
-        return retrieve_unread_notifications(pid)
+        note = retrieve_unread_notifications(pid)
+        # print("log_handling - ", note)
+        return note
     else:
         return [None]
+
+
+if __name__ == '__main__':
+    print(retrieve_unread_notifications("pritam"))
