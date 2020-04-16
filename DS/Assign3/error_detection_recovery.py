@@ -33,6 +33,9 @@ def check_log_consistency(pid=None):
 			hash_cur = hashlib.sha256(data_cur.encode()).hexdigest()
 
 			if hash_cur != hash_saved:
+				# print(data_cur)
+				# print(data_saved)
+				# print(pid)
 				consistent = False
 				deamon.append(pid)
 				acc.block(pid)
@@ -98,7 +101,7 @@ def revert_back_changes(all_process, cur_time):
 					if l["TYPE"] == "DEBIT" and l["STATUS"] == "SUCCESS":
 						debit, credit, amount = l["FROM"], l["TO"], l["AMOUNT"]
 
-						debit_notification = "[ " + cur_time + " ] : $" + str(amount) + " debited from your account and credited to " + debit + " [ SYSTEM RECOVERY ]"
+						debit_notification = "[ " + cur_time + " ] : $" + str(amount) + " recovered from your account and credited to " + debit + " [ SYSTEM RECOVERY ]"
 						credit_notification = "[ " + cur_time + " ] : $" + str(amount) + " credited to your account, recovered from " + credit + " [ SYSTEM RECOVERY ]"
 
 						logh.create_notification(debit, credit_notification, 'N')

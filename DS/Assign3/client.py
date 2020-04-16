@@ -237,8 +237,8 @@ if __name__ == '__main__':
 				state = send_req(s, data)
 
 			elif d_type == "RESTART":
-				print(data["timestamp"], "-::-",  data["message"])
-				print(list(data["process"].values()))
+				print("[ " + data["timestamp"] + " ] :",  data["message"])
+				print("Processes ::", list(data["process"].values()))
 				print("\n### System has been reverted back to stable state ###")
 				print("\n### You have been logged out! Login again")
 

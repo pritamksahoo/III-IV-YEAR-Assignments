@@ -9,7 +9,7 @@ import account as acc
 import log_handling as logh
 import error_detection_recovery as er
 
-global_port = 12356
+global_port = 12357
 
 halt_process = False
 deamon_processes = []
@@ -29,6 +29,45 @@ def cur_time():
 	timestamp = "{year}-{month}-{day} {hour}:{minute}:{second}".format(year=y, month=mo, day=d, hour=h, minute=mi, second=s)
 
 	return timestamp
+
+
+def check_server_status(pid, con):
+	'''
+	Check whether the server is running a background check on log consistency of the system
+	'''
+
+	global halt_process
+	global warning_phase
+	global deamon_processes
+	global error_detection_time
+
+	if halt_process:
+		print("Start in halt process loop")
+		while halt_process:
+			# print("\n### Server Busy fixing consistency! Waiting for response ... ###")
+			pass
+
+		print("End in halt process loop")
+
+	if warning_phase:
+		message = json.dumps({
+			"type": "RESTART",
+			"message": "Deamon process detected!",
+			"process": { k:v for k,v in enumerate(deamon_processes) },
+			"timestamp": error_detection_time
+		})
+
+		running_process.pop(pid)
+
+		acc.logout(pid, cur_time())
+		if pid in deamon_processes:
+			acc.block(client_pid)
+
+		con.sendall(message.encode())
+
+		return "ERROR"
+
+	return "OK"
 
 
 def background_error_check(sckt):
@@ -108,7 +147,7 @@ def background_error_check(sckt):
 
 		warning_phase = False
 		halt_process = False
-		time.sleep(15.0)
+		time.sleep(30.0)
 
 
 def threaded_client(con, sckt, addr):
@@ -197,7 +236,20 @@ def threaded_client(con, sckt, addr):
 						logh.create_new_log(client_pid, client_log)
 
 						print("\nWaitig from ACK from", addr)
+
+						'''
+						Waiting for data from client
+						'''
+						running_process[client_pid] = "IDLE"
+
+						# Receiveng ack from client
 						acknowledgement = json.loads(con.recv(4096).decode())
+						state = check_server_status(client_pid, con)
+						if state == "ERROR":
+							break
+
+						running_process[client_pid] = "BUSY"
+
 						print("\nACK from", addr)
 						# print(acknowledgement)
 
@@ -298,9 +350,22 @@ def threaded_client(con, sckt, addr):
 				elif type == "REQ_LOG":
 					client_log = logh.fetch_client_log(client_pid)
 
+					# Sending log data bytes by bytes to client
 					for log in client_log:
 						con.sendall(log)
+						
+						'''
+						Waiting for data from client
+						'''
+						running_process[client_pid] = "IDLE"						
 						d = con.recv(1024).decode()
+						state = check_server_status(client_pid, con)
+						if state == "ERROR":
+							break
+
+						running_process[client_pid] = "BUSY"
+
+						# Sending next bytes of data
 						if d == "NEXT":
 							pass
 						else:
@@ -314,16 +379,37 @@ def threaded_client(con, sckt, addr):
 						"STATUS": "SUCCESS"
 					})
 
-					logh.create_new_log(client_pid, client_log)
-					
-					# Receive back the file
+					# logh.create_new_log(client_pid, client_log)
+					'''
+					Waiting for data from client
+					'''
+					running_process[client_pid] = "IDLE"
+
+					# Receive back the file from client
 					d = con.recv(1024).decode()
+					state = check_server_status(client_pid, con)
+					if state == "ERROR":
+						break
+
+					running_process[client_pid] = "BUSY"
+
 					if d == "READY":
 						content = ""
 						con.sendall("READY".encode())
 
 						while True:
+							'''
+							Waiting for data from client
+							'''
+							running_process[client_pid] = "IDLE"
+
 							data = con.recv(1024).decode()
+							state = check_server_status(client_pid, con)
+							if state == "ERROR":
+								break
+
+							running_process[client_pid] = "BUSY"
+
 							if data == "END_OF_FILE":
 								break
 							else:
@@ -334,7 +420,9 @@ def threaded_client(con, sckt, addr):
 						with open("./server/local_storage/client_log/" + str(client_pid) + "/log.txt", "w") as fw:
 							fw.write(content)
 						
-						print("\ncomplete transfer\n")
+						print("\nComplete transfer\n")
+					
+					logh.create_new_log(client_pid, client_log)
 						
 					message = json.dumps({
 						"type": "REQ_LOG",
