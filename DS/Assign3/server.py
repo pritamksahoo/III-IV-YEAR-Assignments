@@ -54,7 +54,7 @@ def background_error_check(sckt):
 			# print(status, deamon_processes)
 
 			if not status:
-				print("\n -------------------------")
+				print(" -------------------------")
 				print("| DEAMON PROCESS DETECTED |")
 				print(" -------------------------")
 
@@ -69,19 +69,19 @@ def background_error_check(sckt):
 
 				all_process = acc.all_process()
 				error_detection_time = cur_time()
-				notification = "Deamon process detected at " + error_detection_time + " ! Processes - " + str(deamon_processes)
+				notification = "[ " + error_detection_time + " ] : Deamon process detected ! Processes - " + str(deamon_processes)
 
 				for pid, status in all_process:
 					if status != 'Y':
 						logh.create_notification(pid, notification, 'N')
 
-					logh.create_notification(pid, cur_time() + " : Starting system recovery", 'N')
+					logh.create_notification(pid, "[ " +  error_detection_time + " ] : Starting system recovery", 'N')
 
 				# Recover from fault
 				er.backward_error_recovery(cur_time())
 
 				for pid, status in all_process:
-					logh.create_notification(pid, cur_time() + " : System back to normal", 'N')
+					logh.create_notification(pid, "[ " + cur_time() + " ] : System back to normal", 'N')
 
 				halt_process = False
 
@@ -150,7 +150,11 @@ def threaded_client(con, sckt, addr):
 				})
 
 				running_process.pop(client_pid)
-				acc.logout(client_pid)
+
+				acc.logout(client_pid, cur_time())
+				if client_pid in deamon_processes:
+					acc.block(client_pid)
+
 				con.sendall(message.encode())
 				break
 			
@@ -168,7 +172,8 @@ def threaded_client(con, sckt, addr):
 					pid, password = data["pid"], data["password"]
 					client_pid = pid
 
-					ret_data = acc.create_account(pid, password, addr) if type == "SIGN_UP" else acc.login(pid, password, addr)
+					time_now = cur_time()
+					ret_data = acc.create_account(pid, password, addr, time_now) if type == "SIGN_UP" else acc.login(pid, password, addr, time_now)
 
 					print(addr, ":", ret_data["message"])
 
@@ -211,7 +216,7 @@ def threaded_client(con, sckt, addr):
 
 				elif type == "LOG_OUT":
 					# Logging out of the system
-					acc.logout(pid)
+					acc.logout(pid, cur_time())
 
 					client_log = json.dumps({
 						"TYPE": "LOGOUT",
@@ -252,8 +257,9 @@ def threaded_client(con, sckt, addr):
 						"TIMESTAMP": timestamp
 					})
 
-					debit_notification = "[ " + cur_time() + " ] : $" + str(amount) + " debited from your account and credited to " + credit + ""
-					credit_notification = "[ " + cur_time() + " ] : $" + str(amount) + " credited to your account, received from " + client_pid + ""
+					debit_notification = "[ " + cur_time() + " ] : $" + str(amount) + " debited from your account and credited to " + credit
+					
+					credit_notification = "[ " + cur_time() + " ] : $" + str(amount) + " credited to your account, received from " + client_pid
 
 					# Saving transaction history
 					status = logh.create_new_log(credit, credit_log, False, False)
@@ -285,7 +291,7 @@ def threaded_client(con, sckt, addr):
 						message = json.dumps({
 							"type": "TRANSACTION",
 							"status": 400,
-							"message": "Transaction Failed! Invalid credit account (or) Credit Account is blocked for malicious activity",
+							"message": "[ " + cur_time() + " ] : Transaction Failed! Invalid credit account (or) Credit Account is blocked for malicious activity",
 						})
 						con.sendall(message.encode())
 
@@ -309,39 +315,34 @@ def threaded_client(con, sckt, addr):
 					})
 
 					logh.create_new_log(client_pid, client_log)
-					print("helloa")
+					
 					# Receive back the file
 					d = con.recv(1024).decode()
-					print("hellob")
 					if d == "READY":
-						print("helloooc")
 						content = ""
 						con.sendall("READY".encode())
-						print("hellod")
 
 						while True:
 							data = con.recv(1024).decode()
 							if data == "END_OF_FILE":
-								print("helloe")
 								break
 							else:
 								content = content + data
 
 							con.sendall("NEXT".encode())
-						print("hellof")
+						
 						with open("./server/local_storage/client_log/" + str(client_pid) + "/log.txt", "w") as fw:
 							fw.write(content)
-						print("hellog")
+						
 						print("\ncomplete transfer\n")
-						print("helloooh")
+						
 					message = json.dumps({
 						"type": "REQ_LOG",
 						"status": 200,
 						"message": "[ " + cur_time() + " ] : Successful log file transfer"
 					})
-					print("helloj")
 					con.sendall(message.encode())
-					print("hellok")
+					
 				else:
 					pass
 			
@@ -352,7 +353,7 @@ def threaded_client(con, sckt, addr):
 				"type" : "FORCED_LOG_OUT",
 			})
 			# Account becomes passive
-			acc.logout(client_pid)
+			acc.logout(client_pid, cur_time())
 			client_log = json.dumps({
 				"TYPE": "LOGOUT",
 				"TIMESTAMP": cur_time(),
@@ -372,7 +373,7 @@ def threaded_client(con, sckt, addr):
 		# 		"type" : "FORCED_LOG_OUT",
 		# 	})
 		# 	# Account becomes passive
-		# 	acc.logout(client_pid)
+		# 	acc.logout(client_pid, cur_time())
 		# 	client_log = json.dumps({
 		# 		"TYPE": "LOGOUT",
 		# 		"TIMESTAMP": cur_time(),

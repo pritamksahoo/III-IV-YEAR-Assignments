@@ -40,25 +40,31 @@ def create_new_log_file(pid):
 	create_directory(checkpoint_path, str(pid), ['checkpoint.txt', 'changes.txt'])
 
 
-def create_new_log(pid, log_data, write=True, change=True):
+def create_new_log(pid, log_data, write=True, change=True, server=False):
 	'''
 	Create a new line of log into a process's log
 	'''
 
 	log_path = "./server/local_storage/client_log/" + str(pid) + "/log.txt"
 	checkpoint_path = "./server/stable_storage/checkpoints/" + str(pid) + "/changes.txt"
+	server_log_path = "./server/stable_storage/server_log/log.txt"
 
 	if acc.is_active(pid) is None:
 		return False
 
 	try:
-		with open(log_path, "a+") as fw:
-			if write:
-				fw.write(log_data + "\n")
+		if pid is not None:
+			with open(log_path, "a+") as fw:
+				if write:
+					fw.write(log_data + "\n")
 
-		with open(checkpoint_path, "a+") as fw:
-			if write and change:
-				fw.write(log_data + "\n")
+			with open(checkpoint_path, "a+") as fw:
+				if write and change:
+					fw.write(log_data + "\n")
+
+		with open(server_log_path, "a+") as fs:
+			if server:
+				fs.write(log_data + "\n")
 
 		return True
 

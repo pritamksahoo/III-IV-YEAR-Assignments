@@ -54,14 +54,6 @@ def create_checkpoint(cur_time):
 		log_file_path = log_path + str(pid) + "/log.txt"
 		checkpoint_file_path = checkpoint_path + str(pid) + "/"
 
-		new_log = json.dumps({
-			"TYPE": "CHECKPOINT",
-			"TIMESTAMP": cur_time,
-			"STATUS": "SUCCESS"
-		})
-
-		logh.create_new_log(pid, new_log, change=False)
-
 		with open(log_file_path, "r") as fr:
 			content = fr.read()
 
@@ -72,9 +64,17 @@ def create_checkpoint(cur_time):
 			fw.write("")
 
 		with open(checkpoint_path + "timestamps.txt", "a+") as fa:
-			fa.write(cur_time)
+			fa.write(cur_time + "\n")
 
-	print("\n --------------------")
+	new_log = json.dumps({
+		"TYPE": "CHECKPOINT",
+		"TIMESTAMP": cur_time,
+		"STATUS": "SUCCESS"
+	})
+
+	logh.create_new_log(None, new_log, write=False, change=False, server=True)
+
+	print(" --------------------")
 	print("| CHECKPOINT CREATED |")
 	print(" --------------------")
 
@@ -96,13 +96,13 @@ def revert_back_changes(all_process, cur_time):
 				if log:
 					l = json.loads(log)
 					if l["TYPE"] == "DEBIT" and l["STATUS"] == "SUCCESS":
-						debit, credit = l["FROM"], l["TO"]
+						debit, credit, amount = l["FROM"], l["TO"], l["AMOUNT"]
 
-					debit_notification = "[ " + cur_time + " ] : $" + str(amount) + " debited from your account and credited to " + debit + " [ SYSTEM RECOVERY ]"
-					credit_notification = "[ " + cur_time + " ] : $" + str(amount) + " credited to your account, recovered from " + credit + " [ SYSTEM RECOVERY ]"
+						debit_notification = "[ " + cur_time + " ] : $" + str(amount) + " debited from your account and credited to " + debit + " [ SYSTEM RECOVERY ]"
+						credit_notification = "[ " + cur_time + " ] : $" + str(amount) + " credited to your account, recovered from " + credit + " [ SYSTEM RECOVERY ]"
 
-					logh.create_notification(debit, credit_notification, 'N')
-					logh.create_notification(credit, debit_notification, 'N')
+						logh.create_notification(debit, credit_notification, 'N')
+						logh.create_notification(credit, debit_notification, 'N')
 
 				else:
 					break
@@ -128,26 +128,26 @@ def backward_error_recovery(cur_time):
 		with open(log_file_path, "w") as fw:
 			fw.write(content)
 
-		new_log = json.dumps({
-			"TYPE": "BER",
-			"TIMESTAMP": cur_time,
-			"STATUS": "SUCCESS"
-		})
-
-		logh.create_new_log(pid, new_log, change=False)
-
-		create_checkpoint(cur_time)
-		
 		# Revert back all the changes
 		revert_back_changes(all_process, cur_time)
+
+		create_checkpoint(cur_time)
 
 		with open(checkpoint_file_path + "changes.txt", "w") as fw:
 			fw.write("")
 
-		with open(checkpoint_path + "timestamps.txt", "a+") as fa:
-			fa.write(cur_time)
+		# with open(checkpoint_path + "timestamps.txt", "a+") as fa:
+		# 	fa.write(cur_time + "\n")
 
-	print("\n ------------------")
+	new_log = json.dumps({
+		"TYPE": "BER",
+		"TIMESTAMP": cur_time,
+		"STATUS": "SUCCESS"
+	})
+
+	logh.create_new_log(None, new_log, write=False, change=False, server=True)
+
+	print(" ------------------")
 	print("| SYSTEM RECOVERED |")
 	print(" ------------------")
 

@@ -39,7 +39,7 @@ def all_process():
 	return [(pid[i], active_status[i]) for i in range(len(pid))]
 
 
-def create_account(pid, password, addr):
+def create_account(pid, password, addr, cur_time):
 	'''
 	Creates an account with unique pid and password and variable address (hostname and port). Address can change every time client shuts down and restarts again. Throws error if pid already exists
 	'''
@@ -69,17 +69,17 @@ def create_account(pid, password, addr):
 			logh.create_new_log_file(pid)
 
 			status = 200
-			message = "Account successfully created"
+			message = "[ " + cur_time + " ] : Account successfully created"
 
 			logh.create_notification(pid, message, 'Y')
 
 		except Exception as e:
 			status = 400
-			message = "Account creation failed! Server Error! Try again later"
+			message = "[ " + cur_time + " ] : Account creation failed! Server Error! Try again later"
 
 	else:
 		status = 400
-		message = "Account creation failed! PID already exists"
+		message = "[ " + cur_time + " ] : Account creation failed! PID already exists"
 
 	data = {
 		"status": status,
@@ -89,7 +89,7 @@ def create_account(pid, password, addr):
 	return data
 
 
-def login(pid, password, addr):
+def login(pid, password, addr, cur_time):
 	'''
 	Log in to a client's acount, address my be different after restart. So, it's need to be updated
 	'''
@@ -102,11 +102,11 @@ def login(pid, password, addr):
 
 	if not record.empty and record["isActive"].to_list()[0] == 'Y':
 		status = 400
-		message = "Login Failed! Already running in another window"
+		message = "[ " + cur_time + " ] : Login Failed! Already running in another window"
 
 	elif not record.empty and record["isActive"].to_list()[0] == 'B':
 		status = 400
-		message = "Login Failed! Account is blocked"    
+		message = "[ " + cur_time + " ] : Login Failed! Account is blocked"    
 	
 	elif not record.empty:
 		hostname, port = addr
@@ -119,13 +119,13 @@ def login(pid, password, addr):
 		accounts.to_csv(filepath, index=False, header=True)
 
 		status = 200
-		message = "You are logged in"
+		message = "[ " + cur_time + " ] : You are logged in"
 		
 		logh.create_notification(pid, message, 'Y')
 
 	else:
 		status = 400
-		message = "Login Failed! Wrong PID or PASSWORD"
+		message = "[ " + cur_time + " ] : Login Failed! Wrong PID or PASSWORD"
 
 	data = {
 		"status": status,
@@ -135,7 +135,7 @@ def login(pid, password, addr):
 	return data    
 
 
-def logout(pid):
+def logout(pid, cur_time):
 	'''
 	Client logged out of the system
 	'''
@@ -144,9 +144,13 @@ def logout(pid):
 	accounts = pd.read_csv(filepath)
 
 	index = accounts.index[accounts["pid"] == pid].to_list()[0]
-	accounts.at[index, "isActive"] = 'N'
+	if accounts.at[index, "isActive"] == 'Y':
+		accounts.at[index, "isActive"] = 'N'
 
-	accounts.to_csv(filepath, index=False, header=True)
+		message = "[ " + cur_time + " ] : You are logged out"
+		logh.create_notification(pid, message, 'Y')
+
+		accounts.to_csv(filepath, index=False, header=True)
 
 
 def block(pid):

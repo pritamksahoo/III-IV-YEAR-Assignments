@@ -36,7 +36,7 @@ def send_req(sck, data):
 	Send requests and handle response to and from server after successful login
 	'''
 
-	print("\nYour option - \n(1) Send Money\n(2) Request for client log\n(3) Log Out\n(4) Malicious activity (corrupt log)")
+	print("\nYour option - \n(1) Send Money\n(2) Request for client log\n(3) Log Out")
 	choice = int(input("\nYour choice (1,2,3) : "))
 
 	if choice == 1:
@@ -121,20 +121,7 @@ def send_req(sck, data):
 	elif choice == 3:
 		# Log out
 		log_out(sck)
-		return False
-
-	elif choice == 4:
-		confirm = input("\n!!! Corrupt Mode !!! Do you want to proceed? (1 for y/ 0 for n) : ")
-
-		if confirm == 1:
-			filepath = input("\nEnter path to your log file : ")
-
-			if os.path.isfile(filepath):
-				message = json.dumps({
-
-				})
-			else:
-				print("\n!!! Filepath not valid !!!")		
+		return False	
 
 	else:
 		print("\n### Choose a correct option ###")
