@@ -9,7 +9,7 @@ import account as acc
 import log_handling as logh
 import error_detection_recovery as er
 
-global_port = 12356
+global_port = 12354
 halt_process = False
 deamon_processes = []
 warning_phase = False
@@ -43,11 +43,11 @@ def background_error_check(sckt):
 			halt_process = True
 
 			idly = list(running_process.values())
-			print("Start idle check loop")
+			# print("Start idle check loop")
 			while "BUSY" in idly:
 				idly = list(running_process.values())
 
-			print("End idle check loop")
+			# print("End idle check loop")
 
 			status, deamon_processes = er.check_log_consistency()
 			# print(status, deamon_processes)
@@ -75,19 +75,20 @@ def background_error_check(sckt):
 
 				halt_process = False
 
-				print("Start checking if all logged out")
+				# print("Start checking if all logged out")
 				while len(running_process) != 0:
 					pass
 
-				print("Stop in checking if all logged out")
+				# print("Stop in checking if all logged out")
 
 				warning_phase = False
 
 			else:
+				er.create_checkpoint()
 				deamon_processes = []
 				halt_process = False
 				warning_phase = False
-				print("\n---------------------------------\nBackground Error Detection Complete ... No error\n---------------------------------\n")
+				# print("\n---------------------------------\nBackground Error Detection Complete ... No error\n---------------------------------\n")
 
 		except KeyboardInterrupt:
 			pass
@@ -171,6 +172,14 @@ def threaded_client(con, sckt, addr):
 						break
 
 					else:
+						client_log = json.dumps({
+							"TYPE": "LOGIN",
+							"TIMESTAMP": cur_time(),
+							"STATUS": "SUCCESS"
+						})
+
+						logh.create_new_log(client_pid, client_log)
+
 						print("\nWaitig from ACK from", addr)
 						acknowledgement = json.loads(con.recv(4096).decode())
 						print("\nACK from", addr)
@@ -193,6 +202,14 @@ def threaded_client(con, sckt, addr):
 					# Logging out of the system
 					acc.logout(pid)
 
+					client_log = json.dumps({
+						"TYPE": "LOGOUT",
+						"TIMESTAMP": cur_time(),
+						"STATUS": "SUCCESS"
+					})
+
+					logh.create_new_log(client_pid, client_log)
+
 					message = json.dumps({
 						"type": "LOG_OUT_ACK",
 						"message": "You are logged out",
@@ -208,13 +225,13 @@ def threaded_client(con, sckt, addr):
 
 					timestamp = cur_time()
 
-					debit_log = json.dumps({
+					debit_log = {
 						"TYPE": "DEBIT",
 						"FROM": client_pid,
 						"TO": credit,
 						"AMOUNT": amount,
 						"TIMESTAMP": timestamp
-					})
+					}
 
 					credit_log = json.dumps({
 						"TYPE": "CREDIT",
@@ -228,10 +245,11 @@ def threaded_client(con, sckt, addr):
 					credit_notification = "$" + str(amount) + " credited to your account, received from " + client_pid + ""
 
 					# Saving transaction history
-					status = logh.create_new_log(credit, credit_log)
+					status = logh.create_new_log(credit, credit_log, False)
 
 					if status:
-						logh.create_new_log(client_pid, debit_log)
+						debit_log["STATUS"] = "SUCCESS"
+						logh.create_new_log(client_pid, json.dumps(debit_log))
 
 						# Notify sender and receiver about successfult transaction
 						logh.create_notification(client_pid, debit_notification, 'N')
@@ -250,12 +268,23 @@ def threaded_client(con, sckt, addr):
 							con.sendall(message.encode())
 						
 					else:
+						debit_log["STATUS"] = "FAIL"
+						logh.create_new_log(client_pid, json.dumps(debit_log))
+
 						message = json.dumps({
 							"type": "TRANSACTION",
 							"status": 400,
 							"message": "Transaction Failed! Invalid credit account (or) Credit Account is blocked for malicious activity",
 						})
 						con.sendall(message.encode())
+
+				elif type == "REQ_LOG":
+					client_log = logh.fetch_client_log(client_pid)
+
+					for log in client_log:
+						con.sendall(log)
+
+					con.sendall("END_OF_FILE".encode())
 
 				else:
 					pass
@@ -268,6 +297,13 @@ def threaded_client(con, sckt, addr):
 			})
 			# Account becomes passive
 			acc.logout(client_pid)
+			client_log = json.dumps({
+				"TYPE": "LOGOUT",
+				"TIMESTAMP": cur_time(),
+				"STATUS": "SUCCESS"
+			})
+			logh.create_new_log(client_pid, client_log)
+
 			running_process.pop(client_pid)
 
 			con.sendall(message.encode())
@@ -281,6 +317,13 @@ def threaded_client(con, sckt, addr):
 			})
 			# Account becomes passive
 			acc.logout(client_pid)
+			client_log = json.dumps({
+				"TYPE": "LOGOUT",
+				"TIMESTAMP": cur_time(),
+				"STATUS": "SUCCESS"
+			})
+			logh.create_new_log(client_pid, client_log)
+
 			running_process.pop(client_pid)
 
 			con.sendall(message.encode())

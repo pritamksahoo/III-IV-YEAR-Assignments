@@ -1,6 +1,9 @@
 import socket 
 import json
+import os
 from server import global_port as port
+
+log_path = None
 
 def intialization(sck):
 	'''
@@ -33,7 +36,7 @@ def send_req(sck, data):
 	Send requests and handle response to and from server after successful login
 	'''
 
-	print("\nYour option - \n(1) Send Money\n(2) Request for client log\n(3) Log Out")
+	print("\nYour option - \n(1) Send Money\n(2) Request for client log\n(3) Log Out\n(4) Malicious activity (corrupt log)")
 	choice = int(input("\nYour choice (1,2,3) : "))
 
 	if choice == 1:
@@ -49,12 +52,48 @@ def send_req(sck, data):
 		sck.sendall(message.encode())
 
 	elif choice == 2:
-		pass
+		global log_path
+		log_path = input("Enter your directory name (with full path) where log will be fetched : ")
+
+		if os.path.isdir(log_path):
+			print("\nFetching log ... ", end='')
+
+			message = json.dumps({
+				"type": "REQ_LOG",
+			})
+
+			with open(log_path + "log.txt", "w") as f:
+				sck.sendall(message.encode())
+
+				while True:
+					data = sck.recv(1024).decode()
+					if data == "END_OF_FILE":
+						break
+
+					else:
+						f.write(data)
+
+			print("Done\n### Log saved in " + log_path + "log.txt ###")
+
+		else:
+			print("\n!!! Directory path is invalid !!!")
+			log_path = None
+
+		send_req(sck, data)
 
 	elif choice == 3:
 		# Log out
 		log_out(sck)
 		return False
+
+	elif choice == 4:
+		confirm = input("\n!!! Corrupt Mode !!! Do you want to proceed? (1 for y/ 0 for n) : ")
+
+		if confirm != 1:
+			send_req()
+
+		else:
+			pass
 
 	else:
 		print("\n### Choose a correct option ###")
@@ -172,6 +211,7 @@ if __name__ == '__main__':
 			elif d_type == "RESTART":
 				print(data["timestamp"], "-::-",  data["message"])
 				print(list(data["process"].values()))
+				print("\n### System has been reverted back to stable state ###")
 				print("\n### You have been logged out! Login again")
 
 				intialization(s)

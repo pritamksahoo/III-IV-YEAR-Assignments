@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import json
+import hashlib
 import account as acc
 
 def create_directory(parent, directory, files=None):
@@ -29,26 +30,68 @@ def create_new_log_file(pid):
     client_note_path = "./server/stable_storage/notifications/"
     create_directory(client_note_path, str(pid), ['notifications.csv'])
 
+    # Secondary log files (hash), not accessible to client
+    # client_log_hash_path = "./server/stable_storage/client_log_hash/"
+    # create_directory(client_log_hash_path, str(pid), ['hash_before.txt', 'hash_after.txt'])
+    # create_directory(client_log_hash_path, str(pid))
 
-def create_new_log(pid, log_data):
+    # For creating checkpoints, not accessible to client
+    checkpoint_path = "./server/stable_storage/checkpoints/"
+    create_directory(checkpoint_path, str(pid), ['checkpoint.txt', 'changes.txt'])
+
+
+def create_new_log(pid, log_data, write=True):
     '''
     Create a new line of log into a process's log
     '''
 
     log_path = "./server/local_storage/client_log/" + str(pid) + "/log.txt"
+    checkpoint_path = "./server/stable_storage/checkpoints/" + str(pid) + "/changes.txt"
 
     if acc.is_active(pid) is None:
         return False
 
     try:
         with open(log_path, "a+") as fw:
-            fw.write(json.dumps(log_data) + "\n")
+            if write:
+                fw.write(json.dumps(log_data) + "\n")
+
+        with open(checkpoint_path, "a+") as fw:
+            if write:
+                fw.write(json.dumps(log_data) + "\n")
 
         return True
 
     except Exception as e:
         print(e)
         return False
+
+
+def fetch_client_log(pid):
+    '''
+    Fetch log for the process with given pid. Hash is created of the log for integrity check
+    '''
+
+    client_log = []
+
+    log_path = "./server/local_storage/client_log/" + str(pid) + "/log.txt"
+    f = open(log_path, "rb")
+    
+    log = f.read(1024)
+    while log:
+        client_log.append(log)
+        log = f.read(1024)
+
+    f.close()
+
+    # total_log = ''.join([part.decode() for part in client_log])
+    # hash = hashlib.sha256(total_log.encode())
+
+    # client_log_hash_path = "./server/stable_storage/client_log_hash/" + str(pid) + "/hash_before.txt"
+    # with open(client_log_hash_path, "w") as fw:
+    #     fw.write(hash.hexdigest())
+
+    return client_log
 
 
 def create_notification(pid, message, status):

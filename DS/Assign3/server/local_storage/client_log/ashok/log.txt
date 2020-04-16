@@ -1,0 +1,3 @@
+"{\"TYPE\": \"LOGIN\", \"TIMESTAMP\": \"2020-4-16 7:31:13\", \"STATUS\": \"SUCCESS\"}"
+"{\"TYPE\": \"DEBIT\", \"FROM\": \"ashok\", \"TO\": \"abcde\", \"AMOUNT\": 1300.0, \"TIMESTAMP\": \"2020-4-16 7:31:45\", \"STATUS\": \"FAIL\"}"
+"{\"TYPE\": \"LOGOUT\", \"TIMESTAMP\": \"2020-4-16 7:31:55\", \"STATUS\": \"SUCCESS\"}"
