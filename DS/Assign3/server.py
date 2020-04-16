@@ -9,7 +9,8 @@ import account as acc
 import log_handling as logh
 import error_detection_recovery as er
 
-global_port = 12354
+global_port = 12356
+
 halt_process = False
 deamon_processes = []
 warning_phase = False
@@ -43,16 +44,20 @@ def background_error_check(sckt):
 			halt_process = True
 
 			idly = list(running_process.values())
-			# print("Start idle check loop")
+			print("Start idle check loop")
 			while "BUSY" in idly:
 				idly = list(running_process.values())
 
-			# print("End idle check loop")
+			print("End idle check loop")
 
 			status, deamon_processes = er.check_log_consistency()
 			# print(status, deamon_processes)
 
 			if not status:
+				print("\n -------------------------")
+				print("| DEAMON PROCESS DETECTED |")
+				print(" -------------------------")
+
 				global warning_phase
 				global error_detection_time
 
@@ -64,40 +69,46 @@ def background_error_check(sckt):
 
 				all_process = acc.all_process()
 				error_detection_time = cur_time()
-				notification = "Deamon process detected at" + error_detection_time + " ! Processes - " + str(deamon_processes)
+				notification = "Deamon process detected at " + error_detection_time + " ! Processes - " + str(deamon_processes)
 
 				for pid, status in all_process:
 					if status != 'Y':
 						logh.create_notification(pid, notification, 'N')
 
+					logh.create_notification(pid, cur_time() + " : Starting system recovery", 'N')
+
 				# Recover from fault
-				er.backward_error_recovery()
+				er.backward_error_recovery(cur_time())
+
+				for pid, status in all_process:
+					logh.create_notification(pid, cur_time() + " : System back to normal", 'N')
 
 				halt_process = False
 
-				# print("Start checking if all logged out")
+				print("Start checking if all logged out")
 				while len(running_process) != 0:
 					pass
 
-				# print("Stop in checking if all logged out")
+				print("Stop in checking if all logged out")
 
 				warning_phase = False
 
 			else:
-				er.create_checkpoint()
+				print("\n---------------------------------\nBackground Error Detection Complete ... No error\n---------------------------------\n")
+
+				er.create_checkpoint(cur_time())
 				deamon_processes = []
 				halt_process = False
 				warning_phase = False
-				# print("\n---------------------------------\nBackground Error Detection Complete ... No error\n---------------------------------\n")
 
 		except KeyboardInterrupt:
 			pass
-		except Exception as e:
-			pass
+		# except Exception as e:
+		# 	pass
 
 		warning_phase = False
 		halt_process = False
-		time.sleep(10.0)
+		time.sleep(15.0)
 
 
 def threaded_client(con, sckt, addr):
@@ -241,11 +252,11 @@ def threaded_client(con, sckt, addr):
 						"TIMESTAMP": timestamp
 					})
 
-					debit_notification = "$" + str(amount) + " debited from your account and credited to " + credit + ""
-					credit_notification = "$" + str(amount) + " credited to your account, received from " + client_pid + ""
+					debit_notification = "[ " + cur_time() + " ] : $" + str(amount) + " debited from your account and credited to " + credit + ""
+					credit_notification = "[ " + cur_time() + " ] : $" + str(amount) + " credited to your account, received from " + client_pid + ""
 
 					# Saving transaction history
-					status = logh.create_new_log(credit, credit_log, False)
+					status = logh.create_new_log(credit, credit_log, False, False)
 
 					if status:
 						debit_log["STATUS"] = "SUCCESS"
@@ -283,9 +294,54 @@ def threaded_client(con, sckt, addr):
 
 					for log in client_log:
 						con.sendall(log)
+						d = con.recv(1024).decode()
+						if d == "NEXT":
+							pass
+						else:
+							break
 
 					con.sendall("END_OF_FILE".encode())
 
+					client_log = json.dumps({
+						"TYPE": "REQ_LOG",
+						"TIMESTAMP": cur_time(),
+						"STATUS": "SUCCESS"
+					})
+
+					logh.create_new_log(client_pid, client_log)
+					print("helloa")
+					# Receive back the file
+					d = con.recv(1024).decode()
+					print("hellob")
+					if d == "READY":
+						print("helloooc")
+						content = ""
+						con.sendall("READY".encode())
+						print("hellod")
+
+						while True:
+							data = con.recv(1024).decode()
+							if data == "END_OF_FILE":
+								print("helloe")
+								break
+							else:
+								content = content + data
+
+							con.sendall("NEXT".encode())
+						print("hellof")
+						with open("./server/local_storage/client_log/" + str(client_pid) + "/log.txt", "w") as fw:
+							fw.write(content)
+						print("hellog")
+						print("\ncomplete transfer\n")
+						print("helloooh")
+					message = json.dumps({
+						"type": "REQ_LOG",
+						"status": 200,
+						"message": "[ " + cur_time() + " ] : Successful log file transfer"
+					})
+					print("helloj")
+					con.sendall(message.encode())
+					print("hellok")
 				else:
 					pass
 			
@@ -310,25 +366,25 @@ def threaded_client(con, sckt, addr):
 			sckt.close()
 			break
 
-		except Exception as e:
-			# print(e)
-			message = json.dumps({
-				"type" : "FORCED_LOG_OUT",
-			})
-			# Account becomes passive
-			acc.logout(client_pid)
-			client_log = json.dumps({
-				"TYPE": "LOGOUT",
-				"TIMESTAMP": cur_time(),
-				"STATUS": "SUCCESS"
-			})
-			logh.create_new_log(client_pid, client_log)
+		# except Exception as e:
+		# 	# print(e)
+		# 	message = json.dumps({
+		# 		"type" : "FORCED_LOG_OUT",
+		# 	})
+		# 	# Account becomes passive
+		# 	acc.logout(client_pid)
+		# 	client_log = json.dumps({
+		# 		"TYPE": "LOGOUT",
+		# 		"TIMESTAMP": cur_time(),
+		# 		"STATUS": "SUCCESS"
+		# 	})
+		# 	logh.create_new_log(client_pid, client_log)
 
-			running_process.pop(client_pid)
+		# 	running_process.pop(client_pid)
 
-			con.sendall(message.encode())
-			sckt.close()
-			break
+		# 	con.sendall(message.encode())
+		# 	sckt.close()
+		# 	break
 
 		running_process[client_pid] = "IDLE"
 

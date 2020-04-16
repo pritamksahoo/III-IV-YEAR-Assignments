@@ -56,7 +56,10 @@ def send_req(sck, data):
 		log_path = input("Enter your directory name (with full path) where log will be fetched : ")
 
 		if os.path.isdir(log_path):
-			print("\nFetching log ... ", end='')
+			with open(log_path + "log.txt", "w") as f:
+				f.write("")
+
+			print("\nFetching log ... processing ... ", end='')
 
 			message = json.dumps({
 				"type": "REQ_LOG",
@@ -73,13 +76,47 @@ def send_req(sck, data):
 					else:
 						f.write(data)
 
+					sck.sendall("NEXT".encode())
+
 			print("Done\n### Log saved in " + log_path + "log.txt ###")
+
+			inp = input("\nEnter anything to send back the file : ")
+
+			if inp:
+				sck.sendall("READY".encode())
+
+				d = sck.recv(1024).decode()
+				if d == "READY":
+					print("\nSending back log file ... processing ... ", end="")
+
+					# print(log_path + "log.txt")
+					fr = open(log_path + "log.txt", "rb")
+					content = []
+					log = fr.read(1024)
+					while log:
+						content.append(log)
+						# sck.sendall(log)
+						log = fr.read(1024)
+
+					fr.close()
+
+					for l in content:
+						sck.sendall(l)
+						d = sck.recv(1024).decode()
+						if d == "NEXT":
+							pass
+						else:
+							break
+
+					sck.sendall("END_OF_FILE".encode())
+
+					print("Done")
 
 		else:
 			print("\n!!! Directory path is invalid !!!")
 			log_path = None
 
-		send_req(sck, data)
+		# send_req(sck, data)
 
 	elif choice == 3:
 		# Log out
@@ -89,11 +126,15 @@ def send_req(sck, data):
 	elif choice == 4:
 		confirm = input("\n!!! Corrupt Mode !!! Do you want to proceed? (1 for y/ 0 for n) : ")
 
-		if confirm != 1:
-			send_req()
+		if confirm == 1:
+			filepath = input("\nEnter path to your log file : ")
 
-		else:
-			pass
+			if os.path.isfile(filepath):
+				message = json.dumps({
+
+				})
+			else:
+				print("\n!!! Filepath not valid !!!")		
 
 	else:
 		print("\n### Choose a correct option ###")
@@ -214,7 +255,14 @@ if __name__ == '__main__':
 				print("\n### System has been reverted back to stable state ###")
 				print("\n### You have been logged out! Login again")
 
-				intialization(s)
+				# intialization(s)
+				break
+
+			elif d_type == "REQ_LOG":
+				if data["status"] == 200:
+					print("\n" + data["message"])
+
+				send_req(s, data)
 
 			else:
 				# Start transactions

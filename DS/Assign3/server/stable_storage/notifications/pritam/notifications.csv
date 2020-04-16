@@ -2,9 +2,26 @@ message,read
 Account successfully created,Y
 You are logged in,Y
 You are logged in,Y
-$12000.0 debited from your account and credited to ashok,Y
+You are logged in,Y
+[ 2020-4-16 11:7:45 ] : $12000.0 debited from your account and credited to amrik,Y
+Deamon process detected at2020-4-16 11:11:16 ! Processes - ['amrik'],Y
+2020-4-16 11:11:16 : Starting system recovery,Y
+2020-4-16 11:11:17 : System back to normal,Y
+You are logged in,Y
+You are logged in,Y
+[ 2020-4-16 11:20:9 ] : $12000.0 debited from your account and credited to amrik,Y
+You are logged in,Y
+[ 2020-4-16 11:21:5 ] : $3000.0 debited from your account and credited to ashok,Y
+You are logged in,Y
+[ 2020-4-16 11:25:33 ] : $300.0 debited from your account and credited to amrik,Y
 You are logged in,Y
 You are logged in,Y
 You are logged in,Y
 You are logged in,Y
 You are logged in,Y
+You are logged in,Y
+You are logged in,Y
+You are logged in,Y
+Deamon process detected at 2020-4-16 12:15:46 ! Processes - ['pritam'],N
+2020-4-16 12:15:46 : Starting system recovery,N
+2020-4-16 12:15:46 : System back to normal,N
