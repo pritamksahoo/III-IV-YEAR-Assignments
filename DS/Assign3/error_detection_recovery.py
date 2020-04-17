@@ -12,12 +12,14 @@ def check_log_consistency(pid=None):
 	log = "./server/local_storage/client_log/"
 
 	if pid is None:
+		# List of all processes
 		all_process = acc.all_process()
 		consistent, deamon = True, []
 
 		for pid, _ in all_process:
 			path = checkpoint + str(pid) + "/"
 
+			# Collecting saved data since last chechpoint (stable secure storage)
 			with open(path + "checkpoint.txt", "r") as fc:
 				last_saved = fc.read()
 
@@ -26,16 +28,16 @@ def check_log_consistency(pid=None):
 
 			data_saved = last_saved + change
 
+			# Reading current log (local accessable to client storage)
 			with open(log + str(pid) + "/log.txt", "r") as fl:
 				data_cur = fl.read()
 
+			# Computing hash of both the logs
 			hash_saved = hashlib.sha256(data_saved.encode()).hexdigest()
 			hash_cur = hashlib.sha256(data_cur.encode()).hexdigest()
 
 			if hash_cur != hash_saved:
-				# print(data_cur)
-				# print(data_saved)
-				# print(pid)
+				# For system to consistent both hash should be equal, otherwise system enters into inconsistent state
 				consistent = False
 				deamon.append(pid)
 				acc.block(pid)
@@ -57,6 +59,8 @@ def create_checkpoint(cur_time):
 		log_file_path = log_path + str(pid) + "/log.txt"
 		checkpoint_file_path = checkpoint_path + str(pid) + "/"
 
+		# <START> Checkpoint creation :: Copying every public log data (only after a background check, if gives no error) into stable storage
+
 		with open(log_file_path, "r") as fr:
 			content = fr.read()
 
@@ -67,7 +71,10 @@ def create_checkpoint(cur_time):
 			fw.write("")
 
 		with open(checkpoint_path + "timestamps.txt", "a+") as fa:
+			# Recording the time of checkpoint 
 			fa.write(cur_time + "\n")
+
+		# <END> :: Checkpoint created
 
 	new_log = json.dumps({
 		"TYPE": "CHECKPOINT",
@@ -94,14 +101,18 @@ def revert_back_changes(all_process, cur_time):
 
 		with open(changes, "r") as fr:
 			while True:
+				# Read every log line by line
 				log = fr.readline()
 
 				if log:
 					l = json.loads(log)
+
+					# All the transactions made after log corruption are reverted back
 					if l["TYPE"] == "DEBIT" and l["STATUS"] == "SUCCESS":
 						debit, credit, amount = l["FROM"], l["TO"], l["AMOUNT"]
 
 						debit_notification = "[ " + cur_time + " ] : $" + str(amount) + " recovered from your account and credited to " + debit + " [ SYSTEM RECOVERY ]"
+
 						credit_notification = "[ " + cur_time + " ] : $" + str(amount) + " credited to your account, recovered from " + credit + " [ SYSTEM RECOVERY ]"
 
 						logh.create_notification(debit, credit_notification, 'N')
@@ -138,9 +149,6 @@ def backward_error_recovery(cur_time):
 
 		with open(checkpoint_file_path + "changes.txt", "w") as fw:
 			fw.write("")
-
-		# with open(checkpoint_path + "timestamps.txt", "a+") as fa:
-		# 	fa.write(cur_time + "\n")
 
 	new_log = json.dumps({
 		"TYPE": "BER",

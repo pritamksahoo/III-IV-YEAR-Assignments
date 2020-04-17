@@ -69,6 +69,7 @@ def send_req(sck, data):
 				sck.sendall(message.encode())
 
 				while True:
+					# Receving data in chunk of 1024 B
 					data = sck.recv(1024).decode()
 					if data == "END_OF_FILE":
 						break
@@ -89,13 +90,11 @@ def send_req(sck, data):
 				if d == "READY":
 					print("\nSending back log file ... processing ... ", end="")
 
-					# print(log_path + "log.txt")
 					fr = open(log_path + "log.txt", "rb")
 					content = []
 					log = fr.read(1024)
 					while log:
 						content.append(log)
-						# sck.sendall(log)
 						log = fr.read(1024)
 
 					fr.close()
@@ -115,8 +114,6 @@ def send_req(sck, data):
 		else:
 			print("\n!!! Directory path is invalid !!!")
 			log_path = None
-
-		# send_req(sck, data)
 
 	elif choice == 3:
 		# Log out
@@ -240,7 +237,7 @@ if __name__ == '__main__':
 				print("[ " + data["timestamp"] + " ] :",  data["message"])
 				print("Processes ::", list(data["process"].values()))
 				print("\n### System has been reverted back to stable state ###")
-				print("\n### You have been logged out! Login again")
+				print("\n### You have been logged out! Login again ###")
 
 				# intialization(s)
 				break

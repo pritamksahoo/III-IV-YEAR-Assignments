@@ -1,5 +1,6 @@
 import pandas as pd
 import log_handling as logh
+from server import cur_time as t_now
 
 
 def is_active(pid):
@@ -49,9 +50,9 @@ def create_account(pid, password, addr, cur_time):
 
 	hostname, port = addr
 	record = accounts.loc[accounts['pid'] == pid]
-	# print(record.empty)
 
 	if record.empty:
+		# PID is unique, account creation starts
 		active_status = 'N'
 		new_record = {
 			'pid': pid,
@@ -75,9 +76,18 @@ def create_account(pid, password, addr, cur_time):
 
 		except Exception as e:
 			status = 400
+			s_log = json.dumps({
+				"TYPE": "ERROR",
+				"ERROR_DOMAIN": "CREATE_ACCOUNT",
+				"TIMESTAMP": t_now(),
+				"ERROR_DESC": str(e)
+			})
+			create_new_log(None, s_log, False, False, True)
+
 			message = "[ " + cur_time + " ] : Account creation failed! Server Error! Try again later"
 
 	else:
+		# PID already exists
 		status = 400
 		message = "[ " + cur_time + " ] : Account creation failed! PID already exists"
 
@@ -101,6 +111,7 @@ def login(pid, password, addr, cur_time):
 	# print(record["isActive"].to_list())
 
 	if not record.empty and record["isActive"].to_list()[0] == 'Y':
+		# Already logged in
 		status = 400
 		message = "[ " + cur_time + " ] : Login Failed! Already running in another window"
 
@@ -111,7 +122,7 @@ def login(pid, password, addr, cur_time):
 	elif not record.empty:
 		hostname, port = addr
 
-		# Updating address
+		# Updating address (host and port)
 		index = accounts.index[(accounts['pid'] == pid) & (accounts['password'] == password)].tolist()[0]
 		accounts.at[index, 'host'] = hostname
 		accounts.at[index, 'port'] = port
@@ -155,7 +166,7 @@ def logout(pid, cur_time):
 
 def block(pid):
 	'''
-	Client blocked the system
+	Client is blocked for acting as a deamon process
 	'''
 
 	filepath = "./server/stable_storage/accounts/accounts.csv"

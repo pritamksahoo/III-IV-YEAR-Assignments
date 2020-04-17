@@ -3,6 +3,7 @@ import pandas as pd
 import json
 import hashlib
 import account as acc
+from server import cur_time as t_now
 
 def create_directory(parent, directory, files=None):
 	'''
@@ -12,6 +13,7 @@ def create_directory(parent, directory, files=None):
 	new_dir_path = os.path.join(parent, directory)
 	os.mkdir(new_dir_path)
 
+	# Create optional files in the newly created directory
 	if files is not None:
 		for file in files:
 			with open(new_dir_path + "/" + file, "w") as f:
@@ -30,11 +32,6 @@ def create_new_log_file(pid):
 	client_note_path = "./server/stable_storage/notifications/"
 	create_directory(client_note_path, str(pid), ['notifications.csv'])
 
-	# Secondary log files (hash), not accessible to client
-	# client_log_hash_path = "./server/stable_storage/client_log_hash/"
-	# create_directory(client_log_hash_path, str(pid), ['hash_before.txt', 'hash_after.txt'])
-	# create_directory(client_log_hash_path, str(pid))
-
 	# For creating checkpoints, not accessible to client
 	checkpoint_path = "./server/stable_storage/checkpoints/"
 	create_directory(checkpoint_path, str(pid), ['checkpoint.txt', 'changes.txt'])
@@ -42,7 +39,7 @@ def create_new_log_file(pid):
 
 def create_new_log(pid, log_data, write=True, change=True, server=False):
 	'''
-	Create a new line of log into a process's log
+	Create a new line of log into a process's log file
 	'''
 
 	log_path = "./server/local_storage/client_log/" + str(pid) + "/log.txt"
@@ -50,10 +47,12 @@ def create_new_log(pid, log_data, write=True, change=True, server=False):
 	server_log_path = "./server/stable_storage/server_log/log.txt"
 
 	if acc.is_active(pid) is None:
+		# No such process (online / offline) exists
 		return False
 
 	try:
 		if pid is not None:
+			# Write in client's log
 			with open(log_path, "a+") as fw:
 				if write:
 					fw.write(log_data + "\n")
@@ -62,6 +61,7 @@ def create_new_log(pid, log_data, write=True, change=True, server=False):
 				if write and change:
 					fw.write(log_data + "\n")
 
+		# Append in server log
 		with open(server_log_path, "a+") as fs:
 			if server:
 				fs.write(log_data + "\n")
@@ -69,7 +69,15 @@ def create_new_log(pid, log_data, write=True, change=True, server=False):
 		return True
 
 	except Exception as e:
-		print(e)
+		# print(e)
+		s_log = json.dumps({
+			"TYPE": "ERROR",
+			"ERROR_DOMAIN": "CREATE_NEW_LOG",
+			"TIMESTAMP": t_now(),
+			"ERROR_DESC": str(e)
+		})
+		create_new_log(None, s_log, False, False, True)
+
 		return False
 
 
@@ -80,22 +88,26 @@ def fetch_client_log(pid):
 
 	client_log = []
 
-	log_path = "./server/local_storage/client_log/" + str(pid) + "/log.txt"
-	f = open(log_path, "rb")
-	
-	log = f.read(1024)
-	while log:
-		client_log.append(log)
+	try:
+		log_path = "./server/local_storage/client_log/" + str(pid) + "/log.txt"
+		f = open(log_path, "rb")
+		
+		# Reading the client log with given pid by a chunk of 1024 B
 		log = f.read(1024)
+		while log:
+			client_log.append(log)
+			log = f.read(1024)
 
-	f.close()
+		f.close()
 
-	# total_log = ''.join([part.decode() for part in client_log])
-	# hash = hashlib.sha256(total_log.encode())
-
-	# client_log_hash_path = "./server/stable_storage/client_log_hash/" + str(pid) + "/hash_before.txt"
-	# with open(client_log_hash_path, "w") as fw:
-	#     fw.write(hash.hexdigest())
+	except Exception as e:
+		s_log = json.dumps({
+			"TYPE": "ERROR",
+			"ERROR_DOMAIN": "FETCH_CLIENT_LOG",
+			"TIMESTAMP": t_now(),
+			"ERROR_DESC": str(e)
+		})
+		create_new_log(None, s_log, False, False, True)
 
 	return client_log
 
@@ -108,11 +120,13 @@ def create_notification(pid, message, status):
 	client_note_file = "./server/stable_storage/notifications/" + str(pid) + "/notifications.csv"
 
 	try:
+		# Appending to the notification.csv file
 		new_notification = {"message": message, "read": status}
 		notifications = pd.read_csv(client_note_file)
 		notifications = notifications.append(new_notification, ignore_index=True)
 
 	except Exception as e:
+		# Creating first notification for a client
 		new_notification = {"message": [message], "read": [status]}
 		notifications = pd.DataFrame(new_notification)
 
@@ -128,13 +142,10 @@ def retrieve_unread_notifications(pid):
 
 	try:
 		notifications = pd.read_csv(client_note_file)
+
 		unread = notifications.loc[notifications['read'] == 'N']
 		index = notifications.index[notifications['read'] == 'N'].tolist()
 		unread_notifications = unread['message'].to_list()
-
-		# print(index)
-		# print(unread)
-		# print(unread_notifications)
 
 		# Marking messages read
 		for ind in index:
@@ -143,7 +154,15 @@ def retrieve_unread_notifications(pid):
 		notifications.to_csv(client_note_file, index=False, header=True)
 
 	except Exception as e:
-		print(e)
+		# print(e)
+		s_log = json.dumps({
+			"TYPE": "ERROR",
+			"ERROR_DOMAIN": "FETCH_UNREAD_NOTIFICATIONS",
+			"TIMESTAMP": t_now(),
+			"ERROR_DESC": str(e)
+		})
+		create_new_log(None, s_log, False, False, True)
+
 		unread_notifications = []
 
 	return unread_notifications
@@ -160,7 +179,6 @@ def send_notifications_to_clients(pid):
 		return None
 	elif status:
 		note = retrieve_unread_notifications(pid)
-		# print("log_handling - ", note)
 		return note
 	else:
 		return [None]

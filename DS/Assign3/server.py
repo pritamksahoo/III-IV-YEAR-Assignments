@@ -42,14 +42,12 @@ def check_server_status(pid, con):
 	global error_detection_time
 
 	if halt_process:
-		print("Start in halt process loop")
+		# Wait for background consistency check to finish
 		while halt_process:
-			# print("\n### Server Busy fixing consistency! Waiting for response ... ###")
 			pass
 
-		print("End in halt process loop")
-
 	if warning_phase:
+		# There was log inconsistency in the system. It is recovered, so strat fresh
 		message = json.dumps({
 			"type": "RESTART",
 			"message": "Deamon process detected!",
@@ -59,6 +57,7 @@ def check_server_status(pid, con):
 
 		running_process.pop(pid)
 
+		# force logout for system to be start fresh
 		acc.logout(pid, cur_time())
 		if pid in deamon_processes:
 			acc.block(client_pid)
@@ -67,32 +66,33 @@ def check_server_status(pid, con):
 
 		return "ERROR"
 
+	# There was no inconsistency
 	return "OK"
 
 
 def background_error_check(sckt):
 	'''
-	Runs every 10 secs to check log inconsistency
+	Runs every 60 secs to check log inconsistency
 	'''
 
 	while True:
 		try:
-			# Check for error
 			global deamon_processes
 			global halt_process
+
+			# From now all processes have to halt
 			halt_process = True
 
+			# Server waiting for all the processes to become IDLE
 			idly = list(running_process.values())
-			print("Start idle check loop")
 			while "BUSY" in idly:
 				idly = list(running_process.values())
 
-			print("End idle check loop")
-
+			# All processes are now idle, so server check for any inconsistency
 			status, deamon_processes = er.check_log_consistency()
-			# print(status, deamon_processes)
 
 			if not status:
+				# System is inconsistent
 				print(" -------------------------")
 				print("| DEAMON PROCESS DETECTED |")
 				print(" -------------------------")
@@ -100,14 +100,17 @@ def background_error_check(sckt):
 				global warning_phase
 				global error_detection_time
 
+				# Indicates all processes have to abort
 				warning_phase = True
 				
+				# Block all the processes causing inconsistency
 				for pid in deamon_processes:
 					acc.block(pid)
-					# print(pid)
 
 				all_process = acc.all_process()
 				error_detection_time = cur_time()
+
+				# Notify all the other process about deamon processes
 				notification = "[ " + error_detection_time + " ] : Deamon process detected ! Processes - " + str(deamon_processes)
 
 				for pid, status in all_process:
@@ -116,7 +119,7 @@ def background_error_check(sckt):
 
 					logh.create_notification(pid, "[ " +  error_detection_time + " ] : Starting system recovery", 'N')
 
-				# Recover from fault
+				# Recover from fault, backword error recovery method has been used
 				er.backward_error_recovery(cur_time())
 
 				for pid, status in all_process:
@@ -124,16 +127,17 @@ def background_error_check(sckt):
 
 				halt_process = False
 
-				print("Start checking if all logged out")
+				# Waiting until all the processes which were active during inconsistency to become passive (logged out)
 				while len(running_process) != 0:
 					pass
 
-				print("Stop in checking if all logged out")
-
+				# System is safe now, server can accept new connections
 				warning_phase = False
 
 			else:
-				print("\n---------------------------------\nBackground Error Detection Complete ... No error\n---------------------------------\n")
+				print(" -----------------------------------------------")
+				print("| Background Error Detection Complete. NO ERROR |")
+				print(" -----------------------------------------------")
 
 				er.create_checkpoint(cur_time())
 				deamon_processes = []
@@ -142,12 +146,22 @@ def background_error_check(sckt):
 
 		except KeyboardInterrupt:
 			pass
-		# except Exception as e:
-		# 	pass
+		except Exception as e:
+			s_log = json.dumps({
+				"TYPE": "ERROR",
+				"ERROR_DOMAIN": "CHECK_CONSISTENCY",
+				"TIMESTAMP": cur_time(),
+				"ERROR_DESC": str(e)
+			})
+			logh.create_new_log(None, s_log, False, False, True)
+
+			pass
 
 		warning_phase = False
 		halt_process = False
-		time.sleep(30.0)
+
+		# Wait 60 secs before next background check
+		time.sleep(60.0)
 
 
 def threaded_client(con, sckt, addr):
@@ -162,19 +176,15 @@ def threaded_client(con, sckt, addr):
 
 		try:
 			# Received data from client
-			print("\nWaiting for req. from", addr)
+			print("\n" + str(addr) + " : Waiting for next request")
 			msg = con.recv(4096).decode()
 			data = json.loads(msg)
-			print("Req. from", addr)
+			print(str(addr) + "Request received")
 
+			# Cheking server status, whether to proceed or halt
 			if halt_process:
-				print("Start in halt process loop")
 				while halt_process:
-					
-					# print("\n### Server Busy fixing consistency! Waiting for response ... ###")
 					pass
-
-				print("End in halt process loop")
 
 			if client_pid is None:
 				client_pid = data["pid"]
@@ -197,21 +207,24 @@ def threaded_client(con, sckt, addr):
 				con.sendall(message.encode())
 				break
 			
+			# End checking server status, now proceed
 			running_process[client_pid] = "BUSY"
 
 			# Handling request from client
 			if not data: 
-				print("\n### [", addr, "] Disconnected ###\n")
+				print("\n[", addr, "] Disconnected\n")
 				break
 
 			else:
 				type = data["type"]
 
 				if type == "SIGN_UP" or type == "LOG_IN":
+					# Account creation (or) log in
 					pid, password = data["pid"], data["password"]
 					client_pid = pid
 
 					time_now = cur_time()
+					# Calling the main function
 					ret_data = acc.create_account(pid, password, addr, time_now) if type == "SIGN_UP" else acc.login(pid, password, addr, time_now)
 
 					print(addr, ":", ret_data["message"])
@@ -219,6 +232,7 @@ def threaded_client(con, sckt, addr):
 					ret_data["type"] = type
 
 					message = json.dumps(ret_data)
+					# Sending response
 					con.sendall(message.encode())
 
 					# If Log in or account creation fails, abort
@@ -227,6 +241,7 @@ def threaded_client(con, sckt, addr):
 						break
 
 					else:
+						# Successful login
 						client_log = json.dumps({
 							"TYPE": "LOGIN",
 							"TIMESTAMP": cur_time(),
@@ -235,7 +250,7 @@ def threaded_client(con, sckt, addr):
 
 						logh.create_new_log(client_pid, client_log)
 
-						print("\nWaitig from ACK from", addr)
+						print(addr, " : Waitig for ACK from client")
 
 						'''
 						Waiting for data from client
@@ -455,25 +470,33 @@ def threaded_client(con, sckt, addr):
 			sckt.close()
 			break
 
-		# except Exception as e:
-		# 	# print(e)
-		# 	message = json.dumps({
-		# 		"type" : "FORCED_LOG_OUT",
-		# 	})
-		# 	# Account becomes passive
-		# 	acc.logout(client_pid, cur_time())
-		# 	client_log = json.dumps({
-		# 		"TYPE": "LOGOUT",
-		# 		"TIMESTAMP": cur_time(),
-		# 		"STATUS": "SUCCESS"
-		# 	})
-		# 	logh.create_new_log(client_pid, client_log)
+		except Exception as e:
+			# print(e)
+			s_log = json.dumps({
+				"TYPE": "ERROR",
+				"ERROR_DOMAIN": "MAIN_THREAD",
+				"TIMESTAMP": cur_time(),
+				"ERROR_DESC": str(e)
+			})
+			create_new_log(None, s_log, False, False, True)
 
-		# 	running_process.pop(client_pid)
+			message = json.dumps({
+				"type" : "FORCED_LOG_OUT",
+			})
+			# Account becomes passive
+			acc.logout(client_pid, cur_time())
+			client_log = json.dumps({
+				"TYPE": "LOGOUT",
+				"TIMESTAMP": cur_time(),
+				"STATUS": "SUCCESS"
+			})
+			logh.create_new_log(client_pid, client_log)
 
-		# 	con.sendall(message.encode())
-		# 	sckt.close()
-		# 	break
+			running_process.pop(client_pid)
+
+			con.sendall(message.encode())
+			sckt.close()
+			break
 
 		running_process[client_pid] = "IDLE"
 
