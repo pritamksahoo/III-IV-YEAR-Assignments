@@ -1,3 +1,4 @@
 pid,password,host,port,isActive
-pritam,pritam,127.0.0.1,60522,N
-ashok,ashok,127.0.0.1,60520,N
+pritam,pritam,127.0.0.1,38418,N
+ashok,ashok,127.0.0.1,38410,B
+amrik,amrik,127.0.0.1,38422,N

@@ -9,7 +9,7 @@ import account as acc
 import log_handling as logh
 import error_detection_recovery as er
 
-global_port = 12357
+global_port = 12354
 
 halt_process = False
 deamon_processes = []

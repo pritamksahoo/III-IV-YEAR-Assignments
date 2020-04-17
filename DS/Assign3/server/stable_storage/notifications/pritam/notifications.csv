@@ -68,3 +68,11 @@ message,read
 [ 2020-4-16 19:58:40 ] : You are logged in,Y
 [ 2020-4-16 20:0:34 ] : $1000.0 debited from your account and credited to ashok,Y
 [ 2020-4-16 20:1:16 ] : You are logged out,Y
+[ 2020-4-17 9:17:31 ] : You are logged in,Y
+[ 2020-4-17 9:18:52 ] : $1200.0 debited from your account and credited to amrik,Y
+[ 2020-4-17 9:19:20 ] : Starting system recovery,Y
+"[ 2020-4-17 9:19:21 ] : $1200.0 credited to your account, recovered from amrik [ SYSTEM RECOVERY ]",Y
+[ 2020-4-17 9:19:21 ] : System back to normal,Y
+[ 2020-4-17 9:19:33 ] : You are logged out,Y
+[ 2020-4-17 9:19:57 ] : You are logged in,Y
+[ 2020-4-17 9:20:30 ] : You are logged out,Y

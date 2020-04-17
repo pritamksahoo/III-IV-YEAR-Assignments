@@ -1,0 +1,2 @@
+{"TYPE": "LOGIN", "TIMESTAMP": "2020-4-17 9:17:50", "STATUS": "SUCCESS"}
+{"TYPE": "DEBIT", "FROM": "amrik", "TO": "ashok", "AMOUNT": 1300.0, "TIMESTAMP": "2020-4-17 9:18:57", "STATUS": "SUCCESS"}

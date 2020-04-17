@@ -1,6 +1,5 @@
 import pandas as pd
 import log_handling as logh
-from server import cur_time as t_now
 
 
 def is_active(pid):
@@ -25,6 +24,18 @@ def is_active(pid):
 	else:
 		# Logged Out
 		return False
+
+def t_now():
+	'''
+	Return current time in terms of yyyy-mm-dd hh:mm:ss
+	'''
+
+	time_now = time.localtime()
+	y, mo, d, h, mi, s = time_now.tm_year, time_now.tm_mon, time_now.tm_mday, time_now.tm_hour, time_now.tm_min, time_now.tm_sec
+
+	timestamp = "{year}-{month}-{day} {hour}:{minute}:{second}".format(year=y, month=mo, day=d, hour=h, minute=mi, second=s)
+
+	return timestamp
 
 
 def all_process():

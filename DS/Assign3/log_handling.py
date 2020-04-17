@@ -3,7 +3,6 @@ import pandas as pd
 import json
 import hashlib
 import account as acc
-from server import cur_time as t_now
 
 def create_directory(parent, directory, files=None):
 	'''
@@ -73,7 +72,7 @@ def create_new_log(pid, log_data, write=True, change=True, server=False):
 		s_log = json.dumps({
 			"TYPE": "ERROR",
 			"ERROR_DOMAIN": "CREATE_NEW_LOG",
-			"TIMESTAMP": t_now(),
+			"TIMESTAMP": acc.t_now(),
 			"ERROR_DESC": str(e)
 		})
 		create_new_log(None, s_log, False, False, True)
@@ -104,7 +103,7 @@ def fetch_client_log(pid):
 		s_log = json.dumps({
 			"TYPE": "ERROR",
 			"ERROR_DOMAIN": "FETCH_CLIENT_LOG",
-			"TIMESTAMP": t_now(),
+			"TIMESTAMP": acc.t_now(),
 			"ERROR_DESC": str(e)
 		})
 		create_new_log(None, s_log, False, False, True)
@@ -158,7 +157,7 @@ def retrieve_unread_notifications(pid):
 		s_log = json.dumps({
 			"TYPE": "ERROR",
 			"ERROR_DOMAIN": "FETCH_UNREAD_NOTIFICATIONS",
-			"TIMESTAMP": t_now(),
+			"TIMESTAMP": acc.t_now(),
 			"ERROR_DESC": str(e)
 		})
 		create_new_log(None, s_log, False, False, True)
