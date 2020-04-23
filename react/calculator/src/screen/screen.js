@@ -6,8 +6,7 @@ class Screen extends Component {
     render = () => {
         return (
             <div className={screenClasses.Screen}>
-                <textarea name="screenString" id="screenString" rows="1" className={screenClasses.stringArea}>
-                    {this.props.screenString}
+                <textarea name="screenString" id="screenString" rows="1" className={screenClasses.stringArea} value={this.props.screenString} readOnly>
                 </textarea>
             </div>
         )

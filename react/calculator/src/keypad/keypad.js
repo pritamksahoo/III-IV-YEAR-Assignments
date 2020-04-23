@@ -1,21 +1,12 @@
 import React, {Component} from 'react';
-import {digit} from './digit';
 import './keypad.css';
 
 class Keypad extends Component {
 
-    digitDiv = digit.map((item) => {
-        return (
-            <div id={item.id} key={item.id} className={item.class}>
-                {item.icon}
-            </div>
-        )
-    })
-
     render = () => {
         return (
-            <div className="Keypad">
-                {this.digitDiv}
+            <div id={this.props.id} key={this.props.id} className={this.props.class} onClick={this.props.onclick}>
+                {this.props.icon}
             </div>
         )
     }
