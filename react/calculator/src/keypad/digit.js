@@ -1,90 +1,108 @@
 export const digit = [{
     id: "clear",
     class: "action clearAll",
-    icon: "C"
+    icon: "C",
+    keyCode: null
 },
 {
     id: "delete",
     class: "action deleteLast",
-    icon: "X"
+    icon: "X",
+    keyCode: 8
 },
 {
     id: "division",
     class: "action actionDiv",
-    icon: "/"
+    icon: "/",
+    keyCode: 111
 },
 {
     id: "multiplication",
     class: "action actionMult",
-    icon: "*"
+    icon: "*",
+    keyCode: 106
 },
 {
     id: "substraction",
     class: "action actionSub",
-    icon: "-"
+    icon: "-",
+    keyCode: 109
 },
 {
     id: "addition",
     class: "action actionAdd",
-    icon: "+"
+    icon: "+",
+    keyCode: 107
 },
 {
     id: "evaluate",
     class: "action actionEval",
-    icon: "="
+    icon: "=",
+    keyCode: 13
 },
 {
     id: "decimal",
     class: "digit decimal",
-    icon: "."
+    icon: ".",
+    keyCode: 110
 },
 {
     id: "zero",
     class: "digit zero",
-    icon: "0"
+    icon: "0",
+    keyCode: 96
 },
 {
     id: "one",
     class: "digit one",
-    icon: "1"
+    icon: "1",
+    keyCode: 97
 },
 {
     id: "two",
     class: "digit two",
-    icon: "2"
+    icon: "2",
+    keyCode: 98
 },
 {
     id: "three",
     class: "digit three",
-    icon: "3"
+    icon: "3",
+    keyCode: 99
 },
 {
     id: "four",
     class: "digit four",
-    icon: "4"
+    icon: "4",
+    keyCode: 100
 },
 {
     id: "five",
     class: "digit five",
-    icon: "5"
+    icon: "5",
+    keyCode: 101
 },
 {
     id: "six",
     class: "digit six",
-    icon: "6"
+    icon: "6",
+    keyCode: 102
 },
 {
     id: "seven",
     class: "digit seven",
-    icon: "7"
+    icon: "7",
+    keyCode: 103
 },
 {
     id: "eight",
     class: "digit eight",
-    icon: "8"
+    icon: "8",
+    keyCode: 104
 },
 {
     id: "nine",
     class: "digit nine",
-    icon: "9"
+    icon: "9",
+    keyCode: 105
 }]

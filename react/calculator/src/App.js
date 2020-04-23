@@ -11,6 +11,7 @@ class App extends Component {
   	}
 
 	onKeyPadClick = (id, classname, icon) => {
+		// console.log("hello")
 		let allClasses = classname.split(' ')
 
 		if (allClasses.indexOf("digit") >= 0) {
@@ -22,6 +23,40 @@ class App extends Component {
 					return {screenString: prevState.screenString === "0" ? icon : prevState.screenString + icon}
 				})
 			}
+		}
+	}
+
+	onKeyUp = (e) => {
+		// console.log("default")
+		e.preventDefault()
+		let kc = e.keyCode
+
+		let key = digit.filter((item, pos) => {
+			if (item.keyCode === kc) {
+				return true
+			} else {
+				return false
+			}
+		})
+		// console.log(key)
+		if (key.length === 0) {
+
+		} else {
+			let keyItem = key[0]
+
+			let color = getComputedStyle(document.getElementById(keyItem.id)).backgroundColor
+
+			if (keyItem.class.split(' ').indexOf("digit") >= 0) {
+				document.getElementById(keyItem.id).style.backgroundColor = 'rgb(230, 230, 230)'
+			} else {
+				document.getElementById(keyItem.id).style.backgroundColor = 'rgb(192, 192, 192)'
+			}
+			// console.log(color)
+			setTimeout(() => {
+				document.getElementById(keyItem.id).style.backgroundColor = color
+			}, 90)
+
+			this.onKeyPadClick(keyItem.id, keyItem.class, keyItem.icon)
 		}
 	}
 
@@ -39,7 +74,7 @@ class App extends Component {
   	render = () => {
     	return (
       		<div className={mainClasses.Calculator}>
-        		<Screen screenString={this.state.screenString} />
+        		<Screen onKeyUp={this.onKeyUp} screenString={this.state.screenString} />
 				
 				<div className="Keypad">
                 	{this.digitDiv}
