@@ -1,0 +1,126 @@
+.clearAll {
+    grid-area: clear;
+    color: rgb(56, 11, 9) !important;
+    /* font-weight: bold; */
+}
+
+.deleteLast {
+    grid-area: delete;
+    color: rgb(161, 87, 87) !important;
+    font-weight: bold;
+}
+
+.actionDiv {
+    grid-area: division;
+}
+
+.actionMult {
+    grid-area: multiplication;
+}
+
+.actionSub {
+    grid-area: substraction;
+}
+
+.actionAdd {
+    grid-area: addition;
+}
+
+.actionEval {
+    grid-area: evaluate;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: initial !important;
+}
+
+.decimal {
+    grid-area: decimal;
+}
+
+.zero {
+    grid-area: zero;
+}
+
+.one {
+    grid-area: one;
+}
+
+.two {
+    grid-area: two;
+}
+
+.three {
+    grid-area: three;
+}
+
+.four {
+    grid-area: four;
+}
+
+.five {
+    grid-area: five;
+}
+
+.six {
+    grid-area: six;
+}
+
+.seven {
+    grid-area: seven;
+}
+
+.eight {
+    grid-area: eight;
+}
+
+.nine {
+    grid-area: nine;
+}
+
+.action,
+.digit {
+    padding: 1em 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    border-radius: 4px;
+    height: 25px;
+    font-family: 'Courier New', Courier, monospace;
+    box-sizing: content-box;
+    /* font-size: 18px; */
+}
+
+.action {
+    color: rgb(94, 61, 31);
+    background-color: rgb(223, 223, 223);
+    border: 1px solid rgb(223, 223, 223);
+    /* font-size: 30px; */
+    /* border: 1px solid wheat; */
+}
+
+.digit {
+    background-color: rgb(243, 243, 243);
+    color: rgb(56, 45, 45);
+    border: 1px solid rgb(243, 243, 243);
+}
+
+.action:hover {
+    background-color: rgb(192, 192, 192);
+    border: 1px solid rgb(192, 192, 192);
+}
+
+.digit:hover {
+    background-color: rgb(230, 230, 230);
+    border: 1px solid rgb(230, 230, 230);
+}
+
+.Keypad {
+    width: 100%;
+    display: grid;
+    grid-template-areas: 'clear delete division multiplication' 'seven eight nine substraction' 'four five six addition' 'one two three evaluate' 'zero zero decimal evaluate';
+    grid-gap: 4px;
+    margin-top: 4px;
+    /* background-color: rgb(59, 13, 63); */
+}

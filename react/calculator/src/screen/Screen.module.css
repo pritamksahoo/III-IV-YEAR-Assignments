@@ -1,0 +1,33 @@
+.Screen {
+    background-color: rgb(99, 96, 96);
+    border: 1px solid rgb(99, 96, 96);
+    border-radius: 4px;
+    /* height: 200px; */
+    /* min-height: 70px; */
+    width: 100%;
+    text-align: right;
+    box-sizing: border-box;
+    padding: 0.5em 0.2em;
+}
+
+.stringArea {
+    width: 100% !important;
+    height: 100% !important;
+    resize: none;
+    margin: 0.2em 0;
+    padding: 0;
+    border: none;
+    background: transparent;
+    text-align: right;
+    outline: none;
+    color: rgb(228, 225, 90);
+    font-size: 32px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    letter-spacing: 1px;
+    box-sizing: border-box;
+    white-space: nowrap;
+}
+
+.stringArea::-webkit-scrollbar {
+    display: none;
+}
