@@ -1,12 +1,12 @@
 export const digit = [{
     id: "clear",
-    class: "action clearAll",
+    class: "action clearAll final",
     icon: "C",
     keyCode: null
 },
 {
     id: "delete",
-    class: "action deleteLast",
+    class: "action deleteLast final",
     icon: "X",
     keyCode: 8
 },
@@ -36,7 +36,7 @@ export const digit = [{
 },
 {
     id: "evaluate",
-    class: "action actionEval",
+    class: "action actionEval final",
     icon: "=",
     keyCode: 13
 },

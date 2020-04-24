@@ -10,17 +10,56 @@ class App extends Component {
 		screenString: "0"
   	}
 
+	digitDiv = digit.map((item) => {
+        return (
+			<Keypad id={item.id} key={item.id} class={item.class} icon={item.icon} onclick={() => {return this.onKeyPadClick(item.id, item.class, item.icon)} } />
+        )
+    })
+
 	onKeyPadClick = (id, classname, icon) => {
 		// console.log("hello")
 		let allClasses = classname.split(' ')
 
 		if (allClasses.indexOf("digit") >= 0) {
-			// console.log("true")
+			
 			if (allClasses.indexOf("decimal") >= 0) {
-
+				let lastSegment = this.state.screenString.split(/[*+/-]+/)
+				if (lastSegment[lastSegment.length - 1].indexOf(".") < 0) {
+					this.setState((prevState, prevProps) => {
+						return {screenString: prevState.screenString === "0" ? icon : prevState.screenString + icon}
+					})
+				}
 			} else {
 				this.setState((prevState, prevProps) => {
 					return {screenString: prevState.screenString === "0" ? icon : prevState.screenString + icon}
+				})
+			}
+
+		} else if (allClasses.indexOf("final") >= 0) {
+
+			if (id == "delete") {
+				this.setState((prevState, prevProps) => {
+					return {screenString: prevState.screenString.slice(0, prevState.screenString.length-1)}
+				})
+			} else if (id == "clear") {
+				this.setState((prevState, prevProps) => {
+					return {screenString: "0"}
+				})
+			} else if (id == "evaluate") {
+				
+			} else {
+
+			}
+		} else {
+
+			let Segment = this.state.screenString.split(/[*+/-]+/)
+			let lastSegment = Segment[Segment.length - 1]
+
+			if (lastSegment === "" || lastSegment === " " || lastSegment === ".") {
+
+			} else {
+				this.setState((prevState, prevProps) => {
+					return {screenString: prevState.screenString + icon}
 				})
 			}
 		}
@@ -59,12 +98,14 @@ class App extends Component {
 			this.onKeyPadClick(keyItem.id, keyItem.class, keyItem.icon)
 		}
 	}
+	
+	componentDidMount() {
+		document.addEventListener("keyup", this.onKeyUp)
+	}
 
-	digitDiv = digit.map((item) => {
-        return (
-			<Keypad id={item.id} key={item.id} class={item.class} icon={item.icon} onclick={() => {return this.onKeyPadClick(item.id, item.class, item.icon)} } />
-        )
-    })
+	componentWillUnmount() {
+		document.removeEventListener("keyup", this.onKeyUp)
+	}
 
 	// shouldComponentUpdate() {
 	// 	console.log("hello")
@@ -74,7 +115,7 @@ class App extends Component {
   	render = () => {
     	return (
       		<div className={mainClasses.Calculator}>
-        		<Screen onKeyUp={this.onKeyUp} screenString={this.state.screenString} />
+        		<Screen screenString={this.state.screenString} />
 				
 				<div className="Keypad">
                 	{this.digitDiv}
