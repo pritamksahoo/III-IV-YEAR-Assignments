@@ -3,6 +3,7 @@ import mainClasses from './App.module.css';
 import {Screen} from './screen/screen';
 import {Keypad} from './keypad/keypad';
 import {digit} from './keypad/digit';
+import {evaluateByPostfixConversion} from './screen/evaluate'
 import './keypad/keypad.css';
 
 class App extends Component {
@@ -16,69 +17,31 @@ class App extends Component {
         )
 	})
 
-	eval = (items, op) => {
-		return items.reduce((ans, item, pos) => {
-			if (op == '+') {
-				return ans + parseFloat(item)
-			} else if (op == '-') {
-				return pos === 0 ? parseFloat(item) : (ans - parseFloat(item))
-			} else if (op == '*') {
-				return pos === 0 ? parseFloat(item) : (ans * parseFloat(item))
-			} else if (op == '/') {
-				return pos === 0 ? parseFloat(item) : (ans / parseFloat(item))
-			}
-		}, 0.0)
-	}
-	
-	evaluate = (expr, op = ['+', '-', '*', '/'], index = 0) => {
-		if (index == 4) {
-			return expr
-		} else {
-			let exprParts = expr.split(op[index])
-			
-			let afterexprParts = exprParts.map((item, pos) => {
-				return this.evaluate(item, op, index+1)
-			})
-
-			// console.log(afterexprParts, op[index])
-
-			return this.eval(afterexprParts, op[index])
-		}
-	}
-
 	onKeyPadClick = (id, classname, icon) => {
 		// console.log("hello")
 		let allClasses = classname.split(' ')
+		let prevString = this.state.screenString
 
 		if (allClasses.indexOf("digit") >= 0) {
 			
 			if (allClasses.indexOf("decimal") >= 0) {
 				let lastSegment = this.state.screenString.split(/[*+/-]+/)
+
 				if (lastSegment[lastSegment.length - 1].indexOf(".") < 0) {
-					this.setState((prevState, prevProps) => {
-						return {screenString: prevState.screenString === "0" ? icon : prevState.screenString + icon}
-					})
+					this.setState({screenString: prevString === "0" ? icon : prevString + icon})
 				}
 			} else {
-				this.setState((prevState, prevProps) => {
-					return {screenString: prevState.screenString === "0" ? icon : prevState.screenString + icon}
-				})
+				this.setState({screenString: prevString === "0" ? icon : prevString + icon})
 			}
 
 		} else if (allClasses.indexOf("final") >= 0) {
 
-			if (id == "delete") {
-				this.setState((prevState, prevProps) => {
-					return {screenString: prevState.screenString.slice(0, prevState.screenString.length-1)}
-				})
-			} else if (id == "clear") {
-				this.setState((prevState, prevProps) => {
-					return {screenString: "0"}
-				})
-			} else if (id == "evaluate") {
-				this.setState((prevState, prevProps) => {
-					return {screenString: this.evaluate(prevState.screenString).toString()}
-				})
+			if (id === "delete") {
+				this.setState({screenString: prevString.slice(0, prevString.length-1)})
+			} else if (id === "clear") {
+				this.setState({screenString: "0"})
+			} else if (id === "evaluate") {
+				this.setState({screenString: evaluateByPostfixConversion(prevString).toString()})
 			} else {
 
 			}
@@ -91,9 +54,7 @@ class App extends Component {
 			if (lastSegment === "" || lastSegment === " " || lastSegment === ".") {
 
 			} else {
-				this.setState((prevState, prevProps) => {
-					return {screenString: prevState.screenString + icon}
-				})
+				this.setState({screenString: prevString + icon})
 			}
 		}
 	}
