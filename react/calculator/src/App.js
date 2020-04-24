@@ -14,7 +14,37 @@ class App extends Component {
         return (
 			<Keypad id={item.id} key={item.id} class={item.class} icon={item.icon} onclick={() => {return this.onKeyPadClick(item.id, item.class, item.icon)} } />
         )
-    })
+	})
+
+	eval = (items, op) => {
+		return items.reduce((ans, item, pos) => {
+			if (op == '+') {
+				return ans + parseFloat(item)
+			} else if (op == '-') {
+				return pos === 0 ? parseFloat(item) : (ans - parseFloat(item))
+			} else if (op == '*') {
+				return pos === 0 ? parseFloat(item) : (ans * parseFloat(item))
+			} else if (op == '/') {
+				return pos === 0 ? parseFloat(item) : (ans / parseFloat(item))
+			}
+		}, 0.0)
+	}
+	
+	evaluate = (expr, op = ['+', '-', '*', '/'], index = 0) => {
+		if (index == 4) {
+			return expr
+		} else {
+			let exprParts = expr.split(op[index])
+			
+			let afterexprParts = exprParts.map((item, pos) => {
+				return this.evaluate(item, op, index+1)
+			})
+
+			// console.log(afterexprParts, op[index])
+
+			return this.eval(afterexprParts, op[index])
+		}
+	}
 
 	onKeyPadClick = (id, classname, icon) => {
 		// console.log("hello")
@@ -46,10 +76,13 @@ class App extends Component {
 					return {screenString: "0"}
 				})
 			} else if (id == "evaluate") {
-				
+				this.setState((prevState, prevProps) => {
+					return {screenString: this.evaluate(prevState.screenString).toString()}
+				})
 			} else {
 
 			}
+
 		} else {
 
 			let Segment = this.state.screenString.split(/[*+/-]+/)
