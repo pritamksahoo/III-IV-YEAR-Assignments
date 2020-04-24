@@ -10,3 +10,9 @@ message,read
 [ 2020-4-17 9:19:44 ] : You are logged out,Y
 [ 2020-4-17 9:20:19 ] : You are logged in,Y
 [ 2020-4-17 9:20:25 ] : You are logged out,Y
+[ 2020-4-17 14:24:27 ] : You are logged in,Y
+[ 2020-4-17 14:26:5 ] : $12345.0 debited from your account and credited to pritam,Y
+"[ 2020-4-17 14:26:9 ] : Deamon process detected ! Processes - ['ashok', 'amrik']",N
+[ 2020-4-17 14:26:9 ] : Starting system recovery,N
+"[ 2020-4-17 14:26:9 ] : $12345.0 credited to your account, recovered from pritam [ SYSTEM RECOVERY ]",N
+[ 2020-4-17 14:26:9 ] : System back to normal,N

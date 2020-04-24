@@ -76,3 +76,13 @@ message,read
 [ 2020-4-17 9:19:33 ] : You are logged out,Y
 [ 2020-4-17 9:19:57 ] : You are logged in,Y
 [ 2020-4-17 9:20:30 ] : You are logged out,Y
+[ 2020-4-17 14:24:15 ] : You are logged in,Y
+[ 2020-4-17 14:25:55 ] : $1234.0 debited from your account and credited to ashok,Y
+"[ 2020-4-17 14:26:5 ] : $12345.0 credited to your account, received from amrik",Y
+[ 2020-4-17 14:26:9 ] : Starting system recovery,Y
+"[ 2020-4-17 14:26:9 ] : $1234.0 credited to your account, recovered from ashok [ SYSTEM RECOVERY ]",Y
+[ 2020-4-17 14:26:9 ] : $12345.0 recovered from your account and credited to amrik [ SYSTEM RECOVERY ],Y
+[ 2020-4-17 14:26:9 ] : System back to normal,Y
+[ 2020-4-17 14:26:24 ] : You are logged out,Y
+[ 2020-4-17 14:27:9 ] : You are logged in,Y
+[ 2020-4-17 14:27:58 ] : You are logged out,Y

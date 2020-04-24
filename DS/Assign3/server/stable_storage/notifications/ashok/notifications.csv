@@ -65,8 +65,14 @@ message,read
 "[ 2020-4-16 20:0:34 ] : $1000.0 credited to your account, received from pritam",Y
 [ 2020-4-16 20:1:21 ] : You are logged out,Y
 [ 2020-4-17 9:17:39 ] : You are logged in,Y
-"[ 2020-4-17 9:18:57 ] : $1300.0 credited to your account, received from amrik",N
-[ 2020-4-17 9:19:20 ] : Deamon process detected ! Processes - ['ashok'],N
-[ 2020-4-17 9:19:20 ] : Starting system recovery,N
-[ 2020-4-17 9:19:21 ] : $1300.0 recovered from your account and credited to amrik [ SYSTEM RECOVERY ],N
-[ 2020-4-17 9:19:21 ] : System back to normal,N
+"[ 2020-4-17 9:18:57 ] : $1300.0 credited to your account, received from amrik",Y
+[ 2020-4-17 9:19:20 ] : Deamon process detected ! Processes - ['ashok'],Y
+[ 2020-4-17 9:19:20 ] : Starting system recovery,Y
+[ 2020-4-17 9:19:21 ] : $1300.0 recovered from your account and credited to amrik [ SYSTEM RECOVERY ],Y
+[ 2020-4-17 9:19:21 ] : System back to normal,Y
+[ 2020-4-17 14:24:34 ] : You are logged in,Y
+"[ 2020-4-17 14:25:55 ] : $1234.0 credited to your account, received from pritam",N
+"[ 2020-4-17 14:26:9 ] : Deamon process detected ! Processes - ['ashok', 'amrik']",N
+[ 2020-4-17 14:26:9 ] : Starting system recovery,N
+[ 2020-4-17 14:26:9 ] : $1234.0 recovered from your account and credited to pritam [ SYSTEM RECOVERY ],N
+[ 2020-4-17 14:26:9 ] : System back to normal,N
