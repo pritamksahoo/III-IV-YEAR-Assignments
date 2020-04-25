@@ -21,11 +21,19 @@ export class Square extends Component {
     }
     
     shouldComponentUpdate(nextProps, nextState) {
-        // console.log(this.state.id, nextProps.curId)
+
+        let curs = {...this.state}
+		curs.curState = null
+
+		let nexts = {...nextState}
+		nexts.curState = null
+
         if (this.state.curState === null && this.state.id === nextProps.curId) {
             return true
         } else if (nextProps.gameState === 'new') {
             return true
+        } else if (curs === nexts) {
+            return false
         } else if (nextState.curState === this.state.curState) {
             return false
         } else {

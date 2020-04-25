@@ -14,12 +14,13 @@ class App extends Component {
 
 	onSquareClick = (id) => {
 		if (this.state.winner === null) {
-			this.setState((prevState, prevProps) => {
-				return {
-					curMove: prevState.curMove === null ? prevState.startMove : (prevState.curMove === 'X' ? 'O' : 'X'),
-					curId: id,
-					gameState: 'on'
-				}
+			let cmove = this.state.curMove
+			let smove = this.state.startMove
+
+			this.setState({
+				curMove: cmove === null ? smove : (cmove === 'X' ? 'O' : 'X'),
+				curId: id,
+				gameState: 'on'
 			})
 		}
 	}
@@ -34,6 +35,7 @@ class App extends Component {
 
 	checkWinner = () => {
 		let g = this.state.grid
+
 		let winConditions = [
 			[0,1,2],
 			[3,4,5],
@@ -47,15 +49,41 @@ class App extends Component {
 
 		for (let i=0; i<winConditions.length; i++) {
 			const [a,b,c] = winConditions[i]
+
 			if (g[a] && g[a] === g[b] && g[a] === g[c]) {
-				this.setState({winner: g[a], curId: null})
+				this.setState({
+					winner: g[a],
+					curId: null
+				})
 			}
 		}
 	}
 
 	declareWinner = () => {
-		let w = this.state.winner
-		return `Winner : ${w}`
+		return (
+			<div>
+				Winner : {this.state.winner}
+				<br></br>
+				<button onClick={this.startNewGame} className={appCss.newGame}>Start New Game</button>
+			</div>
+		)
+	}
+
+	nextMove = () => {
+		return (
+			<p>Next Move : {this.state.curMove === 'X' ? 'O' : 'X'}</p>
+		)
+	}
+
+	startNewGame = () => {
+		this.setState({
+			startMove: 'X',
+			curMove: null,
+			gameState: 'new',
+			curId: null,
+			winner: null,
+			grid: Array(9).fill(null)
+		})
 	}
 
 	squareArray = () => {
@@ -76,6 +104,7 @@ class App extends Component {
 				</div>
 
 				<div className={appCss.afterWin}>
+					{this.state.winner === null ? this.nextMove() : ''}
 					{this.state.winner !== null ? this.declareWinner() : ''}
 				</div>
 			</div>
@@ -91,20 +120,7 @@ class App extends Component {
 	}
 
 	componentDidUpdate() {
-		if (this.state.winner !== null) {
-			setTimeout(() => {
-				this.setState({
-					startMove: 'X',
-					curMove: null,
-					gameState: 'new',
-					curId: null,
-					winner: null,
-					grid: Array(9).fill(null)
-				})
-			}, 2000)
-		} else {
-			
-		}
+
 	}
 
 	componentWillUnmount() {

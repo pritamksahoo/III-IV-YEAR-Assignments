@@ -20,7 +20,18 @@
 .afterWin {
     display: inline-block;
     position: absolute;
-    top: 48%;
+    top: 45%;
     left: 60%;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.newGame {
+    outline: none;
+    cursor: pointer;
+    padding: 0.5em 1em;
+    background-color: rgb(7, 27, 13);
+    color: wheat;
+    margin-top: 1em;
+    border: 1px solid rgb(7, 27, 13);
+    border-radius: 4px;
 }
