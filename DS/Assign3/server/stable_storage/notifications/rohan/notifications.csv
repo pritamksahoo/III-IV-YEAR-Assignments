@@ -1,0 +1,14 @@
+message,read
+[ 2020-4-27 18:44:19 ] : Account successfully created,Y
+[ 2020-4-27 18:46:48 ] : You are logged in,Y
+[ 2020-4-27 18:47:15 ] : $9200.0 debited from your account and credited to pritam,Y
+"[ 2020-4-27 18:47:52 ] : $9800.0 credited to your account, received from satyam",Y
+"[ 2020-4-27 18:50:2 ] : $1000.0 credited to your account, received from satyam",Y
+[ 2020-4-27 18:50:19 ] : $200.0 debited from your account and credited to pritam,Y
+[ 2020-4-27 18:50:44 ] : Starting system recovery,Y
+"[ 2020-4-27 18:50:44 ] : $200.0 credited to your account, recovered from pritam [ SYSTEM RECOVERY ]",Y
+[ 2020-4-27 18:50:44 ] : $1000.0 recovered from your account and credited to satyam [ SYSTEM RECOVERY ],Y
+[ 2020-4-27 18:50:44 ] : System back to normal,Y
+[ 2020-4-27 18:51:5 ] : You are logged out,Y
+[ 2020-4-27 18:51:36 ] : You are logged in,Y
+[ 2020-4-27 18:51:43 ] : You are logged out,Y

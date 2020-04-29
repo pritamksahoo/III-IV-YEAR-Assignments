@@ -1,88 +1,14 @@
 message,read
-[ 2020-4-16 16:55:15 ] : Account successfully created,Y
-"[ 2020-4-16 16:55:42 ] : $12000.0 credited to your account, received from ashok",Y
-[ 2020-4-16 16:57:37 ] : Deamon process detected ! Processes - ['ashok'],Y
-[ 2020-4-16 16:57:37 ] : Starting system recovery,Y
-[ 2020-4-16 16:57:37 ] : System back to normal,Y
-[ 2020-4-16 16:58:42 ] : You are logged in,Y
-[ 2020-4-16 16:59:34 ] : $12.0 debited from your account and credited to pritam,Y
-"[ 2020-4-16 16:59:34 ] : $12.0 credited to your account, received from pritam",Y
-[ 2020-4-16 16:59:35 ] : Deamon process detected ! Processes - ['pritam'],Y
-[ 2020-4-16 16:59:35 ] : Starting system recovery,Y
-[ 2020-4-16 16:59:35 ] : System back to normal,Y
-"[ 2020-4-16 17:1:25 ] : $200.0 credited to your account, received from ashok",Y
-[ 2020-4-16 17:1:32 ] : Deamon process detected ! Processes - ['ashok'],Y
-[ 2020-4-16 17:1:32 ] : Starting system recovery,Y
-[ 2020-4-16 17:1:32 ] : System back to normal,Y
-[ 2020-4-16 17:2:2 ] : You are logged in,Y
-[ 2020-4-16 17:5:26 ] : You are logged out,Y
-"[ 2020-4-16 17:6:29 ] : $200.0 credited to your account, received from ashok",Y
-[ 2020-4-16 17:6:37 ] : Deamon process detected ! Processes - ['ashok'],Y
-[ 2020-4-16 17:6:37 ] : Starting system recovery,Y
-[ 2020-4-16 17:7:52 ] : Deamon process detected ! Processes - ['ashok'],Y
-[ 2020-4-16 17:7:52 ] : Starting system recovery,Y
-[ 2020-4-16 17:9:4 ] : Deamon process detected ! Processes - ['ashok'],Y
-[ 2020-4-16 17:9:4 ] : Starting system recovery,Y
-[ 2020-4-16 17:9:4 ] : $200.0 debited from your account and credited to ashok [ SYSTEM RECOVERY ],Y
-[ 2020-4-16 17:9:4 ] : System back to normal,Y
-"[ 2020-4-16 17:10:11 ] : $9000.0 credited to your account, received from ashok",Y
-[ 2020-4-16 17:10:19 ] : Deamon process detected ! Processes - ['ashok'],Y
-[ 2020-4-16 17:10:19 ] : Starting system recovery,Y
-[ 2020-4-16 17:10:19 ] : $9000.0 debited from your account and credited to ashok [ SYSTEM RECOVERY ],Y
-[ 2020-4-16 17:10:19 ] : System back to normal,Y
-[ 2020-4-16 17:10:55 ] : You are logged in,Y
-[ 2020-4-16 17:11:7 ] : You are logged out,Y
-"[ 2020-4-16 17:20:1 ] : $123.0 credited to your account, received from ashok",Y
-"[ 2020-4-16 17:20:52 ] : $7000.0 credited to your account, received from ashok",Y
-"[ 2020-4-16 17:22:7 ] : $300.0 credited to your account, received from ashok",Y
-[ 2020-4-16 19:14:34 ] : You are logged in,Y
-[ 2020-4-16 19:14:53 ] : Deamon process detected ! Processes - ['pritam'],Y
-[ 2020-4-16 19:14:53 ] : Starting system recovery,Y
-[ 2020-4-16 19:14:53 ] : System back to normal,Y
-[ 2020-4-16 19:16:30 ] : You are logged in,Y
-[ 2020-4-16 19:16:48 ] : Deamon process detected ! Processes - ['pritam'],Y
-[ 2020-4-16 19:16:48 ] : Starting system recovery,Y
-[ 2020-4-16 19:16:48 ] : System back to normal,Y
-[ 2020-4-16 19:17:20 ] : You are logged in,Y
-[ 2020-4-16 19:17:30 ] : Deamon process detected ! Processes - ['pritam'],Y
-[ 2020-4-16 19:17:30 ] : Starting system recovery,Y
-[ 2020-4-16 19:17:30 ] : System back to normal,Y
-[ 2020-4-16 19:20:36 ] : You are logged in,Y
-[ 2020-4-16 19:21:33 ] : $2000.0 debited from your account and credited to ashok,Y
-[ 2020-4-16 19:23:4 ] : Deamon process detected ! Processes - ['pritam'],Y
-[ 2020-4-16 19:23:4 ] : Starting system recovery,Y
-[ 2020-4-16 19:23:4 ] : System back to normal,Y
-[ 2020-4-16 19:51:15 ] : You are logged in,Y
-[ 2020-4-16 19:51:51 ] : $20.0 debited from your account and credited to ashok,Y
-[ 2020-4-16 19:52:54 ] : $120932.0 debited from your account and credited to ashok,Y
-[ 2020-4-16 19:53:8 ] : Deamon process detected ! Processes - ['pritam'],Y
-[ 2020-4-16 19:53:8 ] : Starting system recovery,Y
-"[ 2020-4-16 19:53:8 ] : $120932.0 credited to your account, recovered from ashok [ SYSTEM RECOVERY ]",Y
-[ 2020-4-16 19:53:8 ] : System back to normal,Y
-[ 2020-4-16 19:56:52 ] : You are logged in,Y
-"[ 2020-4-16 19:57:39 ] : $2300567.0 credited to your account, received from ashok",Y
-[ 2020-4-16 19:57:51 ] : Deamon process detected ! Processes - ['pritam'],Y
-[ 2020-4-16 19:57:51 ] : Starting system recovery,Y
-[ 2020-4-16 19:57:51 ] : $2300567.0 debited from your account and credited to ashok [ SYSTEM RECOVERY ],Y
-[ 2020-4-16 19:57:51 ] : System back to normal,Y
-[ 2020-4-16 19:58:40 ] : You are logged in,Y
-[ 2020-4-16 20:0:34 ] : $1000.0 debited from your account and credited to ashok,Y
-[ 2020-4-16 20:1:16 ] : You are logged out,Y
-[ 2020-4-17 9:17:31 ] : You are logged in,Y
-[ 2020-4-17 9:18:52 ] : $1200.0 debited from your account and credited to amrik,Y
-[ 2020-4-17 9:19:20 ] : Starting system recovery,Y
-"[ 2020-4-17 9:19:21 ] : $1200.0 credited to your account, recovered from amrik [ SYSTEM RECOVERY ]",Y
-[ 2020-4-17 9:19:21 ] : System back to normal,Y
-[ 2020-4-17 9:19:33 ] : You are logged out,Y
-[ 2020-4-17 9:19:57 ] : You are logged in,Y
-[ 2020-4-17 9:20:30 ] : You are logged out,Y
-[ 2020-4-17 14:24:15 ] : You are logged in,Y
-[ 2020-4-17 14:25:55 ] : $1234.0 debited from your account and credited to ashok,Y
-"[ 2020-4-17 14:26:5 ] : $12345.0 credited to your account, received from amrik",Y
-[ 2020-4-17 14:26:9 ] : Starting system recovery,Y
-"[ 2020-4-17 14:26:9 ] : $1234.0 credited to your account, recovered from ashok [ SYSTEM RECOVERY ]",Y
-[ 2020-4-17 14:26:9 ] : $12345.0 recovered from your account and credited to amrik [ SYSTEM RECOVERY ],Y
-[ 2020-4-17 14:26:9 ] : System back to normal,Y
-[ 2020-4-17 14:26:24 ] : You are logged out,Y
-[ 2020-4-17 14:27:9 ] : You are logged in,Y
-[ 2020-4-17 14:27:58 ] : You are logged out,Y
+[ 2020-4-27 18:44:7 ] : Account successfully created,Y
+[ 2020-4-27 18:46:19 ] : You are logged in,Y
+[ 2020-4-27 18:47:1 ] : $10200.0 debited from your account and credited to satyam,Y
+"[ 2020-4-27 18:47:15 ] : $9200.0 credited to your account, received from rohan",Y
+[ 2020-4-27 18:50:11 ] : $3000.0 debited from your account and credited to satyam,Y
+"[ 2020-4-27 18:50:19 ] : $200.0 credited to your account, received from rohan",Y
+[ 2020-4-27 18:50:44 ] : Starting system recovery,Y
+"[ 2020-4-27 18:50:44 ] : $3000.0 credited to your account, recovered from satyam [ SYSTEM RECOVERY ]",Y
+[ 2020-4-27 18:50:44 ] : $200.0 recovered from your account and credited to rohan [ SYSTEM RECOVERY ],Y
+[ 2020-4-27 18:50:44 ] : System back to normal,Y
+[ 2020-4-27 18:50:57 ] : You are logged out,Y
+[ 2020-4-27 18:51:51 ] : You are logged in,Y
+[ 2020-4-27 18:52:12 ] : You are logged out,Y
