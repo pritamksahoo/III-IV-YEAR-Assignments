@@ -4,16 +4,15 @@ const initialState = {
     prop1: false
 }
 
-const rootReducer = (state = initialState, action) => {
+const Reducer1 = (state = initialState, action) => {
+    console.log("Reducer1")
     switch (action.type) {
         case actionTypes.SUCCESS:
             return {
-                ...state,
                 prop1: true
             }
         case actionTypes.FAILURE:
             return {
-                ...state,
                 prop1: false
             }
         default:
@@ -21,4 +20,4 @@ const rootReducer = (state = initialState, action) => {
     }
 }
 
-export default rootReducer;
+export default Reducer1;
