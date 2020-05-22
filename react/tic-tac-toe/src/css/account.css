@@ -1,0 +1,64 @@
+.account-div {
+    background-color: burlywood;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    z-index: -2;
+    padding: 2em 0;
+    margin: 0;
+    min-height: 80vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.account-form {
+    width: 20%;
+    min-width: 250px;
+}
+
+a.switch-link {
+    text-decoration: none;
+    color: maroon;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+}
+
+.another-link {
+    font-size: 13px;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.message.account {
+    margin-left: 0;
+    margin-bottom: 0.7em;
+}
+
+button[type=submit]:disabled,
+.del-button:disabled,
+.flag-button:disabled,
+.dropdown-item:disabled {
+    background: linear-gradient(-60deg, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 13, 13));
+    background-size: 150% 100%;
+    color: wheat;
+    animation: busy 3s infinite forwards linear;
+}
+
+@keyframes busy {
+    0% {
+        background-position: right bottom;
+    }
+    50% {
+        background-position: left bottom;
+    }
+    100% {
+        background-position: right bottom;
+    }
+}
+
+@media (max-width: 800px) {
+    .account-form {
+        min-width: 200px;
+    }
+}

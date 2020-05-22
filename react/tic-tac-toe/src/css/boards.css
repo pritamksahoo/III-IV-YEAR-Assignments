@@ -1,0 +1,276 @@
+.main-board {
+    background-color: burlywood;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    z-index: -2;
+    padding: 2em 0;
+    margin: 0;
+    min-height: 80vh;
+}
+
+.topbar {
+    display: grid;
+    grid-template-columns: 100%;
+}
+
+.menu {
+    margin: 0.5em 1.5em;
+    font-size: 15px;
+    padding: 1em;
+    display: inline-block;
+    background-color: #664838;
+    border: 1px solid #664838;
+    border-radius: 4px;
+}
+
+.navigate.inactive {
+    color: wheat;
+    font-weight: bold;
+}
+
+.content {
+    display: grid;
+    grid-template-columns: 25% 5% 70%;
+}
+
+.boards {
+    margin: 0 1.5em;
+    padding-right: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.createForm {
+    margin: 0 1.5em;
+    padding-left: 5px;
+}
+
+.form-header {
+    margin: 0 0 0.5em 0;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.form-header.board-header {}
+
+.form-header.alt-board-header {
+    /* line-height: 30px; */
+    display: none;
+    /* line-height: 2;
+    margin-top: 0; */
+}
+
+.my-hr {
+    margin: 0 0 1em 0;
+    padding: 0;
+    outline: none;
+    box-shadow: none;
+    border: 0.5px solid #664838;
+}
+
+label {
+    font-size: 13px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+input[type=text],
+input[type=password] {
+    margin-top: 5px;
+    font-size: 13px;
+    font-family: Arial, Helvetica, sans-serif;
+    outline: none;
+    border: 1px solid burlywood;
+    height: 20px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    width: 90%;
+}
+
+button[type=submit] {
+    outline: none;
+    cursor: pointer;
+    margin-top: 1.5em;
+    padding: 0.6em 1.2em;
+    border: 1px solid burlywood;
+    border-radius: 3px;
+    /* background-color: green; */
+    background-image: linear-gradient(to right, rgb(42, 7, 29) 50%, wheat 50%);
+    background-size: 200% 100%;
+    background-position: bottom right;
+    transition: all 0.3s ease-out;
+}
+
+button[type=submit]:hover {
+    background-position: bottom left;
+    color: wheat;
+}
+
+.board-item {
+    /* width: 100%; */
+    display: grid;
+    grid-template-columns: 80% 20%;
+    background-color: wheat;
+    margin-bottom: 1em;
+    padding: 1em;
+    border: 1px solid wheat;
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+    color: rgb(54, 18, 18);
+    min-height: 30px;
+    /* cursor: pointer; */
+    word-wrap: break-word;
+}
+
+.board-item.new-board {
+    animation: slideIn 0.2s ease-in;
+}
+
+.board-item.old-board {
+    animation: fadeIn 0.3s ease-out;
+}
+
+.board-item.delete {
+    position: relative;
+    animation: slideOut 0.2s ease-in;
+}
+
+@keyframes slideOut {
+    from {
+        left: 0
+    }
+    to {
+        left: -1200px
+    }
+}
+
+@keyframes slideIn {
+    from {
+        margin-left: 100%;
+        width: 100%;
+    }
+    to {
+        margin-left: 0%;
+        width: 100%;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.board-item:hover {
+    background-color: rgb(247, 220, 170);
+}
+
+.board-link {
+    text-decoration: none;
+    color: rgb(54, 18, 18);
+    cursor: pointer;
+    /* margin-bottom: 2em; */
+}
+
+.left-span {
+    word-wrap: break-word;
+}
+
+.action-span {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-start;
+}
+
+.del-button {
+    cursor: pointer;
+    background-color: transparent;
+    padding: 0.4em 1em;
+    outline: none;
+    border: 1px solid rgb(92, 12, 12);
+    border-radius: 2px;
+    color: rgb(92, 12, 12);
+    transition: all 0.2s ease-out;
+}
+
+.del-button:hover {
+    background-color: rgb(92, 12, 12);
+    color: seashell;
+}
+
+.del-button:disabled {
+    background: linear-gradient(-60deg, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 13, 13));
+    background-size: 150% 100%;
+    color: wheat;
+    animation: busy 3s infinite forwards linear;
+}
+
+.message {
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin: 0.6em 0 0 2em;
+    font-size: 14px;
+    letter-spacing: 1px;
+    color: rgb(92, 16, 45);
+}
+
+.explore {
+    background-color: rgb(243, 217, 168);
+}
+
+small {
+    font-size: 12px;
+}
+
+::-webkit-scrollbar {
+    width: 2px;
+}
+
+
+/* Track */
+
+::-webkit-scrollbar-track {
+    background: wheat;
+}
+
+
+/* Handle */
+
+ ::-webkit-scrollbar-thumb {
+    background: rgb(107, 65, 65);
+}
+
+
+/* Handle on hover */
+
+ ::-webkit-scrollbar-thumb:hover {
+    background: rgb(78, 29, 29);
+}
+
+@media (max-width: 800px) {
+    .content {
+        grid-template-columns: 100%;
+        grid-row-gap: 10px;
+    }
+    body {
+        overflow: auto;
+    }
+    .form-header.board-header {
+        display: none;
+    }
+    .form-header.alt-board-header {
+        margin-left: 0.3em;
+        display: block;
+        line-height: 1.2;
+    }
+}
+
+@media (max-width: 375px) {
+    .board-item {
+        grid-template-columns: 100%;
+        grid-row-gap: 10px;
+    }
+}

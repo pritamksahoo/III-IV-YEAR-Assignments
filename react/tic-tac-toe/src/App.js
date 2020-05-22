@@ -1,131 +1,143 @@
 import React, {Component} from 'react';
-import {Square} from './square/Square';
-import appCss from './App.module.css';
+import axios from 'axios';
+import { connect } from 'react-redux';
+import { Route, Router, Switch, Link } from 'react-router-dom';
+import * as actions from './store/actions/actions';
+import history from './utils/history';
+
+import Account from './containers/account';
+import Boards from './containers/boards';
+import Todos from './containers/todos';
+
+import Header from './functional/header';
+import RootRedirect from './functional/rootRedirect';
+
+import './css/app.css';
 
 class App extends Component {
-	state = {
-		startMove: 'X',
-		curMove: null,
-		gameState: 'new',
-		curId: null,
-		winner: null,
-		grid: Array(9).fill(null)
+
+	backend_api = 'https://todo-flask-backend.herokuapp.com/'
+
+	constructor(props) {
+		super(props)
+
+		this.logOutBtn = React.createRef()
 	}
 
-	onSquareClick = (id) => {
-		if (this.state.winner === null) {
-			let cmove = this.state.curMove
-			let smove = this.state.startMove
-
-			this.setState({
-				curMove: cmove === null ? smove : (cmove === 'X' ? 'O' : 'X'),
-				curId: id,
-				gameState: 'on'
-			})
-		}
+	shouldComponentUpdate() {
+		return true
 	}
 
-	updateGrid = (id, icon) => {
-		let g = this.state.grid
-		g[id - 1] = icon
-		this.state.grid = g
+	handleLogOut = (username) => {
 
-		this.checkWinner()
+		this.logOutBtn.current.setAttribute("disabled", "disabled")
+		this.logOutBtn.current.setAttribute("class", "dropdown-item clicked")
+
+        axios.post(this.backend_api + 'logout/', {
+            username: username
+        })
+        .then((result) => {
+            let response = result.data
+            let [text, status_code] = response
+            if (status_code === 200) {
+				this.props.logout(username)
+				history.replace("/account/")
+            } else {
+				alert(text)
+            }
+
+            if (this.logOutBtn.current) {
+				this.logOutBtn.current.removeAttribute("disabled")
+        		this.logOutBtn.current.setAttribute("class", "dropdown-item")
+        	}
+        })
+        .catch((err) => {
+        	if (err) {
+        		alert(err)
+        		alert("Logout operation failed! Connection with server couldn't be extablished!")
+        	}
+        	if (this.logOutBtn.current) {
+        		this.logOutBtn.current.removeAttribute("disabled")
+        		this.logOutBtn.current.setAttribute("class", "dropdown-item")
+        	}
+        })
+	}
+	
+	PrivateRoute = (pathTo, componentToRender) => {
+        return (
+            this.props.isAuthenticated === true 
+            ? <Route exact path={pathTo} render={() => componentToRender} />
+            : <Route exact path={pathTo} render={() => <Account login={true} message={''} />} />
+        )
 	}
 
-	checkWinner = () => {
-		let g = this.state.grid
-
-		let winConditions = [
-			[0,1,2],
-			[3,4,5],
-			[6,7,8],
-			[0,3,6],
-			[1,4,7],
-			[2,5,8],
-			[0,4,8],
-			[2,4,6]
-		]
-
-		for (let i=0; i<winConditions.length; i++) {
-			const [a,b,c] = winConditions[i]
-
-			if (g[a] && g[a] === g[b] && g[a] === g[c]) {
-				this.setState({
-					winner: g[a],
-					curId: null
-				})
-			}
-		}
+	PrivateNoPropRoute = (pathTo, componentToRender) => {
+        return (
+            this.props.isAuthenticated === true 
+            ? <Route exact path={pathTo} component={componentToRender} />
+            : <Route exact path={pathTo} render={() => <Account login={true} message={''} />} />
+        )
 	}
-
-	declareWinner = () => {
+	
+	AuthRoute = (pathTo, componentToRender) => {
+		// console.log("auth")
 		return (
-			<div>
-				Winner : {this.state.winner}
-				<br></br>
-				<button onClick={this.startNewGame} className={appCss.newGame}>Start New Game</button>
-			</div>
+			this.props.isAuthenticated === false
+			? <Route exact path={pathTo} render={() => componentToRender} />
+			: <Route exact path="/boards" render={() => <Boards message={''} />} />
 		)
-	}
-
-	nextMove = () => {
-		return (
-			<p>Next Move : {this.state.curMove === 'X' ? 'O' : 'X'}</p>
-		)
-	}
-
-	startNewGame = () => {
-		this.setState({
-			startMove: 'X',
-			curMove: null,
-			gameState: 'new',
-			curId: null,
-			winner: null,
-			grid: Array(9).fill(null)
-		})
-	}
-
-	squareArray = () => {
-		let array = []
-
-		for (let i=1; i<=9; i++) {
-			array.push(<Square id={i} key={i} curId={this.state.curId} curMove={this.state.curMove} onClickAction={this.onSquareClick} gameState={this.state.gameState} updateGrid={this.updateGrid} />)
-		}
-
-		return array
 	}
 
 	render() {
 		return (
-			<div className={appCss.mainDiv}>
-				<div className={appCss.ticTacToe}>
-					{this.squareArray()}
-				</div>
+			<div className="App">
+				<Router history={history}>
+					<div>
+						<header className="common-header">
+							<div className="logo">
+								TODO
+							</div>
+							{
+								this.props.isAuthenticated
+								? <Header logout={() => this.handleLogOut(this.props.username)} refLogOut={this.logOutBtn} username={this.props.username} />
+								: <Link className="header-login-link" to={{pathname: '/account/'}}>LogIn</Link>
+							}
+						</header>
+						
+						<Switch>
 
-				<div className={appCss.afterWin}>
-					{this.state.winner === null ? this.nextMove() : ''}
-					{this.state.winner !== null ? this.declareWinner() : ''}
-				</div>
+							<Route exact path="/" render={() => <RootRedirect {...this.props} />} />
+							
+							{this.AuthRoute("/account/", <Account login={true} message={''} />)}
+
+							{this.PrivateRoute("/boards/", <Boards message={''} />)}
+
+							{this.PrivateNoPropRoute("/boards/:todo", Todos)}
+						</Switch>
+					</div>
+				</Router>
 			</div>
-		)
+		);
 	}
 
 	componentDidMount() {
 
 	}
+}
 
-	shouldComponentUpdate(nextProps, nextState) {
-		return true
-	}
-
-	componentDidUpdate() {
-
-	}
-
-	componentWillUnmount() {
-
+function mapStateToProps(state) {
+	return {
+		isAuthenticated: state.AuthReducer.isAuthenticated,
+		username: state.AuthReducer.user
 	}
 }
 
-export default App;
+function mapDispatchToProps(dispatch) {
+	return {
+		logout: (username) => {
+			dispatch(actions.logout(username))
+		}
+	}
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);

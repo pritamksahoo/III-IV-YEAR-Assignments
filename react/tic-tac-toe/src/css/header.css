@@ -1,0 +1,98 @@
+.profile {
+    margin-right: 1em;
+    color: burlywood;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 14px;
+    z-index: 1000;
+    margin-left: 1em;
+    word-wrap: break-word;
+}
+
+.downward-arrow {
+    font-size: 22px;
+}
+
+.profile-dropdown {
+    cursor: pointer;
+    padding-bottom: 6px;
+    vertical-align: middle;
+}
+
+.dropdown-link {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.alt-dropdown-link {
+    cursor: pointer;
+    text-decoration: none;
+    display: none;
+}
+
+.profile:hover .dropdown-div {
+    display: block;
+}
+
+.dropdown-div {
+    display: none;
+    position: absolute;
+    right: 16px;
+    top: 45px;
+    margin-top: 0px;
+    background-color: rgb(253, 247, 236);
+    border: 1px solid rgb(253, 247, 236);
+    border-radius: 2px;
+    z-index: 10;
+    padding: 2px 2px;
+    width: 150px;
+    border-top: 4px solid burlywood;
+    border-bottom: 4px solid burlywood;
+    /* border-left: 1px solid burlywood; */
+}
+
+.dropdown {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.dropdown-item {
+    color: brown;
+    padding: 0.5em 1em;
+    cursor: pointer;
+    /* margin: 2px; */
+    border-bottom: 1px solid burlywood;
+}
+
+.dropdown-item:disabled {
+    background: linear-gradient(-60deg, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 23, 13), burlywood, rgb(22, 13, 13));
+    background-size: 150% 100%;
+    color: wheat;
+    animation: busy 3s infinite forwards linear;
+}
+
+.dropdown-item:last-of-type {
+    border-bottom: none;
+}
+
+.dropdown-item:hover {
+    background-color: rgb(255, 231, 190);
+}
+
+@media (max-width: 600px) {
+    .alt-dropdown-link {
+        display: block;
+    }
+    .dropdown-link {
+        display: none;
+    }
+    .profile-icon {
+        cursor: pointer;
+        background-color: wheat;
+        border: 1px solid wheat;
+        border-radius: 50%;
+    }
+    .profile-dropdown {
+        margin-top: 0.7em;
+    }
+}
